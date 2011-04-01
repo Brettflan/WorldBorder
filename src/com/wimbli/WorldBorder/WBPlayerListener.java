@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.bukkit.World;
 
+
 public class WBPlayerListener extends PlayerListener
 {
 	@Override

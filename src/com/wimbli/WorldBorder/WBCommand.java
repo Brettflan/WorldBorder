@@ -8,6 +8,7 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.World;
 
+
 public class WBCommand implements CommandExecutor
 {
     private WorldBorder plugin;

@@ -18,6 +18,7 @@ import org.bukkit.util.config.ConfigurationNode;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
+
 public class Config
 {
 	// private stuff used within this class

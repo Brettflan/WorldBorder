@@ -7,7 +7,9 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-public class BorderData {
+
+public class BorderData
+{
 	// the main data interacted with
 	private double x = 0;
 	private double z = 0;

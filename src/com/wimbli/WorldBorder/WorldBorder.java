@@ -6,10 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 
-/**
- *
- * @author Brett Flannigan
- */
+
 public class WorldBorder extends JavaPlugin
 {
 	WBPlayerListener playerListener = new WBPlayerListener();
