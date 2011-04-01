@@ -1,0 +1,20 @@
+name: WorldBorder
+author: Brettflan
+description: Limit the size of your worlds with a border, round or square.
+version: 0.9
+main: com.wimbli.WorldBorder.WorldBorder
+commands:
+  wborder:
+    description: Primary command for WorldBorder.
+    aliases: [worldborder, wb]
+    usage: |
+           /<command> - list available commands (show help).
+           /<command> set <radius> - set world border, centered on you.
+           /<command> [world] set <radius> <x> <z> - set world border.
+           /<command> radius <radius> - change border radius for this world.
+           /<command> [world] clear - remove border for this world.
+           /<command> clear all - remove border for all worlds.
+           /<command> list - show border information for all worlds.
+           /<command> shape <round|square> - set the border shape.
+           /<command> getmsg - display border message.
+           /<command> setmsg <text> - set border message.
