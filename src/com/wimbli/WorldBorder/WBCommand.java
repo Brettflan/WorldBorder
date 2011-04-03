@@ -24,7 +24,7 @@ public class WBCommand implements CommandExecutor
 		Player player = (sender instanceof Player) ? (Player)sender : null;
 
 		String cmd = ChatColor.AQUA + ((player == null) ? "wborder" : "/wborder");
-		String cmdW =  ChatColor.AQUA + ((player == null) ? "wborder " + ChatColor.GREEN + "<world>" : "/wborder " + ChatColor.DARK_AQUA + "[world]") + ChatColor.AQUA;
+		String cmdW =  ChatColor.AQUA + ((player == null) ? "wborder " + ChatColor.DARK_GREEN + "<world>" : "/wborder " + ChatColor.GREEN + "[world]") + ChatColor.AQUA;
 
 		// "set" command from player or console, world specified
 		if (split.length == 5 && split[1].equalsIgnoreCase("set"))
@@ -93,7 +93,7 @@ public class WBCommand implements CommandExecutor
 			int radius;
 			try
 			{
-				radius = Integer.parseInt(split[1]);
+				radius = Integer.parseInt(split[2]);
 			}
 			catch(NumberFormatException ex)
 			{
@@ -102,7 +102,9 @@ public class WBCommand implements CommandExecutor
 			}
 
 			Config.setBorder(world, radius, x, z);
-			sender.sendMessage("Radius has been set. " + Config.BorderDescription(world));
+
+			if (player != null)
+				sender.sendMessage("Radius has been set. " + Config.BorderDescription(world));
 		}
 
 		// "radius" command from player, using current world
@@ -274,18 +276,18 @@ public class WBCommand implements CommandExecutor
 		{
 			if (!Config.HasPermission(player, "help")) return true;
 
-			sender.sendMessage(ChatColor.WHITE + plugin.getDescription().getFullName() + " - commands (" + (player != null ? ChatColor.DARK_AQUA + "[optional] " : "") + ChatColor.GREEN + "<required>" + ChatColor.WHITE + "):");
+			sender.sendMessage(ChatColor.WHITE + plugin.getDescription().getFullName() + " - commands (" + (player != null ? ChatColor.GREEN + "[optional] " : "") + ChatColor.DARK_GREEN + "<required>" + ChatColor.WHITE + "):");
 			if (player != null)
-				sender.sendMessage(cmd+" set " + ChatColor.GREEN + "<radius>" + ChatColor.WHITE + " - set world border, centered on you.");
-			sender.sendMessage(cmdW+" set " + ChatColor.GREEN + "<radius> <x> <z>" + ChatColor.WHITE + " - set world border.");
-			sender.sendMessage(cmdW+" radius " + ChatColor.GREEN + "<radius>" + ChatColor.WHITE + " - change border radius for this world.");
+				sender.sendMessage(cmd+" set " + ChatColor.DARK_GREEN + "<radius>" + ChatColor.WHITE + " - set world border, centered on you.");
+			sender.sendMessage(cmdW+" set " + ChatColor.DARK_GREEN + "<radius> <x> <z>" + ChatColor.WHITE + " - set world border.");
+			sender.sendMessage(cmdW+" radius " + ChatColor.DARK_GREEN + "<radius>" + ChatColor.WHITE + " - change a border radius.");
 			sender.sendMessage(cmdW+" clear" + ChatColor.WHITE + " - remove border for this world.");
 			sender.sendMessage(cmd+" clear all" + ChatColor.WHITE + " - remove border for all worlds.");
 			sender.sendMessage(cmd+" list" + ChatColor.WHITE + " - show border information for all worlds.");
-			sender.sendMessage(cmd+" shape " + ChatColor.GREEN + "<round|square>" + ChatColor.WHITE + " - set the border shape.");
+			sender.sendMessage(cmd+" shape " + ChatColor.DARK_GREEN + "<round|square>" + ChatColor.WHITE + " - set the border shape.");
 			sender.sendMessage(cmd+" getmsg" + ChatColor.WHITE + " - display border message.");
-			sender.sendMessage(cmd+" setmsg " + ChatColor.GREEN + "<text>" + ChatColor.WHITE + " - set border message.");
-			if (player != null)
+			sender.sendMessage(cmd+" setmsg " + ChatColor.DARK_GREEN + "<text>" + ChatColor.WHITE + " - set border message.");
+			if (player == null)
 				sender.sendMessage(cmd+" reload" + ChatColor.WHITE + " - re-load data from config.yml.");
 		}
 

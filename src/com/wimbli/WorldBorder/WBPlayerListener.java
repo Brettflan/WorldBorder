@@ -25,26 +25,8 @@ public class WBPlayerListener extends PlayerListener
 		if (border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound()))
 			return;
 
-		if (Config.DEBUG)
-		{
-			Config.LogWarn("Border crossing. Border " + border.toString());
-			Config.LogWarn("Player position X: " + Config.coord.format(loc.getX()) + " Y: " + Config.coord.format(loc.getY()) + " Z: " + Config.coord.format(loc.getZ()));
-		}
+		Location newLoc = newLocation(player, loc, border);
 
-		Location newLoc = border.correctedPosition(loc, Config.ShapeRound());
-
-		// it's remotely possible (such as in the Nether) a suitable location isn't available, in which case...
-		if (newLoc == null)
-		{
-			if (Config.DEBUG)
-				Config.LogWarn("Target new location unviable, using spawn.");
-			newLoc = player.getServer().getWorlds().get(0).getSpawnLocation();
-		}
-
-		if (Config.DEBUG)
-			Config.LogWarn("New position X: " + Config.coord.format(newLoc.getX()) + " Y: " + Config.coord.format(newLoc.getY()) + " Z: " + Config.coord.format(newLoc.getZ()));
-
-		player.sendMessage(ChatColor.RED + Config.Message());
 		player.teleport(newLoc);
 	}
 
@@ -65,25 +47,7 @@ public class WBPlayerListener extends PlayerListener
 		if (border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound()))
 			return;
 
-		if (Config.DEBUG)
-		{
-			Config.LogWarn("Border crossing. Border " + border.toString());
-			Config.LogWarn("Player position X: " + Config.coord.format(loc.getX()) + " Y: " + Config.coord.format(loc.getY()) + " Z: " + Config.coord.format(loc.getZ()));
-		}
-
-		Location newLoc = border.correctedPosition(loc, Config.ShapeRound());
-
-		if (newLoc == null)
-		{
-			if (Config.DEBUG)
-				Config.LogWarn("Target new location unviable, using spawn.");
-			newLoc = player.getServer().getWorlds().get(0).getSpawnLocation();
-		}
-
-		if (Config.DEBUG)
-			Config.LogWarn("New position X: " + Config.coord.format(newLoc.getX()) + " Y: " + Config.coord.format(newLoc.getY()) + " Z: " + Config.coord.format(newLoc.getZ()));
-
-		player.sendMessage(ChatColor.RED + Config.Message());
+		Location newLoc = newLocation(player, loc, border);
 
 		if (!player.isInsideVehicle())
 			player.teleport(newLoc);
@@ -114,6 +78,23 @@ public class WBPlayerListener extends PlayerListener
 		if (border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound()))
 			return;
 
+		Location newLoc = newLocation(player, loc, border);
+
+		if (!player.isInsideVehicle())
+			player.teleport(newLoc);
+		else
+		{
+			newLoc.setY(newLoc.getY() + 1);
+			player.getVehicle().setVelocity(new Vector(0, 0, 0));
+			player.getVehicle().teleport(newLoc);
+		}
+
+		event.setTo(newLoc);
+	}
+
+
+	private static Location newLocation(Player player, Location loc, BorderData border)
+	{
 		if (Config.DEBUG)
 		{
 			Config.LogWarn("Border crossing. Border " + border.toString());
@@ -122,6 +103,7 @@ public class WBPlayerListener extends PlayerListener
 
 		Location newLoc = border.correctedPosition(loc, Config.ShapeRound());
 
+		// it's remotely possible (such as in the Nether) a suitable location isn't available, in which case...
 		if (newLoc == null)
 		{
 			if (Config.DEBUG)
@@ -134,15 +116,6 @@ public class WBPlayerListener extends PlayerListener
 
 		player.sendMessage(ChatColor.RED + Config.Message());
 
-		if (!player.isInsideVehicle())
-			player.teleport(newLoc);
-		else
-		{
-			newLoc.setY(newLoc.getY() + 1);
-			player.getVehicle().setVelocity(new Vector(0, 0, 0));
-			player.getVehicle().teleport(newLoc);
-		}
-
-		event.setTo(newLoc);
+		return newLoc;
 	}
 }

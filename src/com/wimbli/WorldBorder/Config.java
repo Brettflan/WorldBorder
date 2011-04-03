@@ -1,6 +1,7 @@
 package com.wimbli.WorldBorder;
 
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
+import org.anjocaido.groupmanager.GroupManager;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -25,13 +27,14 @@ public class Config
 	private static WorldBorder plugin;
 	private static Configuration cfg = null;
 	private static PermissionHandler Permissions = null;
+	private static GroupManager GroupPlugin = null;
 	private static final Logger mcLog = Logger.getLogger("Minecraft");
 	public static DecimalFormat coord = new DecimalFormat("0.0");
 	public static final boolean DEBUG = false;
 
 	// actual configuration values which can be changed
 	private static boolean shapeRound = false;
-	private static Map<String, BorderData> borders = new HashMap<String, BorderData>();
+	private static Map<String, BorderData> borders = Collections.synchronizedMap(new HashMap<String, BorderData>());
 	private static String message;
 
 	public static void setBorder(String world, BorderData border)
@@ -112,10 +115,24 @@ public class Config
 
 	public static void loadPermissions(WorldBorder plugin)
 	{
-		if (Permissions != null || plugin == null)
+		if (GroupPlugin != null || Permissions != null || plugin == null)
 			return;
 
-		Plugin test = plugin.getServer().getPluginManager().getPlugin("Permissions");
+		// try GroupManager first
+		Plugin test = plugin.getServer().getPluginManager().getPlugin("GroupManager");
+
+		if (test != null)
+		{
+            if (!test.isEnabled()) {
+                plugin.getServer().getPluginManager().enablePlugin(test);
+            }
+            GroupPlugin = (GroupManager) test;
+			LogConfig("Will use plugin for permissions: "+((GroupManager)test).getDescription().getFullName());
+			return;
+		}
+
+		// if GroupManager isn't available, try Permissions
+		test = plugin.getServer().getPluginManager().getPlugin("Permissions");
 
 		if (test != null)
 		{
@@ -132,9 +149,17 @@ public class Config
 			return true;
 		else if (player.isOp())			// Op, always permitted
 			return true;
-		else if (Permissions == null	// Permissions plugin not available, or doesn't have permission
-				|| !Permissions.permission(player, "worldborder." + request))
+		else if (GroupPlugin != null)	// GroupManager plugin available
 		{
+			if (GroupPlugin.getWorldsHolder().getWorldPermissions(player).has(player, "worldborder." + request))
+				return true;
+			player.sendMessage("You do not have sufficient permissions to do that.");
+			return false;
+		}
+		else if (Permissions != null)	// Permissions plugin available
+		{
+			if (Permissions.permission(player, "worldborder." + request))
+				return true;
 			player.sendMessage("You do not have sufficient permissions to do that.");
 			return false;
 		}

@@ -80,11 +80,14 @@ public class BorderData
 	// This algorithm of course needs to be fast, since it will be run very frequently
 	public boolean insideBorder(double xLoc, double zLoc, boolean round)
 	{
-		if (!round)	// square border
-			return (xLoc > minX && xLoc < maxX && zLoc > minZ && zLoc < maxZ);
-		else		// round border
+		// square border
+		if (!round)
+			return !(xLoc < minX || xLoc > maxX || zLoc < minZ || zLoc > maxZ);
+
+		// round border
+		else
 		{
-			// round border checking algorithm is from rBorder by Reil with almost no changes, thanks
+			// elegant round border checking algorithm is from rBorder by Reil with almost no changes, all credit to him for it
 			double X = Math.abs(x - xLoc);
 			double Z = Math.abs(z - zLoc);
 
@@ -93,7 +96,7 @@ public class BorderData
 			else if (X >= radius || Z >= radius)
 				return false;	// Definitely outside
 			else if (X * X + Z * Z < radiusSquared)
-				return true;	// After much calculation, inside
+				return true;	// After further calculation, inside
 			else
 				return false;	// Apparently outside, then
 		}
@@ -105,7 +108,8 @@ public class BorderData
 		double zLoc = loc.getZ();
 		double yLoc = loc.getY();
 
-		if (!round)	// square border
+		// square border
+		if (!round)
 		{
 			if (xLoc <= minX)
 				xLoc = minX + 3;
@@ -116,7 +120,9 @@ public class BorderData
 			else if (zLoc >= maxZ)
 				zLoc = maxZ - 3;
 		}
-		else		// round border
+
+		// round border
+		else
 		{
 			// algorithm from: http://stackoverflow.com/questions/300871/best-way-to-find-a-point-on-a-circle-closest-to-a-given-point
 			double vX = xLoc - x;
@@ -147,9 +153,9 @@ public class BorderData
 	private boolean isSafeSpot(World world, int X, int Y, int Z)
 	{
 		Integer below = (Integer)world.getBlockAt(X, Y - 1, Z).getTypeId();
-		return (acceptableBlocks.contains((Integer)world.getBlockAt(X, Y, Z).getTypeId())		// target block breatheable
-			 && acceptableBlocks.contains((Integer)world.getBlockAt(X, Y + 1, Z).getTypeId())	// above target block breathable
-			 && !acceptableBlocks.contains(below)												// below target block not breathable (probably solid)
+		return (acceptableBlocks.contains((Integer)world.getBlockAt(X, Y, Z).getTypeId())		// target block breathable, or is water
+			 && acceptableBlocks.contains((Integer)world.getBlockAt(X, Y + 1, Z).getTypeId())	// above target block breathable, or is water
+			 && (!acceptableBlocks.contains(below) || below == 8 || below == 9)					// below target block not breathable (probably solid), or is water
 			 && !painfulBlocks.contains(below)													// below target block not something painful
 			);
 	}
