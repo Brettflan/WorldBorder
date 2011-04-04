@@ -23,8 +23,8 @@ public class WBCommand implements CommandExecutor
 	{
 		Player player = (sender instanceof Player) ? (Player)sender : null;
 
-		String cmd = ChatColor.AQUA + ((player == null) ? "wborder" : "/wborder");
-		String cmdW =  ChatColor.AQUA + ((player == null) ? "wborder " + ChatColor.DARK_GREEN + "<world>" : "/wborder " + ChatColor.GREEN + "[world]") + ChatColor.AQUA;
+		String cmd = ChatColor.AQUA + ((player == null) ? "wb" : "/wb");
+		String cmdW =  ChatColor.AQUA + ((player == null) ? "wb " + ChatColor.GREEN + "<world>" : "/wb " + ChatColor.DARK_GREEN + "[world]") + ChatColor.AQUA;
 
 		// "set" command from player or console, world specified
 		if (split.length == 5 && split[1].equalsIgnoreCase("set"))
@@ -271,24 +271,41 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage("WorldBorder configuration reloaded.");
 		}
 
+		// "debug" command from player or console
+		else if (split.length == 2 && split[0].equalsIgnoreCase("debug"))
+		{
+			if (!Config.HasPermission(player, "debug")) return true;
+
+			Config.setDebug(split[1].equalsIgnoreCase("on"));
+
+			if (player != null)
+				Config.Log((Config.Debug() ? "Enabling" : "Disabling") + " debug output at the command of player \"" + player.getName() + "\".");
+
+			if (player != null)
+				sender.sendMessage("Debug mode " + (Config.Debug() ? "enabled" : "disabled") + ".");
+		}
+
 		// we couldn't decipher any known commands, so show help
 		else
 		{
 			if (!Config.HasPermission(player, "help")) return true;
 
-			sender.sendMessage(ChatColor.WHITE + plugin.getDescription().getFullName() + " - commands (" + (player != null ? ChatColor.GREEN + "[optional] " : "") + ChatColor.DARK_GREEN + "<required>" + ChatColor.WHITE + "):");
+			sender.sendMessage(ChatColor.WHITE + plugin.getDescription().getFullName() + " - commands (" + (player != null ? ChatColor.DARK_GREEN + "[optional] " : "") + ChatColor.GREEN + "<required>" + ChatColor.WHITE + "):");
 			if (player != null)
-				sender.sendMessage(cmd+" set " + ChatColor.DARK_GREEN + "<radius>" + ChatColor.WHITE + " - set world border, centered on you.");
-			sender.sendMessage(cmdW+" set " + ChatColor.DARK_GREEN + "<radius> <x> <z>" + ChatColor.WHITE + " - set world border.");
-			sender.sendMessage(cmdW+" radius " + ChatColor.DARK_GREEN + "<radius>" + ChatColor.WHITE + " - change a border radius.");
+				sender.sendMessage(cmd+" set " + ChatColor.GREEN + "<radius>" + ChatColor.WHITE + " - set world border, centered on you.");
+			sender.sendMessage(cmdW+" set " + ChatColor.GREEN + "<radius> <x> <z>" + ChatColor.WHITE + " - set world border.");
+			sender.sendMessage(cmdW+" radius " + ChatColor.GREEN + "<radius>" + ChatColor.WHITE + " - change a border radius.");
 			sender.sendMessage(cmdW+" clear" + ChatColor.WHITE + " - remove border for this world.");
 			sender.sendMessage(cmd+" clear all" + ChatColor.WHITE + " - remove border for all worlds.");
 			sender.sendMessage(cmd+" list" + ChatColor.WHITE + " - show border information for all worlds.");
-			sender.sendMessage(cmd+" shape " + ChatColor.DARK_GREEN + "<round|square>" + ChatColor.WHITE + " - set the border shape.");
+			sender.sendMessage(cmd+" shape " + ChatColor.GREEN + "<round|square>" + ChatColor.WHITE + " - set the border shape.");
 			sender.sendMessage(cmd+" getmsg" + ChatColor.WHITE + " - display border message.");
-			sender.sendMessage(cmd+" setmsg " + ChatColor.DARK_GREEN + "<text>" + ChatColor.WHITE + " - set border message.");
+			sender.sendMessage(cmd+" setmsg " + ChatColor.GREEN + "<text>" + ChatColor.WHITE + " - set border message.");
 			if (player == null)
+			{
 				sender.sendMessage(cmd+" reload" + ChatColor.WHITE + " - re-load data from config.yml.");
+				sender.sendMessage(cmd+" debug " + ChatColor.GREEN + "<on|off>" + ChatColor.WHITE + " - turn console debug output on or off.");
+			}
 		}
 
 		return true;

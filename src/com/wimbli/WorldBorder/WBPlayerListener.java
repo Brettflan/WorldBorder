@@ -95,7 +95,7 @@ public class WBPlayerListener extends PlayerListener
 
 	private static Location newLocation(Player player, Location loc, BorderData border)
 	{
-		if (Config.DEBUG)
+		if (Config.Debug())
 		{
 			Config.LogWarn("Border crossing. Border " + border.toString());
 			Config.LogWarn("Player position X: " + Config.coord.format(loc.getX()) + " Y: " + Config.coord.format(loc.getY()) + " Z: " + Config.coord.format(loc.getZ()));
@@ -106,12 +106,12 @@ public class WBPlayerListener extends PlayerListener
 		// it's remotely possible (such as in the Nether) a suitable location isn't available, in which case...
 		if (newLoc == null)
 		{
-			if (Config.DEBUG)
+			if (Config.Debug())
 				Config.LogWarn("Target new location unviable, using spawn.");
 			newLoc = player.getServer().getWorlds().get(0).getSpawnLocation();
 		}
 
-		if (Config.DEBUG)
+		if (Config.Debug())
 			Config.LogWarn("New position X: " + Config.coord.format(newLoc.getX()) + " Y: " + Config.coord.format(newLoc.getY()) + " Z: " + Config.coord.format(newLoc.getZ()));
 
 		player.sendMessage(ChatColor.RED + Config.Message());

@@ -30,12 +30,12 @@ public class Config
 	private static GroupManager GroupPlugin = null;
 	private static final Logger mcLog = Logger.getLogger("Minecraft");
 	public static DecimalFormat coord = new DecimalFormat("0.0");
-	public static final boolean DEBUG = false;
 
 	// actual configuration values which can be changed
 	private static boolean shapeRound = false;
 	private static Map<String, BorderData> borders = Collections.synchronizedMap(new HashMap<String, BorderData>());
 	private static String message;
+	private static boolean DEBUG = false;
 
 	public static void setBorder(String world, BorderData border)
 	{
@@ -111,6 +111,18 @@ public class Config
 	public static boolean ShapeRound()
 	{
 		return shapeRound;
+	}
+
+	public static void setDebug(boolean debugMode)
+	{
+		DEBUG = debugMode;
+		Log("Debug mode " + (DEBUG ? "enabled" : "disabled") + ".");
+		save(true);
+	}
+
+	public static boolean Debug()
+	{
+		return DEBUG;
 	}
 
 	public static void loadPermissions(WorldBorder plugin)
@@ -193,6 +205,7 @@ public class Config
 		message = cfg.getString("message");
 		shapeRound = cfg.getBoolean("round-border", false);
 		LogConfig("Using " + (shapeRound ? "round" : "square") + " border shape.");
+		DEBUG = cfg.getBoolean("debug-mode", false);
 
 		borders.clear();
 
@@ -228,6 +241,7 @@ public class Config
 
 		cfg.setProperty("message", message);
 		cfg.setProperty("round-border", shapeRound);
+		cfg.setProperty("debug-mode", DEBUG);
 
 		cfg.removeProperty("worlds");
 		Iterator world = borders.entrySet().iterator();
