@@ -11,4 +11,4 @@ This plugin is intended to be able to supersede BorderGuard Lite and rBorder in 
 More Info
 =========
 
-http://forums.bukkit.org/threads/mech-worldborder-v1-0-borders-for-multiple-worlds-round-or-square-617.11309
+<a href="http://forums.bukkit.org/threads/mech-worldborder-v1-0-borders-for-multiple-worlds-round-or-square-617.11309">Bukkit Forum Topic</a>
