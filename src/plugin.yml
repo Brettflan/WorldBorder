@@ -1,7 +1,7 @@
 name: WorldBorder
 author: Brettflan
 description: Limit the size of your worlds with a border, round or square.
-version: 1.0
+version: 1.0.1
 main: com.wimbli.WorldBorder.WorldBorder
 commands:
   wborder:

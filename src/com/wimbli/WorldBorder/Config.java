@@ -216,7 +216,7 @@ public class Config
 			while(world.hasNext())
 			{
 				Entry wdata = (Entry)world.next();
-				String name = (String)wdata.getKey();
+				String name = ((String)wdata.getKey()).replace("/", ".");
 				ConfigurationNode bord = (ConfigurationNode)wdata.getValue();
 				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radius", 0));
 				borders.put(name, border);
@@ -250,9 +250,9 @@ public class Config
 			Entry wdata = (Entry)world.next();
 			String name = (String)wdata.getKey();
 			BorderData bord = (BorderData)wdata.getValue();
-			cfg.setProperty("worlds." + name + ".x", bord.getX());
-			cfg.setProperty("worlds." + name + ".z", bord.getZ());
-			cfg.setProperty("worlds." + name + ".radius", bord.getRadius());
+			cfg.setProperty("worlds." + name.replace(".", "/") + ".x", bord.getX());
+			cfg.setProperty("worlds." + name.replace(".", "/") + ".z", bord.getZ());
+			cfg.setProperty("worlds." + name.replace(".", "/") + ".radius", bord.getRadius());
 		}
 
 		cfg.save();
