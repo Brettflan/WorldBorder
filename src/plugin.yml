@@ -1,7 +1,7 @@
 name: WorldBorder
 author: Brettflan
 description: Limit the size of your worlds with a border, round or square.
-version: 1.0.1
+version: 1.1
 main: com.wimbli.WorldBorder.WorldBorder
 commands:
   wborder:
@@ -18,3 +18,5 @@ commands:
            /<command> shape <round|square> - set the border shape.
            /<command> getmsg - display border message.
            /<command> setmsg <text> - set border message.
+           /<command> knockback <distance> - how far to move the player back.
+           /<command> delay <amount> - time between border checks.

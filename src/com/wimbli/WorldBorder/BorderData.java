@@ -1,8 +1,7 @@
 package com.wimbli.WorldBorder;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedHashSet;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -112,13 +111,13 @@ public class BorderData
 		if (!round)
 		{
 			if (xLoc <= minX)
-				xLoc = minX + 3;
+				xLoc = minX + Config.KnockBack();
 			else if (xLoc >= maxX)
-				xLoc = maxX - 3;
+				xLoc = maxX - Config.KnockBack();
 			if (zLoc <= minZ)
-				zLoc = minZ + 3;
+				zLoc = minZ + Config.KnockBack();
 			else if (zLoc >= maxZ)
-				zLoc = maxZ - 3;
+				zLoc = maxZ - Config.KnockBack();
 		}
 
 		// round border
@@ -128,8 +127,8 @@ public class BorderData
 			double vX = xLoc - x;
 			double vZ = zLoc - z;
 			double magV = Math.sqrt(vX*vX + vZ*vZ);
-			xLoc = x + vX / magV * (radius - 3);
-			zLoc = z + vZ / magV * (radius - 3);
+			xLoc = x + vX / magV * (radius - Config.KnockBack());
+			zLoc = z + vZ / magV * (radius - Config.KnockBack());
 		}
 
 		yLoc = getSafeY(loc.getWorld(), Location.locToBlock(xLoc), Location.locToBlock(yLoc), Location.locToBlock(zLoc));
@@ -140,12 +139,12 @@ public class BorderData
 	}
 
 	//these material IDs are acceptable for places to teleport player; breathable blocks and water
-	private static Set<Integer> acceptableBlocks = new HashSet<Integer>(Arrays.asList(
+	private static LinkedHashSet<Integer> acceptableBlocks = new LinkedHashSet<Integer>(Arrays.asList(
 		 new Integer[] {0, 6, 8, 9, 37, 38, 39, 40, 50, 55, 59, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 83, 93, 94}
 	));
 
-	//these material IDs are ones we don't want to drop the player onto
-	private static Set<Integer> painfulBlocks = new HashSet<Integer>(Arrays.asList(
+	//these material IDs are ones we don't want to drop the player onto, like cactus or lava
+	private static LinkedHashSet<Integer> painfulBlocks = new LinkedHashSet<Integer>(Arrays.asList(
 		 new Integer[] {10, 11, 81}
 	));
 

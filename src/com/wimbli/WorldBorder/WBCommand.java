@@ -285,26 +285,106 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage("Debug mode " + (Config.Debug() ? "enabled" : "disabled") + ".");
 		}
 
+		// "knockback" command from player or console
+		else if (split.length == 2 && split[0].equalsIgnoreCase("knockback"))
+		{
+			if (!Config.HasPermission(player, "knockback")) return true;
+
+			double numBlocks = 0.0;
+			try
+			{
+				numBlocks = Double.parseDouble(split[1]);
+			}
+			catch(NumberFormatException ex)
+			{
+				sender.sendMessage(ChatColor.RED + "The knockback must be a decimal value above 0.");
+				return true;
+			}
+
+			if (numBlocks <= 0.0)
+			{
+				sender.sendMessage(ChatColor.RED + "The knockback must be a decimal value above 0.");
+				return true;
+			}
+
+			Config.setKnockBack(numBlocks);
+
+			if (player != null)
+				sender.sendMessage("Knockback set to " + numBlocks + " blocks inside the border.");
+		}
+
+		// "delay" command from player or console
+		else if (split.length == 2 && split[0].equalsIgnoreCase("delay"))
+		{
+			if (!Config.HasPermission(player, "delay")) return true;
+
+			int delay = 0;
+			try
+			{
+				delay = Integer.parseInt(split[1]);
+			}
+			catch(NumberFormatException ex)
+			{
+				sender.sendMessage(ChatColor.RED + "The timer delay must be an integer of 1 or higher.");
+				return true;
+			}
+			if (delay < 1)
+			{
+				sender.sendMessage(ChatColor.RED + "The timer delay must be an integer of 1 or higher.");
+				return true;
+			}
+
+			Config.setTimerTicks(delay);
+
+			if (player != null)
+				sender.sendMessage("Timer delay set to " + delay + " tick(s). That is roughly " + (delay * 50) + "ms.");
+		}
+
 		// we couldn't decipher any known commands, so show help
 		else
 		{
 			if (!Config.HasPermission(player, "help")) return true;
 
-			sender.sendMessage(ChatColor.WHITE + plugin.getDescription().getFullName() + " - commands (" + (player != null ? ChatColor.DARK_GREEN + "[optional] " : "") + ChatColor.GREEN + "<required>" + ChatColor.WHITE + "):");
-			if (player != null)
-				sender.sendMessage(cmd+" set " + ChatColor.GREEN + "<radius>" + ChatColor.WHITE + " - set world border, centered on you.");
-			sender.sendMessage(cmdW+" set " + ChatColor.GREEN + "<radius> <x> <z>" + ChatColor.WHITE + " - set world border.");
-			sender.sendMessage(cmdW+" radius " + ChatColor.GREEN + "<radius>" + ChatColor.WHITE + " - change a border radius.");
-			sender.sendMessage(cmdW+" clear" + ChatColor.WHITE + " - remove border for this world.");
-			sender.sendMessage(cmd+" clear all" + ChatColor.WHITE + " - remove border for all worlds.");
-			sender.sendMessage(cmd+" list" + ChatColor.WHITE + " - show border information for all worlds.");
-			sender.sendMessage(cmd+" shape " + ChatColor.GREEN + "<round|square>" + ChatColor.WHITE + " - set the border shape.");
-			sender.sendMessage(cmd+" getmsg" + ChatColor.WHITE + " - display border message.");
-			sender.sendMessage(cmd+" setmsg " + ChatColor.GREEN + "<text>" + ChatColor.WHITE + " - set border message.");
-			if (player == null)
+			int page = (player == null) ? 0 : 1;
+			if (split.length == 1)
 			{
+				try
+				{
+					page = Integer.parseInt(split[0]);
+				}
+				catch(NumberFormatException ex)
+				{
+				}
+				if (page > 2)
+					page = 1;
+			}
+
+			sender.sendMessage(ChatColor.YELLOW + plugin.getDescription().getFullName() + " - commands (" + (player != null ? ChatColor.DARK_GREEN + "[optional] " : "") + ChatColor.GREEN + "<required>" + ChatColor.YELLOW + ")" + (page > 0 ? " " + page + "/2" : "") + ":");
+
+			if (page == 0 || page == 1)
+			{
+				if (player != null)
+					sender.sendMessage(cmd+" set " + ChatColor.GREEN + "<radius>" + ChatColor.WHITE + " - set world border, centered on you.");
+				sender.sendMessage(cmdW+" set " + ChatColor.GREEN + "<radius> <x> <z>" + ChatColor.WHITE + " - set world border.");
+				sender.sendMessage(cmdW+" radius " + ChatColor.GREEN + "<radius>" + ChatColor.WHITE + " - change a border radius.");
+				sender.sendMessage(cmdW+" clear" + ChatColor.WHITE + " - remove border for this world.");
+				sender.sendMessage(cmd+" clear all" + ChatColor.WHITE + " - remove border for all worlds.");
+				sender.sendMessage(cmd+" list" + ChatColor.WHITE + " - show border information for all worlds.");
+				sender.sendMessage(cmd+" shape " + ChatColor.GREEN + "<round|square>" + ChatColor.WHITE + " - set the border shape.");
+				sender.sendMessage(cmd+" knockback " + ChatColor.GREEN + "<distance>" + ChatColor.WHITE + " - how far to move the player back.");
+				if (page == 1)
+					sender.sendMessage(cmd+" 2" + ChatColor.WHITE + " - view second page of commands.");
+			}
+
+			if (page == 0 || page == 2)
+			{
+				sender.sendMessage(cmd+" getmsg" + ChatColor.WHITE + " - display border message.");
+				sender.sendMessage(cmd+" setmsg " + ChatColor.GREEN + "<text>" + ChatColor.WHITE + " - set border message.");
+				sender.sendMessage(cmd+" delay " + ChatColor.GREEN + "<amount>" + ChatColor.WHITE + " - time between border checks.");
 				sender.sendMessage(cmd+" reload" + ChatColor.WHITE + " - re-load data from config.yml.");
 				sender.sendMessage(cmd+" debug " + ChatColor.GREEN + "<on|off>" + ChatColor.WHITE + " - turn console debug output on or off.");
+				if (page == 2)
+					sender.sendMessage(cmd + ChatColor.WHITE + " - view first page of commands.");
 			}
 		}
 

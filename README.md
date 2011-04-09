@@ -11,4 +11,4 @@ This plugin is intended to be able to supersede BorderGuard Lite and rBorder in 
 More Info
 =========
 
-<a href="http://forums.bukkit.org/threads/worldborder-617.11309/">Bukkit Forum Topic</a>
+<a href="http://forums.bukkit.org/threads/worldborder.11309/">Bukkit Forum Topic</a>

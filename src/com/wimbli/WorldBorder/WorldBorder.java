@@ -13,8 +13,8 @@ public class WorldBorder extends JavaPlugin
 
 	public void onEnable()
 	{
-        PluginDescriptionFile desc = this.getDescription();
-        System.out.println( desc.getName() + " version " + desc.getVersion() + " loading" );
+		PluginDescriptionFile desc = this.getDescription();
+		System.out.println( desc.getName() + " version " + desc.getVersion() + " loading" );
 
 		// Load (or create new) config file, and connect to Permissions if it's available
 		Config.load(this, false);
@@ -35,7 +35,8 @@ public class WorldBorder extends JavaPlugin
 
 	public void onDisable()
 	{
-        PluginDescriptionFile desc = this.getDescription();
-        System.out.println( desc.getName() + " version " + desc.getVersion() + " shutting down" );
+		PluginDescriptionFile desc = this.getDescription();
+		System.out.println( desc.getName() + " version " + desc.getVersion() + " shutting down" );
+		Config.StopBorderTimer();
 	}
 }

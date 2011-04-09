@@ -2,7 +2,7 @@ package com.wimbli.WorldBorder;
 
 import java.text.DecimalFormat;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -30,12 +30,16 @@ public class Config
 	private static GroupManager GroupPlugin = null;
 	private static final Logger mcLog = Logger.getLogger("Minecraft");
 	public static DecimalFormat coord = new DecimalFormat("0.0");
+	private static int borderTask = -1;
+	public static Set<String> movedPlayers = Collections.synchronizedSet(new HashSet<String>());
 
 	// actual configuration values which can be changed
 	private static boolean shapeRound = false;
-	private static Map<String, BorderData> borders = Collections.synchronizedMap(new HashMap<String, BorderData>());
+	private static Map<String, BorderData> borders = Collections.synchronizedMap(new LinkedHashMap<String, BorderData>());
 	private static String message;
 	private static boolean DEBUG = false;
+	private static double knockBack = 3.0;
+	private static int timerTicks = 4;
 
 	public static void setBorder(String world, BorderData border)
 	{
@@ -125,6 +129,54 @@ public class Config
 		return DEBUG;
 	}
 
+	public static void setKnockBack(double numBlocks)
+	{
+		knockBack = numBlocks;
+		Log("Knockback set to " + knockBack + " blocks inside the border.");
+		save(true);
+	}
+
+	public static double KnockBack()
+	{
+		return knockBack;
+	}
+
+	public static void setTimerTicks(int ticks)
+	{
+		timerTicks = ticks;
+		Log("Timer delay set to " + timerTicks + " tick(s). That is roughly " + (timerTicks * 50) + "ms.");
+		StartBorderTimer();
+		save(true);
+	}
+
+	public static int TimerTicks()
+	{
+		return timerTicks;
+	}
+
+
+	public static void StartBorderTimer()
+	{
+		StopBorderTimer();
+
+		borderTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new BorderCheckTask(plugin.getServer()), timerTicks, timerTicks);
+
+		if (borderTask == -1)
+			LogWarn("Failed to start timed border-checking task! This will prevent the plugin from working. Try restarting Bukkit.");
+
+		LogConfig("Border-checking timed task started.");
+	}
+
+	public static void StopBorderTimer()
+	{
+		if (borderTask == -1) return;
+
+		plugin.getServer().getScheduler().cancelTask(borderTask);
+		borderTask = -1;
+		LogConfig("Border-checking timed task stopped.");
+	}
+
+
 	public static void loadPermissions(WorldBorder plugin)
 	{
 		if (GroupPlugin != null || Permissions != null || plugin == null)
@@ -179,6 +231,7 @@ public class Config
 			return true;
 	}
 
+
 	public static void Log(Level lvl, String text)
 	{
 		String name = (plugin == null) ? "WorldBorder" : plugin.getDescription().getName();
@@ -197,17 +250,32 @@ public class Config
 		Log(Level.INFO, "[CONFIG] " + text);
 	}
 
+
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
 		plugin = master;
 		cfg = plugin.getConfiguration();
 
+		int cfgVersion = cfg.getInt("cfg-version", 1);
+
 		message = cfg.getString("message");
 		shapeRound = cfg.getBoolean("round-border", false);
-		LogConfig("Using " + (shapeRound ? "round" : "square") + " border shape.");
 		DEBUG = cfg.getBoolean("debug-mode", false);
+		knockBack = cfg.getDouble("knock-back-dist", 3.0);
+		timerTicks = cfg.getInt("timer-delay-ticks", 5);
+		LogConfig("Using " + (shapeRound ? "round" : "square") + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
+
+		StartBorderTimer();
 
 		borders.clear();
+
+		if (message == null || message.isEmpty())
+		{	// store defaults
+			LogConfig("Configuration not present, creating new file.");
+			message = "You have reached the edge of this world.";
+			save(false);
+			return;
+		}
 
 		Map<String, ConfigurationNode> worlds = cfg.getNodes("worlds");
 		if (worlds != null)
@@ -216,7 +284,14 @@ public class Config
 			while(world.hasNext())
 			{
 				Entry wdata = (Entry)world.next();
-				String name = ((String)wdata.getKey()).replace("/", ".");
+
+				String name = null;
+				// we're swapping "¨" (from extended ASCII set) and "." back and forth at save and load since periods denote configuration nodes, and world names with periods otherwise wreak havoc
+				if (cfgVersion > 1)
+					name = ((String)wdata.getKey()).replace("¨", ".");
+				else	// old v1 format, periods encoded as slashes, which had problems
+					name = ((String)wdata.getKey()).replace("/", ".");
+
 				ConfigurationNode bord = (ConfigurationNode)wdata.getValue();
 				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radius", 0));
 				borders.put(name, border);
@@ -224,24 +299,23 @@ public class Config
 			}
 		}
 
-		if (message == null || message.isEmpty())
-		{	// store defaults
-			LogConfig("Configuration not present, creating new file.");
-			message = "You have reached the edge of this world.";
-			shapeRound = false;
-			save(false);
-		}
-		else if (logIt)
+		if (logIt)
 			LogConfig("Configuration loaded.");
+
+		if (cfgVersion < 2)
+			save(false);
 	}
 
 	public static void save(boolean logIt)
 	{	// save config to file
 		if (cfg == null) return;
 
+		cfg.setProperty("cfg-version", 2);
 		cfg.setProperty("message", message);
 		cfg.setProperty("round-border", shapeRound);
 		cfg.setProperty("debug-mode", DEBUG);
+		cfg.setProperty("knock-back-dist", knockBack);
+		cfg.setProperty("timer-delay-ticks", timerTicks);
 
 		cfg.removeProperty("worlds");
 		Iterator world = borders.entrySet().iterator();
@@ -250,9 +324,9 @@ public class Config
 			Entry wdata = (Entry)world.next();
 			String name = (String)wdata.getKey();
 			BorderData bord = (BorderData)wdata.getValue();
-			cfg.setProperty("worlds." + name.replace(".", "/") + ".x", bord.getX());
-			cfg.setProperty("worlds." + name.replace(".", "/") + ".z", bord.getZ());
-			cfg.setProperty("worlds." + name.replace(".", "/") + ".radius", bord.getRadius());
+			cfg.setProperty("worlds." + name.replace(".", "¨") + ".x", bord.getX());
+			cfg.setProperty("worlds." + name.replace(".", "¨") + ".z", bord.getZ());
+			cfg.setProperty("worlds." + name.replace(".", "¨") + ".radius", bord.getRadius());
 		}
 
 		cfg.save();
