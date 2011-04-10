@@ -1,5 +1,6 @@
 package com.wimbli.WorldBorder;
 
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 import org.bukkit.ChatColor;
@@ -11,7 +12,7 @@ import org.bukkit.World;
 
 public class BorderCheckTask implements Runnable
 {
-	Server server;
+	Server server = null;
 
 	public BorderCheckTask(Server theServer)
 	{
@@ -20,14 +21,22 @@ public class BorderCheckTask implements Runnable
 
 	public void run()
 	{
-		if (Config.movedPlayers.isEmpty())
+		if (Config.movedPlayers.isEmpty() || server == null)
 			return;
 
 		for (Iterator<String> p = Config.movedPlayers.iterator(); p.hasNext();)
 		{
-			String playerName = p.next();
-			Player player = server.getPlayer(playerName);
-			p.remove();
+			Player player = null;
+			try
+			{
+				String playerName = p.next();
+				player = server.getPlayer(playerName);
+				p.remove();
+			}
+			catch (ConcurrentModificationException ex)
+			{
+				continue;
+			}
 
 			if (player == null || !player.isOnline()) continue;
 
