@@ -35,7 +35,8 @@ public class BorderCheckTask implements Runnable
 			}
 			catch (ConcurrentModificationException ex)
 			{
-				continue;
+				// trying to 'continue' here instead can lead to server crash, so...
+				return;
 			}
 
 			if (player == null || !player.isOnline()) continue;
