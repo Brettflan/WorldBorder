@@ -1,10 +1,8 @@
 package com.wimbli.WorldBorder;
 
-import java.util.ConcurrentModificationException;
-import java.util.Iterator;
-
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.util.Vector;
@@ -21,28 +19,21 @@ public class BorderCheckTask implements Runnable
 
 	public void run()
 	{
-		if (Config.movedPlayers.isEmpty() || server == null)
-			return;
+//		long startTime = Config.Now();  // for monitoring plugin efficiency
+		Player[] players = server.getOnlinePlayers();
 
-		for (Iterator<String> p = Config.movedPlayers.iterator(); p.hasNext();)
+		if (server == null)
 		{
-			Player player = null;
-			try
-			{
-				String playerName = p.next();
-				player = server.getPlayer(playerName);
-				p.remove();
-			}
-			catch (ConcurrentModificationException ex)
-			{
-				// trying to 'continue' here instead can lead to server crash, so...
-				return;
-			}
+//			Config.timeUsed += Config.Now() - startTime;  // for monitoring plugin efficiency
+			return;
+		}
 
-			if (player == null || !player.isOnline()) continue;
+		for (int i = 0; i < players.length; i++){
+			if (players[i] == null || !players[i].isOnline()) continue;
 
-			Location loc = player.getLocation();
+			Location loc = players[i].getLocation();
 			if (loc == null) continue;
+
 			World world = loc.getWorld();
 			if (world == null) continue;
 			BorderData border = Config.Border(world.getName());
@@ -51,18 +42,28 @@ public class BorderCheckTask implements Runnable
 			if (border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound()))
 				continue;
 
-			Location newLoc = newLocation(player, loc, border);
+			Location newLoc = newLocation(players[i], loc, border);
 
-			if (!player.isInsideVehicle())
-				player.teleport(newLoc);
+			if (!players[i].isInsideVehicle())
+				players[i].teleport(newLoc);
 			else
-			{	// vehicles need to be offset vertically and have velocity stopped
-				double vertOffset = player.getVehicle().getLocation().getY() - loc.getY();
-				newLoc.setY(newLoc.getY() + vertOffset);
-				player.getVehicle().setVelocity(new Vector(0, 0, 0));
-				player.getVehicle().teleport(newLoc);
+			{
+				Vehicle ride = players[i].getVehicle();
+				if (ride != null)
+				{	// vehicles need to be offset vertically and have velocity stopped
+					double vertOffset = ride.getLocation().getY() - loc.getY();
+					newLoc.setY(newLoc.getY() + vertOffset);
+					ride.setVelocity(new Vector(0, 0, 0));
+					ride.teleport(newLoc);
+				}
+				else
+				{	// when riding a pig, player.getVehicle() returns null; so, we unfortunately need to eject player in this rare case
+					players[i].leaveVehicle();
+					players[i].teleport(newLoc);
+				}
 			}
 		}
+//		Config.timeUsed += Config.Now() - startTime;  // for monitoring plugin efficiency
 	}
 
 	private static Location newLocation(Player player, Location loc, BorderData border)

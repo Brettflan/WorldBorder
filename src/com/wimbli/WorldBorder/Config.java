@@ -1,6 +1,7 @@
 package com.wimbli.WorldBorder;
 
 import java.text.DecimalFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.HashSet;
@@ -40,6 +41,14 @@ public class Config
 	private static boolean DEBUG = false;
 	private static double knockBack = 3.0;
 	private static int timerTicks = 4;
+
+/*	// for monitoring plugin efficiency
+	public static long timeUsed = 0;
+	public static long Now()
+	{
+		return Calendar.getInstance().getTimeInMillis();
+	}
+*/
 
 	public static void setBorder(String world, BorderData border)
 	{
@@ -144,7 +153,7 @@ public class Config
 	public static void setTimerTicks(int ticks)
 	{
 		timerTicks = ticks;
-		Log("Timer delay set to " + timerTicks + " tick(s). That is roughly " + (timerTicks * 50) + "ms.");
+		Log("Timer delay set to " + timerTicks + " tick(s). That is roughly " + (timerTicks * 50) + "ms / " + (((double)timerTicks * 50.0) / 1000.0) + " seconds.");
 		StartBorderTimer();
 		save(true);
 	}
