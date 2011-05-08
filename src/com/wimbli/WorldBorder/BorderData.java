@@ -13,6 +13,7 @@ public class BorderData
 	private double x = 0;
 	private double z = 0;
 	private int radius = 0;
+	private Boolean shapeRound = null;
 
 	// some extra data kept handy for faster border checks
 	private double maxX;
@@ -24,6 +25,14 @@ public class BorderData
 
 	public BorderData(double x, double z, int radius)
 	{
+		setData(x, z, radius, null);
+	}
+	public BorderData(double x, double z, int radius, Boolean shapeRound)
+	{
+		setData(x, z, radius, shapeRound);
+	}
+	public void setData(double x, double z, int radius, Boolean shapeRound)
+	{
 		this.x = x;
 		this.z = z;
 		this.radius = radius;
@@ -32,6 +41,7 @@ public class BorderData
 		this.maxZ = z + radius;
 		this.minZ = z - radius;
 		this.radiusSquared = radius * radius;
+		this.shapeRound = shapeRound;
 		this.DefiniteSquare = Math.sqrt(.5 * this.radiusSquared);
 	}
 
@@ -70,15 +80,28 @@ public class BorderData
 		this.DefiniteSquare = Math.sqrt(.5 * this.radiusSquared);
 	}
 
+	public Boolean getShape()
+	{
+		return shapeRound;
+	}
+	public void setShape(Boolean shapeRound)
+	{
+		this.shapeRound = shapeRound;
+	}
+
 	@Override
 	public String toString()
 	{
-		return "radius " + radius + " at X: " + Config.coord.format(x) + " Z: " + Config.coord.format(z);
+		return "radius " + radius + " at X: " + Config.coord.format(x) + " Z: " + Config.coord.format(z) + (shapeRound != null ? (" (shape override: " + (shapeRound.booleanValue() ? "round" : "square") + ")") : "");
 	}
 
 	// This algorithm of course needs to be fast, since it will be run very frequently
 	public boolean insideBorder(double xLoc, double zLoc, boolean round)
 	{
+		// if this border has a shape override set, use it
+		if (shapeRound != null)
+			round = shapeRound.booleanValue();
+
 		// square border
 		if (!round)
 			return !(xLoc < minX || xLoc > maxX || zLoc < minZ || zLoc > maxZ);
@@ -103,6 +126,10 @@ public class BorderData
 
 	public Location correctedPosition(Location loc, boolean round)
 	{
+		// if this border has a shape override set, use it
+		if (shapeRound != null)
+			round = shapeRound.booleanValue();
+
 		double xLoc = loc.getX();
 		double zLoc = loc.getZ();
 		double yLoc = loc.getY();
@@ -159,11 +186,12 @@ public class BorderData
 			);
 	}
 
+	static final private int limTop = 120, limBot = 1;
+
 	// find closest safe Y position from the starting position
 	private double getSafeY(World world, int X, int Y, int Z)
 	{
 		// Expanding Y search method adapted from Acru's code in the Nether plugin
-		int limTop = 120, limBot = 1;
 
 		for(int y1 = Y, y2 = Y; (y1 > limBot) || (y2 < limTop); y1--, y2++){
 			// Look below.

@@ -190,7 +190,7 @@ public class WBCommand implements CommandExecutor
 		{
 			if (!Config.HasPermission(player, "list")) return true;
 
-			sender.sendMessage("Border shape for all worlds is \"" + (Config.ShapeRound() ? "round" : "square") + "\".");
+			sender.sendMessage("Default border shape for all worlds is \"" + (Config.ShapeRound() ? "round" : "square") + "\".");
 
 			Set<String> list = Config.BorderDescriptions();
 
@@ -223,7 +223,7 @@ public class WBCommand implements CommandExecutor
 			}
 
 			if (player != null)
-				sender.sendMessage("Border shape for all worlds is now set to \"" + (Config.ShapeRound() ? "round" : "square") + "\".");
+				sender.sendMessage("Default border shape for all worlds is now set to \"" + (Config.ShapeRound() ? "round" : "square") + "\".");
 		}
 
 		// "getmsg" command from player or console
@@ -340,6 +340,57 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage("Timer delay set to " + delay + " tick(s). That is roughly " + (delay * 50) + "ms.");
 		}
 
+		// "wshape" command from player or console, world specified
+		else if (split.length == 3 && split[0].equalsIgnoreCase("wshape"))
+		{
+			if (!Config.HasPermission(player, "wshape")) return true;
+
+			String world = split[1];
+			BorderData border = Config.Border(world);
+			if (border == null)
+			{
+				sender.sendMessage("The world you specified (\"" + world + "\") does not have a border set.");
+				return true;
+			}
+
+			Boolean shape = null;
+			if (split[2].equalsIgnoreCase("square"))
+				shape = false;
+			else if (split[2].equalsIgnoreCase("round"))
+				shape = true;
+
+			border.setShape(shape);
+			Config.setBorder(world, border);
+
+			if (player != null)
+				sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : (shape.booleanValue() ? "round" : "square")) + "\".");
+		}
+
+		// "wshape" command from player, using current world
+		else if (split.length == 2 && split[0].equalsIgnoreCase("wshape") && player != null)
+		{
+			if (!Config.HasPermission(player, "wshape")) return true;
+
+			String world = player.getWorld().getName();
+			BorderData border = Config.Border(world);
+			if (border == null)
+			{
+				sender.sendMessage("This world (\"" + world + "\") does not have a border set.");
+				return true;
+			}
+
+			Boolean shape = null;
+			if (split[1].equalsIgnoreCase("square"))
+				shape = false;
+			else if (split[1].equalsIgnoreCase("round"))
+				shape = true;
+
+			border.setShape(shape);
+			Config.setBorder(world, border);
+
+			sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : (shape.booleanValue() ? "round" : "square")) + "\".");
+		}
+
 		// we couldn't decipher any known commands, so show help
 		else
 		{
@@ -370,7 +421,7 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage(cmdW+" clear" + ChatColor.WHITE + " - remove border for this world.");
 				sender.sendMessage(cmd+" clear all" + ChatColor.WHITE + " - remove border for all worlds.");
 				sender.sendMessage(cmd+" list" + ChatColor.WHITE + " - show border information for all worlds.");
-				sender.sendMessage(cmd+" shape " + ChatColor.GREEN + "<round|square>" + ChatColor.WHITE + " - set the border shape.");
+				sender.sendMessage(cmd+" shape " + ChatColor.GREEN + "<round|square>" + ChatColor.WHITE + " - set the default border shape.");
 				sender.sendMessage(cmd+" knockback " + ChatColor.GREEN + "<distance>" + ChatColor.WHITE + " - how far to move the player back.");
 				if (page == 1)
 					sender.sendMessage(cmd+" 2" + ChatColor.WHITE + " - view second page of commands.");
@@ -378,6 +429,7 @@ public class WBCommand implements CommandExecutor
 
 			if (page == 0 || page == 2)
 			{
+				sender.sendMessage(cmd+" wshape " + ((player == null) ? ChatColor.GREEN + "<world>" : ChatColor.DARK_GREEN + "[world]") + ChatColor.GREEN + " <round|square|default>" + ChatColor.WHITE + " - shape override.");
 				sender.sendMessage(cmd+" getmsg" + ChatColor.WHITE + " - display border message.");
 				sender.sendMessage(cmd+" setmsg " + ChatColor.GREEN + "<text>" + ChatColor.WHITE + " - set border message.");
 				sender.sendMessage(cmd+" delay " + ChatColor.GREEN + "<amount>" + ChatColor.WHITE + " - time between border checks.");

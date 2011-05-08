@@ -56,9 +56,15 @@ public class Config
 		Log("Border set. " + BorderDescription(world));
 		save(true);
 	}
+	public static void setBorder(String world, int radius, double x, double z, Boolean shapeRound)
+	{
+		setBorder(world, new BorderData(x, z, radius, shapeRound));
+	}
 	public static void setBorder(String world, int radius, double x, double z)
 	{
-		setBorder(world, new BorderData(x, z, radius));
+		BorderData old = Border(world);
+		Boolean oldShape = (old == null) ? null : old.getShape();
+		setBorder(world, new BorderData(x, z, radius, oldShape));
 	}
 
 	public static void removeBorder(String world)
@@ -117,7 +123,7 @@ public class Config
 	public static void setShape(boolean round)
 	{
 		shapeRound = round;
-		Log("Set border shape to " + (round ? "round" : "square") + ".");
+		Log("Set default border shape to " + (round ? "round" : "square") + ".");
 		save(true);
 	}
 
@@ -302,7 +308,8 @@ public class Config
 					name = ((String)wdata.getKey()).replace("/", ".");
 
 				ConfigurationNode bord = (ConfigurationNode)wdata.getValue();
-				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radius", 0));
+				Boolean overrideShape = (Boolean) bord.getProperty("shape-round");
+				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radius", 0), overrideShape);
 				borders.put(name, border);
 				LogConfig(BorderDescription(name));
 			}
@@ -333,9 +340,13 @@ public class Config
 			Entry wdata = (Entry)world.next();
 			String name = (String)wdata.getKey();
 			BorderData bord = (BorderData)wdata.getValue();
+
 			cfg.setProperty("worlds." + name.replace(".", "¨") + ".x", bord.getX());
 			cfg.setProperty("worlds." + name.replace(".", "¨") + ".z", bord.getZ());
 			cfg.setProperty("worlds." + name.replace(".", "¨") + ".radius", bord.getRadius());
+
+			if (bord.getShape() != null)
+				cfg.setProperty("worlds." + name.replace(".", "¨") + ".shape-round", bord.getShape());
 		}
 
 		cfg.save();
