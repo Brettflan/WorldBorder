@@ -13,6 +13,14 @@ public class WBCommand implements CommandExecutor
 {
     private WorldBorder plugin;
 
+	// color values for strings
+	private final String clrCmd = ChatColor.AQUA.toString();		// main commands
+	private final String clrReq = ChatColor.GREEN.toString();		// required values
+	private final String clrOpt = ChatColor.DARK_GREEN.toString();	// optional values
+	private final String clrDesc = ChatColor.WHITE.toString();		// command descriptions
+	private final String clrHead = ChatColor.YELLOW.toString();		// command listing header
+	private final String clrErr = ChatColor.RED.toString();			// errors / notices
+
 	public WBCommand (WorldBorder plugin)
 	{
         this.plugin = plugin;
@@ -23,8 +31,8 @@ public class WBCommand implements CommandExecutor
 	{
 		Player player = (sender instanceof Player) ? (Player)sender : null;
 
-		String cmd = ChatColor.AQUA + ((player == null) ? "wb" : "/wb");
-		String cmdW =  ChatColor.AQUA + ((player == null) ? "wb " + ChatColor.GREEN + "<world>" : "/wb " + ChatColor.DARK_GREEN + "[world]") + ChatColor.AQUA;
+		String cmd = clrCmd + ((player == null) ? "wb" : "/wb");
+		String cmdW =  clrCmd + ((player == null) ? "wb " + clrReq + "<world>" : "/wb " + clrOpt + "[world]") + clrCmd;
 
 		// "set" command from player or console, world specified
 		if (split.length == 5 && split[1].equalsIgnoreCase("set"))
@@ -66,7 +74,7 @@ public class WBCommand implements CommandExecutor
 			}
 			catch(NumberFormatException ex)
 			{
-				sender.sendMessage(ChatColor.RED + "The radius value must be an integer.");
+				sender.sendMessage(clrErr + "The radius value must be an integer.");
 				return true;
 			}
 
@@ -84,7 +92,7 @@ public class WBCommand implements CommandExecutor
 			BorderData border = Config.Border(world);
 			if (border == null)
 			{
-				sender.sendMessage(ChatColor.RED + "That world (\"" + world + "\") must first have a border set normally.");
+				sender.sendMessage(clrErr + "That world (\"" + world + "\") must first have a border set normally.");
 				return true;
 			}
 
@@ -97,7 +105,7 @@ public class WBCommand implements CommandExecutor
 			}
 			catch(NumberFormatException ex)
 			{
-				sender.sendMessage(ChatColor.RED + "The radius value must be an integer.");
+				sender.sendMessage(clrErr + "The radius value must be an integer.");
 				return true;
 			}
 
@@ -117,7 +125,7 @@ public class WBCommand implements CommandExecutor
 			BorderData border = Config.Border(world);
 			if (border == null)
 			{
-				sender.sendMessage(ChatColor.RED + "This world (\"" + world + "\") must first have a border set normally.");
+				sender.sendMessage(clrErr + "This world (\"" + world + "\") must first have a border set normally.");
 				return true;
 			}
 
@@ -130,7 +138,7 @@ public class WBCommand implements CommandExecutor
 			}
 			catch(NumberFormatException ex)
 			{
-				sender.sendMessage(ChatColor.RED + "The radius value must be an integer.");
+				sender.sendMessage(clrErr + "The radius value must be an integer.");
 				return true;
 			}
 
@@ -166,7 +174,7 @@ public class WBCommand implements CommandExecutor
 			BorderData border = Config.Border(world);
 			if (border == null)
 			{
-				sender.sendMessage(ChatColor.RED + "Your current world (\"" + world + "\") does not have a border set.");
+				sender.sendMessage(clrErr + "Your current world (\"" + world + "\") does not have a border set.");
 				return true;
 			}
 
@@ -232,7 +240,7 @@ public class WBCommand implements CommandExecutor
 			if (!Config.HasPermission(player, "getmsg")) return true;
 
 			sender.sendMessage("Border message is currently set to:");
-			sender.sendMessage(ChatColor.RED + Config.Message());
+			sender.sendMessage(clrErr + Config.Message());
 		}
 
 		// "setmsg" command from player or console
@@ -253,7 +261,7 @@ public class WBCommand implements CommandExecutor
 			if (player != null)
 			{
 				sender.sendMessage("Border message is now set to:");
-				sender.sendMessage(ChatColor.RED + Config.Message());
+				sender.sendMessage(clrErr + Config.Message());
 			}
 		}
 
@@ -297,13 +305,13 @@ public class WBCommand implements CommandExecutor
 			}
 			catch(NumberFormatException ex)
 			{
-				sender.sendMessage(ChatColor.RED + "The knockback must be a decimal value above 0.");
+				sender.sendMessage(clrErr + "The knockback must be a decimal value above 0.");
 				return true;
 			}
 
 			if (numBlocks <= 0.0)
 			{
-				sender.sendMessage(ChatColor.RED + "The knockback must be a decimal value above 0.");
+				sender.sendMessage(clrErr + "The knockback must be a decimal value above 0.");
 				return true;
 			}
 
@@ -325,12 +333,12 @@ public class WBCommand implements CommandExecutor
 			}
 			catch(NumberFormatException ex)
 			{
-				sender.sendMessage(ChatColor.RED + "The timer delay must be an integer of 1 or higher.");
+				sender.sendMessage(clrErr + "The timer delay must be an integer of 1 or higher.");
 				return true;
 			}
 			if (delay < 1)
 			{
-				sender.sendMessage(ChatColor.RED + "The timer delay must be an integer of 1 or higher.");
+				sender.sendMessage(clrErr + "The timer delay must be an integer of 1 or higher.");
 				return true;
 			}
 
@@ -410,33 +418,33 @@ public class WBCommand implements CommandExecutor
 					page = 1;
 			}
 
-			sender.sendMessage(ChatColor.YELLOW + plugin.getDescription().getFullName() + " - commands (" + (player != null ? ChatColor.DARK_GREEN + "[optional] " : "") + ChatColor.GREEN + "<required>" + ChatColor.YELLOW + ")" + (page > 0 ? " " + page + "/2" : "") + ":");
+			sender.sendMessage(clrHead + plugin.getDescription().getFullName() + " - commands (" + (player != null ? clrOpt + "[optional] " : "") + clrReq + "<required>" + clrHead + ")" + (page > 0 ? " " + page + "/2" : "") + ":");
 
 			if (page == 0 || page == 1)
 			{
 				if (player != null)
-					sender.sendMessage(cmd+" set " + ChatColor.GREEN + "<radius>" + ChatColor.WHITE + " - set world border, centered on you.");
-				sender.sendMessage(cmdW+" set " + ChatColor.GREEN + "<radius> <x> <z>" + ChatColor.WHITE + " - set world border.");
-				sender.sendMessage(cmdW+" radius " + ChatColor.GREEN + "<radius>" + ChatColor.WHITE + " - change a border radius.");
-				sender.sendMessage(cmdW+" clear" + ChatColor.WHITE + " - remove border for this world.");
-				sender.sendMessage(cmd+" clear all" + ChatColor.WHITE + " - remove border for all worlds.");
-				sender.sendMessage(cmd+" list" + ChatColor.WHITE + " - show border information for all worlds.");
-				sender.sendMessage(cmd+" shape " + ChatColor.GREEN + "<round|square>" + ChatColor.WHITE + " - set the default border shape.");
-				sender.sendMessage(cmd+" knockback " + ChatColor.GREEN + "<distance>" + ChatColor.WHITE + " - how far to move the player back.");
+					sender.sendMessage(cmd+" set " + clrReq + "<radius>" + clrDesc + " - set world border, centered on you.");
+				sender.sendMessage(cmdW+" set " + clrReq + "<radius> <x> <z>" + clrDesc + " - set world border.");
+				sender.sendMessage(cmdW+" radius " + clrReq + "<radius>" + clrDesc + " - change a border radius.");
+				sender.sendMessage(cmdW+" clear" + clrDesc + " - remove border for this world.");
+				sender.sendMessage(cmd+" clear all" + clrDesc + " - remove border for all worlds.");
+				sender.sendMessage(cmd+" list" + clrDesc + " - show border information for all worlds.");
+				sender.sendMessage(cmd+" shape " + clrReq + "<round|square>" + clrDesc + " - set the default border shape.");
+				sender.sendMessage(cmd+" knockback " + clrReq + "<distance>" + clrDesc + " - how far to move the player back.");
 				if (page == 1)
-					sender.sendMessage(cmd+" 2" + ChatColor.WHITE + " - view second page of commands.");
+					sender.sendMessage(cmd+" 2" + clrDesc + " - view second page of commands.");
 			}
 
 			if (page == 0 || page == 2)
 			{
-				sender.sendMessage(cmd+" wshape " + ((player == null) ? ChatColor.GREEN + "<world>" : ChatColor.DARK_GREEN + "[world]") + ChatColor.GREEN + " <round|square|default>" + ChatColor.WHITE + " - shape override.");
-				sender.sendMessage(cmd+" getmsg" + ChatColor.WHITE + " - display border message.");
-				sender.sendMessage(cmd+" setmsg " + ChatColor.GREEN + "<text>" + ChatColor.WHITE + " - set border message.");
-				sender.sendMessage(cmd+" delay " + ChatColor.GREEN + "<amount>" + ChatColor.WHITE + " - time between border checks.");
-				sender.sendMessage(cmd+" reload" + ChatColor.WHITE + " - re-load data from config.yml.");
-				sender.sendMessage(cmd+" debug " + ChatColor.GREEN + "<on|off>" + ChatColor.WHITE + " - turn console debug output on or off.");
+				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <round|square|default>" + clrDesc + " - shape override.");
+				sender.sendMessage(cmd+" getmsg" + clrDesc + " - display border message.");
+				sender.sendMessage(cmd+" setmsg " + clrReq + "<text>" + clrDesc + " - set border message.");
+				sender.sendMessage(cmd+" delay " + clrReq + "<amount>" + clrDesc + " - time between border checks.");
+				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
+				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
 				if (page == 2)
-					sender.sendMessage(cmd + ChatColor.WHITE + " - view first page of commands.");
+					sender.sendMessage(cmd + clrDesc + " - view first page of commands.");
 			}
 		}
 
@@ -456,7 +464,7 @@ public class WBCommand implements CommandExecutor
 		}
 		catch(NumberFormatException ex)
 		{
-			sender.sendMessage(ChatColor.RED + "The radius value must be an integer and the x and z values must be numerical.");
+			sender.sendMessage(clrErr + "The radius value must be an integer and the x and z values must be numerical.");
 			return false;
 		}
 
