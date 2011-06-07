@@ -123,6 +123,10 @@ public class BorderData
 				return false;	// Apparently outside, then
 		}
 	}
+	public boolean insideBorder(double xLoc, double zLoc)
+	{
+		return insideBorder(xLoc, zLoc, Config.ShapeRound());
+	}
 
 	public Location correctedPosition(Location loc, boolean round)
 	{
@@ -163,6 +167,10 @@ public class BorderData
 			return null;
 
 		return new Location(loc.getWorld(), Math.floor(xLoc) + 0.5, yLoc, Math.floor(zLoc) + 0.5, loc.getYaw(), loc.getPitch());
+	}
+	public Location correctedPosition(Location loc)
+	{
+		return correctedPosition(loc, Config.ShapeRound());
 	}
 
 	//these material IDs are acceptable for places to teleport player; breathable blocks and water

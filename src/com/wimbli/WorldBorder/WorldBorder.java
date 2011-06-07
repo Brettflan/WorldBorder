@@ -41,4 +41,10 @@ public class WorldBorder extends JavaPlugin
 		System.out.println( desc.getName() + " version " + desc.getVersion() + " shutting down" );
 		Config.StopBorderTimer();
 	}
+
+	// for other plugins to hook into
+	public BorderData GetWorldBorder(String worldName)
+	{
+		return Config.Border(worldName);
+	}
 }
