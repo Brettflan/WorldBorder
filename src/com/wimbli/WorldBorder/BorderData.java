@@ -127,6 +127,10 @@ public class BorderData
 	{
 		return insideBorder(xLoc, zLoc, Config.ShapeRound());
 	}
+	public boolean insideBorder(Location loc)
+	{
+		return insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound());
+	}
 
 	public Location correctedPosition(Location loc, boolean round)
 	{
