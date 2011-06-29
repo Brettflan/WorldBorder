@@ -201,9 +201,6 @@ public class Config
 
 		if (test != null)
 		{
-            if (!test.isEnabled()) {
-                plugin.getServer().getPluginManager().enablePlugin(test);
-            }
             GroupPlugin = (GroupManager) test;
 			LogConfig("Will use plugin for permissions: "+((GroupManager)test).getDescription().getFullName());
 			return;

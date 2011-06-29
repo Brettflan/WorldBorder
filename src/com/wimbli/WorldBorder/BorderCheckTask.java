@@ -10,7 +10,7 @@ import org.bukkit.World;
 
 public class BorderCheckTask implements Runnable
 {
-	Server server = null;
+	private transient Server server = null;
 
 	public BorderCheckTask(Server theServer)
 	{
@@ -57,7 +57,7 @@ public class BorderCheckTask implements Runnable
 					ride.teleport(newLoc);
 				}
 				else
-				{	// when riding a pig, player.getVehicle() returns null; so, we unfortunately need to eject player in this rare case
+				{	// when riding a pig, player.getVehicle() returns null on older Bukkit releases; in that case an eject is required
 					players[i].leaveVehicle();
 					players[i].teleport(newLoc);
 				}

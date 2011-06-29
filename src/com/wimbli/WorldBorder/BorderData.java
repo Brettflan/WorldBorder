@@ -178,23 +178,23 @@ public class BorderData
 	}
 
 	//these material IDs are acceptable for places to teleport player; breathable blocks and water
-	private static LinkedHashSet<Integer> acceptableBlocks = new LinkedHashSet<Integer>(Arrays.asList(
-		 new Integer[] {0, 6, 8, 9, 37, 38, 39, 40, 50, 55, 59, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 78, 83, 93, 94}
+	private static LinkedHashSet<Integer> safeOpenBlocks = new LinkedHashSet<Integer>(Arrays.asList(
+		 new Integer[] {0, 6, 8, 9, 27, 28, 31, 32, 37, 38, 39, 40, 50, 55, 59, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 78, 83, 90, 93, 94}
 	));
 
-	//these material IDs are ones we don't want to drop the player onto, like cactus or lava
+	//these material IDs are ones we don't want to drop the player onto, like cactus or lava or fire
 	private static LinkedHashSet<Integer> painfulBlocks = new LinkedHashSet<Integer>(Arrays.asList(
-		 new Integer[] {10, 11, 81}
+		 new Integer[] {10, 11, 51, 81}
 	));
 
 	// check if a particular spot consists of 2 breathable blocks over something relatively solid
 	private boolean isSafeSpot(World world, int X, int Y, int Z)
 	{
 		Integer below = (Integer)world.getBlockTypeIdAt(X, Y - 1, Z);
-		return (acceptableBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y, Z))		// target block breathable, or is water
-			 && acceptableBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y + 1, Z))	// above target block breathable, or is water
-			 && (!acceptableBlocks.contains(below) || below == 8 || below == 9)			// below target block not breathable (probably solid), or is water
-			 && !painfulBlocks.contains(below)											// below target block not something painful
+		return (safeOpenBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y, Z))		// target block open and safe
+			 && safeOpenBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y + 1, Z))	// above target block open and safe
+			 && (!safeOpenBlocks.contains(below) || below == 8 || below == 9)			// below target block not open and safe (probably solid), or is water
+			 && !painfulBlocks.contains(below)											// below target block not painful
 			);
 	}
 
