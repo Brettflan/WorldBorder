@@ -20,13 +20,13 @@ public class BorderCheckTask implements Runnable
 	public void run()
 	{
 //		long startTime = Config.Now();  // for monitoring plugin efficiency
-		Player[] players = server.getOnlinePlayers();
-
 		if (server == null)
 		{
 //			Config.timeUsed += Config.Now() - startTime;  // for monitoring plugin efficiency
 			return;
 		}
+
+		Player[] players = server.getOnlinePlayers();
 
 		for (int i = 0; i < players.length; i++){
 			if (players[i] == null || !players[i].isOnline()) continue;
