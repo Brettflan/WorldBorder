@@ -45,6 +45,11 @@ public class BorderData
 		this.DefiniteSquare = Math.sqrt(.5 * this.radiusSquared);
 	}
 
+	public BorderData copy()
+	{
+		return new BorderData(x, z, radius, shapeRound);
+	}
+
 	public double getX()
 	{
 		return x;
@@ -178,12 +183,12 @@ public class BorderData
 	}
 
 	//these material IDs are acceptable for places to teleport player; breathable blocks and water
-	private static LinkedHashSet<Integer> safeOpenBlocks = new LinkedHashSet<Integer>(Arrays.asList(
+	private static final LinkedHashSet<Integer> safeOpenBlocks = new LinkedHashSet<Integer>(Arrays.asList(
 		 new Integer[] {0, 6, 8, 9, 27, 28, 31, 32, 37, 38, 39, 40, 50, 55, 59, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 78, 83, 90, 93, 94}
 	));
 
 	//these material IDs are ones we don't want to drop the player onto, like cactus or lava or fire
-	private static LinkedHashSet<Integer> painfulBlocks = new LinkedHashSet<Integer>(Arrays.asList(
+	private static final LinkedHashSet<Integer> painfulBlocks = new LinkedHashSet<Integer>(Arrays.asList(
 		 new Integer[] {10, 11, 51, 81}
 	));
 
@@ -198,7 +203,7 @@ public class BorderData
 			);
 	}
 
-	static final private int limTop = 120, limBot = 1;
+	private static final int limTop = 120, limBot = 1;
 
 	// find closest safe Y position from the starting position
 	private double getSafeY(World world, int X, int Y, int Z)

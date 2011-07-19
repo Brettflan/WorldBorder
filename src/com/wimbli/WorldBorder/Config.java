@@ -16,6 +16,9 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
+import org.bukkit.craftbukkit.command.ColouredConsoleSender;
+import org.bukkit.craftbukkit.CraftServer;
+
 import org.anjocaido.groupmanager.GroupManager;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -31,8 +34,11 @@ public class Config
 	private static final Logger mcLog = Logger.getLogger("Minecraft");
 	public static DecimalFormat coord = new DecimalFormat("0.0");
 	private static int borderTask = -1;
+	public static WorldFillTask fillTask = null;
 	public static Set<String> movedPlayers = Collections.synchronizedSet(new HashSet<String>());
-
+	private static Runtime rt = Runtime.getRuntime();
+	private static ColouredConsoleSender console = null;
+	
 	// actual configuration values which can be changed
 	private static boolean shapeRound = false;
 	private static Map<String, BorderData> borders = Collections.synchronizedMap(new LinkedHashMap<String, BorderData>());
@@ -41,13 +47,13 @@ public class Config
 	private static double knockBack = 3.0;
 	private static int timerTicks = 4;
 
-/*	// for monitoring plugin efficiency
-	public static long timeUsed = 0;
+	// for monitoring plugin efficiency
+//	public static long timeUsed = 0;
+
 	public static long Now()
 	{
-		return Calendar.getInstance().getTimeInMillis();
+		return System.currentTimeMillis();
 	}
-*/
 
 	public static void setBorder(String world, BorderData border)
 	{
@@ -191,6 +197,39 @@ public class Config
 	}
 
 
+	public static void StopFillTask()
+	{
+		if (fillTask != null && fillTask.valid())
+			fillTask.cancel();
+	}
+
+	public static void StoreFillTask()
+	{
+		save(false, true);
+	}
+	public static void UnStoreFillTask()
+	{
+		save(false);
+	}
+
+	public static void RestoreFillTask(String world, int fillDistance, int chunksPerRun, int tickFrequency, int x, int z, int length, int total)
+	{
+		fillTask = new WorldFillTask(plugin.getServer(), null, world, fillDistance, chunksPerRun, tickFrequency);
+		if (fillTask.valid())
+		{
+			fillTask.continueProgress(x, z, length, total);
+			int task = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, fillTask, 20, tickFrequency);
+			fillTask.setTaskID(task);
+		}
+	}
+
+
+	public static int AvailableMemory()
+	{
+		return (int)((rt.maxMemory() - rt.totalMemory() + rt.freeMemory()) / 1024L / 1024L);
+	}
+
+
 	public static void loadPermissions(WorldBorder plugin)
 	{
 		if (GroupPlugin != null || Permissions != null || plugin == null)
@@ -224,29 +263,36 @@ public class Config
 			return true;
 		else if (player.isOp())			// Op, always permitted
 			return true;
-		else if (GroupPlugin != null)	// GroupManager plugin available
+
+		if (GroupPlugin != null)	// GroupManager plugin available
 		{
 			if (GroupPlugin.getWorldsHolder().getWorldPermissions(player).has(player, "worldborder." + request))
 				return true;
-			player.sendMessage("You do not have sufficient permissions to do that.");
-			return false;
 		}
 		else if (Permissions != null)	// Permissions plugin available
 		{
 			if (Permissions.permission(player, "worldborder." + request))
 				return true;
-			player.sendMessage("You do not have sufficient permissions to do that.");
-			return false;
 		}
-		else
+		if (player.hasPermission("worldborder." + request))	// built-in Bukkit superperms
 			return true;
+
+		player.sendMessage("You do not have sufficient permissions.");
+		return false;
 	}
 
 
+	private static final String logName = "WorldBorder";
 	public static void Log(Level lvl, String text)
 	{
-		String name = (plugin == null) ? "WorldBorder" : plugin.getDescription().getName();
-		mcLog.log(lvl, String.format("[%s] %s", name, text));
+		if (console != null)
+		{
+			if (lvl != Level.INFO)
+				text = "[" + lvl.getLocalizedName() + "] " + text;
+			console.sendMessage(String.format("[%s] %s", logName, text));
+		}
+		else
+			mcLog.log(lvl, String.format("[%s] %s", logName, text));
 	}
 	public static void Log(String text)
 	{
@@ -265,7 +311,8 @@ public class Config
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
 		plugin = master;
-		cfg = plugin.getConfiguration();
+		console = new ColouredConsoleSender((CraftServer)plugin.getServer());
+		cfg = plugin.getConfiguration();	
 
 		int cfgVersion = cfg.getInt("cfg-version", 1);
 
@@ -311,6 +358,22 @@ public class Config
 			}
 		}
 
+		// if we have an unfinished fill task stored from a previous run, load it up
+		ConfigurationNode storedFillTask = cfg.getNode("fillTask");
+		if (storedFillTask != null)
+		{
+			String worldName = storedFillTask.getString("world");
+			int fillDistance = storedFillTask.getInt("fillDistance", 176);
+			int chunksPerRun = storedFillTask.getInt("chunksPerRun", 5);
+			int tickFrequency = storedFillTask.getInt("tickFrequency", 20);
+			int fillX = storedFillTask.getInt("x", 0);
+			int fillZ = storedFillTask.getInt("z", 0);
+			int fillLength = storedFillTask.getInt("length", 0);
+			int fillTotal = storedFillTask.getInt("total", 0);
+			RestoreFillTask(worldName, fillDistance, chunksPerRun, tickFrequency, fillX, fillZ, fillLength, fillTotal);
+			save(false);
+		}
+
 		if (logIt)
 			LogConfig("Configuration loaded.");
 
@@ -319,6 +382,10 @@ public class Config
 	}
 
 	public static void save(boolean logIt)
+	{
+		save(logIt, false);
+	}
+	public static void save(boolean logIt, boolean storeFillTask)
 	{	// save config to file
 		if (cfg == null) return;
 
@@ -344,6 +411,20 @@ public class Config
 			if (bord.getShape() != null)
 				cfg.setProperty("worlds." + name.replace(".", "¨") + ".shape-round", bord.getShape());
 		}
+
+		if (storeFillTask && fillTask != null && fillTask.valid())
+		{
+			cfg.setProperty("fillTask.world", fillTask.refWorld());
+			cfg.setProperty("fillTask.fillDistance", fillTask.refFillDistance());
+			cfg.setProperty("fillTask.chunksPerRun", fillTask.refChunksPerRun());
+			cfg.setProperty("fillTask.tickFrequency", fillTask.refTickFrequency());
+			cfg.setProperty("fillTask.x", fillTask.refX());
+			cfg.setProperty("fillTask.z", fillTask.refZ());
+			cfg.setProperty("fillTask.length", fillTask.refLength());
+			cfg.setProperty("fillTask.total", fillTask.refTotal());
+		}
+		else
+			cfg.removeProperty("fillTask");
 
 		cfg.save();
 

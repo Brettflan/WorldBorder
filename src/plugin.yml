@@ -1,7 +1,7 @@
 name: WorldBorder
 author: Brettflan
 description: Efficient, feature-rich plugin for limiting the size of your worlds.
-version: 1.2.3
+version: 1.3.0
 main: com.wimbli.WorldBorder.WorldBorder
 commands:
   wborder:
@@ -21,3 +21,64 @@ commands:
            /<command> knockback <distance> - how far to move the player back.
            /<command> delay <amount> - time between border checks.
            /<command> wshape [world] <round|square|default> - override shape.
+           /<command> [world] fill [freq] [pad] - generate world out to border.
+permissions:
+  worldborder.*:
+    description: Grants all WorldBorder permissions
+    children:
+      worldborder.set: true
+      worldborder.radius: true
+      worldborder.clear: true
+      worldborder.list: true
+      worldborder.shape: true
+      worldborder.getmsg: true
+      worldborder.setmsg: true
+      worldborder.reload: true
+      worldborder.debug: true
+      worldborder.knockback: true
+      worldborder.delay: true
+      worldborder.wshape: true
+      worldborder.fill: true
+      worldborder.help: true
+  worldborder.set:
+    description: Can set borders for any world
+    default: op
+  worldborder.radius:
+    description: Can set the radius of an existing border
+    default: op
+  worldborder.clear:
+    description: Can remove any border
+    default: op
+  worldborder.list:
+    description: Can view a list of all borders
+    default: op
+  worldborder.shape:
+    description: Can set the default shape (round or square) for all borders
+    default: op
+  worldborder.getmsg:
+    description: Can view the border crossing message
+    default: op
+  worldborder.setmsg:
+    description: Can set the border crossing message
+    default: op
+  worldborder.reload:
+    description: Can force the plugin to reload from the config file
+    default: op
+  worldborder.debug:
+    description: Can enable/disable debug output to console
+    default: op
+  worldborder.knockback:
+    description: Can set the knockback distance for border crossings
+    default: op
+  worldborder.delay:
+    description: Can set the frequency at which the plugin checks for border crossings
+    default: op
+  worldborder.wshape:
+    description: Can set an overriding border shape for a single world
+    default: op
+  worldborder.fill:
+    description: Can fill in (generate) any missing map chunks out to the border
+    default: op
+  worldborder.help:
+    description: Can view the command reference help pages
+    default: op

@@ -40,6 +40,8 @@ public class WorldBorder extends JavaPlugin
 		PluginDescriptionFile desc = this.getDescription();
 		System.out.println( desc.getName() + " version " + desc.getVersion() + " shutting down" );
 		Config.StopBorderTimer();
+		Config.StoreFillTask();
+		Config.StopFillTask();
 	}
 
 	// for other plugins to hook into
