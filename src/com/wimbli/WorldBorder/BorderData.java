@@ -20,7 +20,7 @@ public class BorderData
 	private double minX;
 	private double maxZ;
 	private double minZ;
-	private int radiusSquared;
+	private double radiusSquared;
 	private double DefiniteSquare;
 
 	public BorderData(double x, double z, int radius)
@@ -31,18 +31,12 @@ public class BorderData
 	{
 		setData(x, z, radius, shapeRound);
 	}
-	public void setData(double x, double z, int radius, Boolean shapeRound)
+	public final void setData(double x, double z, int radius, Boolean shapeRound)
 	{
 		this.x = x;
 		this.z = z;
-		this.radius = radius;
-		this.maxX = x + radius;
-		this.minX = x - radius;
-		this.maxZ = z + radius;
-		this.minZ = z - radius;
-		this.radiusSquared = radius * radius;
 		this.shapeRound = shapeRound;
-		this.DefiniteSquare = Math.sqrt(.5 * this.radiusSquared);
+		this.setRadius(radius);
 	}
 
 	public BorderData copy()
@@ -81,7 +75,7 @@ public class BorderData
 		this.minX = x - radius;
 		this.maxZ = z + radius;
 		this.minZ = z - radius;
-		this.radiusSquared = radius * radius;
+		this.radiusSquared = (double)radius * (double)radius;
 		this.DefiniteSquare = Math.sqrt(.5 * this.radiusSquared);
 	}
 
