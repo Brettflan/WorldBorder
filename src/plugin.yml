@@ -19,9 +19,11 @@ commands:
            /<command> getmsg - display border message.
            /<command> setmsg <text> - set border message.
            /<command> knockback <distance> - how far to move the player back.
+           /<command> whoosh <on/off> - turn knockback effect on or off.
            /<command> delay <amount> - time between border checks.
            /<command> wshape [world] <round|square|default> - override shape.
            /<command> [world] fill [freq] [pad] - generate world out to border.
+           /<command> debug <on/off> - turn debug mode on or off.
 permissions:
   worldborder.*:
     description: Grants all WorldBorder permissions
@@ -40,6 +42,7 @@ permissions:
       worldborder.wshape: true
       worldborder.fill: true
       worldborder.help: true
+      worldborder.whoosh: true
   worldborder.set:
     description: Can set borders for any world
     default: op
@@ -81,4 +84,7 @@ permissions:
     default: op
   worldborder.help:
     description: Can view the command reference help pages
+    default: op
+  worldborder.whoosh:
+    description: Can enable/disable "whoosh" knockback effect
     default: op

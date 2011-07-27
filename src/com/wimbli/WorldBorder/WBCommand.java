@@ -293,6 +293,20 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage("Debug mode " + (Config.Debug() ? "enabled" : "disabled") + ".");
 		}
 
+		// "whoosh" command from player or console
+		else if (split.length == 2 && split[0].equalsIgnoreCase("whoosh"))
+		{
+			if (!Config.HasPermission(player, "whoosh")) return true;
+
+			Config.setWhooshEffect(split[1].equalsIgnoreCase("on"));
+
+			if (player != null)
+				Config.Log((Config.Debug() ? "Enabling" : "Disabling") + " \"whoosh\" knockback effect at the command of player \"" + player.getName() + "\".");
+
+			if (player != null)
+				sender.sendMessage("\"Whoosh\" knockback effect " + (Config.whooshEffect() ? "enabled" : "disabled") + ".");
+		}
+
 		// "knockback" command from player or console
 		else if (split.length == 2 && split[0].equalsIgnoreCase("knockback"))
 		{
@@ -495,6 +509,7 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <round|square|default>" + clrDesc + " - shape override.");
 				sender.sendMessage(cmd+" getmsg" + clrDesc + " - display border message.");
 				sender.sendMessage(cmd+" setmsg " + clrReq + "<text>" + clrDesc + " - set border message.");
+				sender.sendMessage(cmd+" whoosh " + clrReq + "<on|off>" + clrDesc + " - turn knockback effect on or off.");
 				sender.sendMessage(cmd+" delay " + clrReq + "<amount>" + clrDesc + " - time between border checks.");
 				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
 				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");

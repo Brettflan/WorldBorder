@@ -1,6 +1,7 @@
 package com.wimbli.WorldBorder;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.Location;
@@ -57,10 +58,17 @@ public class BorderCheckTask implements Runnable
 					ride.teleport(newLoc);
 				}
 				else
-				{	// when riding a pig, player.getVehicle() returns null on older Bukkit releases; in that case an eject is required
+				{	// if player.getVehicle() returns null (when riding a pig on older Bukkit releases, for instance), player has to be ejected
 					players[i].leaveVehicle();
 					players[i].teleport(newLoc);
 				}
+			}
+
+			if (Config.whooshEffect())
+			{	// show some smoke and play the extinguish sound effect where the player was beyond the border
+				world.playEffect(loc, Effect.SMOKE, 4);
+				world.playEffect(loc, Effect.SMOKE, 4);
+				world.playEffect(loc, Effect.EXTINGUISH, 0);
 			}
 		}
 //		Config.timeUsed += Config.Now() - startTime;  // for monitoring plugin efficiency

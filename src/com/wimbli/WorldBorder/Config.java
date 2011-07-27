@@ -46,6 +46,7 @@ public class Config
 	private static boolean DEBUG = false;
 	private static double knockBack = 3.0;
 	private static int timerTicks = 4;
+	private static boolean whooshEffect = true;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -147,6 +148,18 @@ public class Config
 	public static boolean Debug()
 	{
 		return DEBUG;
+	}
+
+	public static void setWhooshEffect(boolean enable)
+	{
+		whooshEffect = enable;
+		Log("\"Whoosh\" knockback effect " + (whooshEffect ? "enabled" : "disabled") + ".");
+		save(true);
+	}
+
+	public static boolean whooshEffect()
+	{
+		return whooshEffect;
 	}
 
 	public static void setKnockBack(double numBlocks)
@@ -308,20 +321,25 @@ public class Config
 	}
 
 
+	private static final int currentCfgVersion = 3;
+
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
 		plugin = master;
 		console = new ColouredConsoleSender((CraftServer)plugin.getServer());
 		cfg = plugin.getConfiguration();	
 
-		int cfgVersion = cfg.getInt("cfg-version", 1);
+		int cfgVersion = cfg.getInt("cfg-version", currentCfgVersion);
 
 		message = cfg.getString("message");
 		shapeRound = cfg.getBoolean("round-border", false);
 		DEBUG = cfg.getBoolean("debug-mode", false);
+		whooshEffect = cfg.getBoolean("whoosh-effect", true);
 		knockBack = cfg.getDouble("knock-back-dist", 3.0);
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);
 		LogConfig("Using " + (shapeRound ? "round" : "square") + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
+
+		DEBUG = cfg.getBoolean("debug-mode", false);
 
 		StartBorderTimer();
 
@@ -377,7 +395,7 @@ public class Config
 		if (logIt)
 			LogConfig("Configuration loaded.");
 
-		if (cfgVersion < 2)
+		if (cfgVersion < currentCfgVersion)
 			save(false);
 	}
 
@@ -389,10 +407,11 @@ public class Config
 	{	// save config to file
 		if (cfg == null) return;
 
-		cfg.setProperty("cfg-version", 2);
+		cfg.setProperty("cfg-version", currentCfgVersion);
 		cfg.setProperty("message", message);
 		cfg.setProperty("round-border", shapeRound);
 		cfg.setProperty("debug-mode", DEBUG);
+		cfg.setProperty("whoosh-effect", whooshEffect);
 		cfg.setProperty("knock-back-dist", knockBack);
 		cfg.setProperty("timer-delay-ticks", timerTicks);
 
