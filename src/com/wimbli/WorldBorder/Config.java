@@ -46,7 +46,7 @@ public class Config
 	private static boolean DEBUG = false;
 	private static double knockBack = 3.0;
 	private static int timerTicks = 4;
-	private static boolean whooshEffect = true;
+	private static boolean whooshEffect = false;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -334,7 +334,7 @@ public class Config
 		message = cfg.getString("message");
 		shapeRound = cfg.getBoolean("round-border", false);
 		DEBUG = cfg.getBoolean("debug-mode", false);
-		whooshEffect = cfg.getBoolean("whoosh-effect", true);
+		whooshEffect = cfg.getBoolean("whoosh-effect", false);
 		knockBack = cfg.getDouble("knock-back-dist", 3.0);
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);
 		LogConfig("Using " + (shapeRound ? "round" : "square") + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");

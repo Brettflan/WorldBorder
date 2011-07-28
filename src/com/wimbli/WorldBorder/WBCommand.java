@@ -1,6 +1,8 @@
 package com.wimbli.WorldBorder;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.bukkit.ChatColor;
@@ -33,6 +35,39 @@ public class WBCommand implements CommandExecutor
 
 		String cmd = clrCmd + ((player == null) ? "wb" : "/wb");
 		String cmdW = clrCmd + ((player == null) ? "wb " + clrReq + "<world>" : "/wb " + clrOpt + "[world]") + clrCmd;
+
+		// if world name is passed inside quotation marks, handle that
+		if (split.length > 2 && split[0].startsWith("\""))
+		{
+			if (split[0].endsWith("\""))
+			{
+				split[0] = split[0].substring(1, split[0].length() - 1);
+			}
+			else
+			{
+				List<String> args = new ArrayList<String>();
+				String quote = split[0];
+				int loop;
+				for (loop = 1; loop < split.length; loop++)
+				{
+					quote += " " + split[loop];
+					if (split[loop].endsWith("\""))
+						break;
+				}
+
+				if (loop < split.length || !split[loop].endsWith("\""))
+				{
+					args.add(quote.substring(1, quote.length() - 1));
+					loop++;
+					while (loop < split.length)
+					{
+						args.add(split[loop]);
+						loop++;
+					}
+					split = args.toArray(new String[0]);
+				}
+			}
+		}
 
 		// "set" command from player or console, world specified
 		if (split.length == 5 && split[1].equalsIgnoreCase("set"))
