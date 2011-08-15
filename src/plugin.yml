@@ -1,8 +1,12 @@
 name: WorldBorder
 author: Brettflan
 description: Efficient, feature-rich plugin for limiting the size of your worlds.
-version: 1.3.1
+version: 1.4.0
 main: com.wimbli.WorldBorder.WorldBorder
+softdepend:
+  - Essentials
+  - GroupManager
+  - Permissions
 commands:
   wborder:
     description: Primary command for WorldBorder.
@@ -23,6 +27,7 @@ commands:
            /<command> delay <amount> - time between border checks.
            /<command> wshape [world] <round|square|default> - override shape.
            /<command> [world] fill [freq] [pad] - generate world out to border.
+           /<command> [world] trim [freq] [pad] - trim world outside of border.
            /<command> debug <on/off> - turn debug mode on or off.
 permissions:
   worldborder.*:
@@ -41,6 +46,7 @@ permissions:
       worldborder.delay: true
       worldborder.wshape: true
       worldborder.fill: true
+      worldborder.trim: true
       worldborder.help: true
       worldborder.whoosh: true
   worldborder.set:
@@ -81,6 +87,9 @@ permissions:
     default: op
   worldborder.fill:
     description: Can fill in (generate) any missing map chunks out to the border
+    default: op
+  worldborder.trim:
+    description: Can trim (remove) any excess map chunks outside of the border
     default: op
   worldborder.help:
     description: Can view the command reference help pages

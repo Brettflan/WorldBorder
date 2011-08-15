@@ -1,9 +1,12 @@
 package com.wimbli.WorldBorder;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Set;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -39,7 +42,8 @@ public class WorldFillTask implements Runnable
 	private transient int length = -1;
 	private transient int current = 0;
 	private transient boolean insideBorder = true;
-	private List<coordXZ> storedChunks = new LinkedList<coordXZ>();
+	private List<CoordXZ> storedChunks = new LinkedList<CoordXZ>();
+	private Set<CoordXZ> originalChunks = new HashSet<CoordXZ>();
 
 	// for reporting progress back to user occasionally
 	private transient long lastReport = Config.Now();
@@ -76,11 +80,18 @@ public class WorldFillTask implements Runnable
 		}
 
 		this.border.setRadius(border.getRadius() + fillDistance);
-		this.x = (int) Math.floor(border.getX() / 16);
-		this.z = (int) Math.floor(border.getX() / 16);
+		this.x = CoordXZ.blockToChunk((int)border.getX());
+		this.z = CoordXZ.blockToChunk((int)border.getZ());
 
 		int chunkWidth = (int) Math.ceil((double)((border.getRadius() + 16) * 2) / 16);
 		this.reportTarget = (chunkWidth * chunkWidth) + chunkWidth + 1;
+
+		// keep track of the chunks which are already loaded when the task starts, to not unload them
+		Chunk[] originals = world.getLoadedChunks();
+		for (Chunk original : originals)
+		{
+			originalChunks.add(new CoordXZ(original.getX(), original.getZ()));
+		}
 
 		this.readyToGo = true;
 	}
@@ -128,7 +139,7 @@ public class WorldFillTask implements Runnable
 				reportProgress();
 
 			// if we've made it at least partly outside the border, skip past any such chunks
-			while (!border.insideBorder((x << 4) + 8, (z << 4) + 8))
+			while (!border.insideBorder(CoordXZ.chunkToBlock(x) + 8, CoordXZ.chunkToBlock(z) + 8))
 			{
 				if (!moveToNext())
 					return;
@@ -153,34 +164,20 @@ public class WorldFillTask implements Runnable
 			world.loadChunk(popX, popZ, false);
 
 			// Store the coordinates of these latest 2 chunks we just loaded, so we can unload them after a bit...
-			storedChunks.add(new coordXZ(x, z));
-			storedChunks.add(new coordXZ(popX, popZ));
+			storedChunks.add(new CoordXZ(x, z));
+			storedChunks.add(new CoordXZ(popX, popZ));
 
 			// If enough stored chunks are buffered in, go ahead and unload the oldest to free up memory
 			if (storedChunks.size() > 6)
 			{
-				coordXZ coord = storedChunks.remove(0);
-				world.unloadChunk(coord.x, coord.z);
+				CoordXZ coord = storedChunks.remove(0);
+				if (!originalChunks.contains(coord))
+					world.unloadChunk(coord.x, coord.z);
 				coord = storedChunks.remove(0);
-				world.unloadChunk(coord.x, coord.z);
+				if (!originalChunks.contains(coord))
+					world.unloadChunk(coord.x, coord.z);
 			}
 
-/*			// I ORIGINALLY DID IT THIS WAY INSTEAD: chunks were stored up to 1 full spiral worth to allow them to populate, but...
-			// even though it didn't need to re-load extra chunks like above (it just kept them loaded), it was somehow slower
-			// I also didn't realize there was a chunk generation memory leak in Bukkit, so I originally ditched this method based on memory usage
-			// left the code here, commented out, just for posterity
-
-			// keep track of chunks we loaded, so we can unload them after a bit...
-			// we have to keep them loaded for a while to have the server populate them with trees, snow, etc.
-			storedChunks.add(new coordXZ(x, z));
-
-			// then see if we're enough chunks ahead that we can unload the oldest one still stored
-			if (storedChunks.size() - 3 > (length << 2))
-			{
-				coordXZ coord = storedChunks.remove(0);
-				world.unloadChunk(coord.x, coord.z);
-			}
-*/
 			// move on to next chunk
 			if (!moveToNext())
 				return;
@@ -217,10 +214,10 @@ public class WorldFillTask implements Runnable
 		else
 		{	// one leg/side of the spiral down...
 			current = 0;
-			isZLeg = !isZLeg;
+			isZLeg ^= true;
 			if (isZLeg)
 			{	// every second leg (between X and Z legs, negative or positive), length increases
-				isNeg = !isNeg;
+				isNeg ^= true;
 				length++;
 			}
 		}
@@ -286,8 +283,9 @@ public class WorldFillTask implements Runnable
 		// go ahead and unload any chunks we still have loaded
 		while(!storedChunks.isEmpty())
 		{
-			coordXZ coord = storedChunks.remove(0);
-			world.unloadChunk(coord.x, coord.z);
+			CoordXZ coord = storedChunks.remove(0);
+			if (!originalChunks.contains(coord))
+				world.unloadChunk(coord.x, coord.z);
 		}
 
 	}
@@ -357,17 +355,6 @@ public class WorldFillTask implements Runnable
 			Config.Log("[Fill] " + text);
 			if (notifyPlayer != null)
 				notifyPlayer.sendMessage("[Fill] " + text);
-		}
-	}
-
-	// simple storage class for chunk x/z values
-	private static class coordXZ
-	{
-		public int x, z;
-		public coordXZ(int x, int z)
-		{
-			this.x = x;
-			this.z = z;
 		}
 	}
 

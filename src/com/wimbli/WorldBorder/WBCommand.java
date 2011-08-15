@@ -502,6 +502,60 @@ public class WBCommand implements CommandExecutor
 			cmdFill(sender, player, world, confirm, cancel, pause, pad, frequency);
 		}
 
+		// "trim" command from player or console, world specified
+		else if (split.length >= 2 && split[1].equalsIgnoreCase("trim"))
+		{
+			if (!Config.HasPermission(player, "trim")) return true;
+
+			boolean cancel = false, confirm = false, pause = false;
+			String pad = "", frequency = "";
+			if (split.length >= 3)
+			{
+				cancel = split[2].equalsIgnoreCase("cancel");
+				confirm = split[2].equalsIgnoreCase("confirm");
+				pause = split[2].equalsIgnoreCase("pause");
+				if (!cancel && !confirm && !pause)
+					frequency = split[2];
+			}
+			if (split.length >= 4)
+				pad = split[3];
+
+			String world = split[0];
+
+			cmdTrim(sender, player, world, confirm, cancel, pause, pad, frequency);
+		}
+
+		// "trim" command from player (or from console solely if using cancel or confirm), using current world
+		else if (split.length >= 1 && split[0].equalsIgnoreCase("trim"))
+		{
+			if (!Config.HasPermission(player, "trim")) return true;
+
+			boolean cancel = false, confirm = false, pause = false;
+			String pad = "", frequency = "";
+			if (split.length >= 2)
+			{
+				cancel = split[1].equalsIgnoreCase("cancel");
+				confirm = split[1].equalsIgnoreCase("confirm");
+				pause = split[1].equalsIgnoreCase("pause");
+				if (!cancel && !confirm && !pause)
+					frequency = split[1];
+			}
+			if (split.length >= 3)
+				pad = split[2];
+
+			String world = "";
+			if (player != null)
+				world = player.getWorld().getName();
+
+			if (!cancel && !confirm && !pause && world.isEmpty())
+			{
+				sender.sendMessage("You must specify a world! Example: " + cmdW+" trim " + clrOpt + "[freq] [pad]");
+				return true;
+			}
+
+			cmdTrim(sender, player, world, confirm, cancel, pause, pad, frequency);
+		}
+
 		// we couldn't decipher any known commands, so show help
 		else
 		{
@@ -541,13 +595,15 @@ public class WBCommand implements CommandExecutor
 			if (page == 0 || page == 2)
 			{
 				sender.sendMessage(cmdW+" fill " + clrOpt + "[freq] [pad]" + clrDesc + " - generate world out to border.");
+				sender.sendMessage(cmdW+" trim " + clrOpt + "[freq] [pad]" + clrDesc + " - trim world outside of border.");
 				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <round|square|default>" + clrDesc + " - shape override.");
 				sender.sendMessage(cmd+" getmsg" + clrDesc + " - display border message.");
 				sender.sendMessage(cmd+" setmsg " + clrReq + "<text>" + clrDesc + " - set border message.");
 				sender.sendMessage(cmd+" whoosh " + clrReq + "<on|off>" + clrDesc + " - turn knockback effect on or off.");
 				sender.sendMessage(cmd+" delay " + clrReq + "<amount>" + clrDesc + " - time between border checks.");
 				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
-				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
+				if (player == null)
+					sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
 				if (page == 2)
 					sender.sendMessage(cmd + clrDesc + " - view first page of commands.");
 			}
@@ -579,8 +635,8 @@ public class WBCommand implements CommandExecutor
 
 
 	private String fillWorld = "";
-	private int fillPadding = 16 * 11;
 	private int fillFrequency = 20;
+	private int fillPadding = CoordXZ.chunkToBlock(11);
 
 	private void fillDefaults()
 	{
@@ -588,7 +644,7 @@ public class WBCommand implements CommandExecutor
 		fillFrequency = 20;
 		// with "view-distance=10" in server.properties and "Render Distance: Far" in client, hitting border during testing
 		// was loading 11 chunks beyond the border in a couple of directions (10 chunks in the other two directions); thus:
-		fillPadding = 16 * 11;
+		fillPadding = CoordXZ.chunkToBlock(11);
 	}
 
 	private boolean cmdFill(CommandSender sender, Player player, String world, boolean confirm, boolean cancel, boolean pause, String pad, String frequency)
@@ -675,10 +731,114 @@ public class WBCommand implements CommandExecutor
 			}
 
 			String cmd = clrCmd + ((player == null) ? "wb" : "/wb");
-			sender.sendMessage(clrHead + "World generation task is ready for world \"" + fillWorld + "\", padding the map out to " + fillPadding + " blocks beyond the border (default " + (16 * 11) + "), and the task will try to process up to " + fillFrequency + " chunks per second (default 20).");
+			sender.sendMessage(clrHead + "World generation task is ready for world \"" + fillWorld + "\", padding the map out to " + fillPadding + " blocks beyond the border (default " + CoordXZ.chunkToBlock(11) + "), and the task will try to process up to " + fillFrequency + " chunks per second (default 20).");
 			sender.sendMessage(clrHead + "This process can take a very long time depending on the world's border size. Also, depending on the chunk processing rate, players will likely experience severe lag for the duration.");
 			sender.sendMessage(clrDesc + "You should now use " + cmd + " fill confirm" + clrDesc + " to start the process.");
 			sender.sendMessage(clrDesc + "You can cancel at any time with " + cmd + " fill cancel" + clrDesc + ", or pause/unpause with " + cmd + " fill pause" + clrDesc + ".");
+		}
+		return true;
+	}
+
+
+	private String trimWorld = "";
+	private int trimFrequency = 5000;
+	private int trimPadding = CoordXZ.chunkToBlock(12);
+
+	private void trimDefaults()
+	{
+		trimWorld = "";
+		trimFrequency = 5000;
+		trimPadding = CoordXZ.chunkToBlock(12);
+	}
+
+	private boolean cmdTrim(CommandSender sender, Player player, String world, boolean confirm, boolean cancel, boolean pause, String pad, String frequency)
+	{
+		if (cancel)
+		{
+			sender.sendMessage(clrHead + "Cancelling the world map trimming task.");
+			trimDefaults();
+			Config.StopTrimTask();
+			return true;
+		}
+
+		if (pause)
+		{
+			if (Config.trimTask == null || !Config.trimTask.valid())
+			{
+				sender.sendMessage(clrHead + "The world map trimming task is not currently running.");
+				return true;
+			}
+			Config.trimTask.pause();
+			sender.sendMessage(clrHead + "The world map trimming task is now " + (Config.trimTask.isPaused() ? "" : "un") + "paused.");
+			return true;
+		}
+
+		if (Config.trimTask != null && Config.trimTask.valid())
+		{
+			sender.sendMessage(clrHead + "The world map trimming task is already running.");
+			return true;
+		}
+
+		// set padding and/or delay if those were specified
+		try
+		{
+			if (!pad.isEmpty())
+				trimPadding = Math.abs(Integer.parseInt(pad));
+			if (!frequency.isEmpty())
+				trimFrequency = Math.abs(Integer.parseInt(frequency));
+		}
+		catch(NumberFormatException ex)
+		{
+			sender.sendMessage(clrErr + "The frequency and padding values must be integers.");
+			return false;
+		}
+
+		// set world if it was specified
+		if (!world.isEmpty())
+			trimWorld = world;
+
+		if (confirm)
+		{	// command confirmed, go ahead with it
+			if (trimWorld.isEmpty())
+			{
+				sender.sendMessage(clrErr + "You must first use this command successfully without confirming.");
+				return false;
+			}
+
+			if (player != null)
+				Config.Log("Trimming world beyond border at the command of player \"" + player.getName() + "\".");
+
+			int ticks = 1, repeats = 1;
+			if (trimFrequency > 20)
+				repeats = trimFrequency / 20;
+			else
+				ticks = 20 / trimFrequency;
+				
+			Config.trimTask = new WorldTrimTask(plugin.getServer(), player, trimWorld, trimPadding, repeats);
+			if (Config.trimTask.valid())
+			{
+				int task = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, Config.trimTask, ticks, ticks);
+				Config.trimTask.setTaskID(task);
+				sender.sendMessage("WorldBorder map trimming task started.");
+			}
+			else
+				sender.sendMessage(clrErr + "The world map trimming task failed to start.");
+
+			trimDefaults();
+		}
+		else
+		{
+			if (trimWorld.isEmpty())
+			{
+				sender.sendMessage(clrErr + "You must first specify a valid world.");
+				return false;
+			}
+
+			String cmd = clrCmd + ((player == null) ? "wb" : "/wb");
+			sender.sendMessage(clrHead + "World trimming task is ready for world \"" + trimWorld + "\", trimming the map past " + trimPadding + " blocks beyond the border (default " + CoordXZ.chunkToBlock(12) + "), and the task will try to process up to " + trimFrequency + " chunks per second (default 5000).");
+			sender.sendMessage(clrHead + "This process can take a while depending on the world's overall size. Also, depending on the chunk processing rate, players may experience lag for the duration.");
+			sender.sendMessage(clrDesc + "You should now use " + cmd + " trim confirm" + clrDesc + " to start the process.");
+			sender.sendMessage(clrDesc + "You can cancel at any time with " + cmd + " trim cancel" + clrDesc + ", or pause/unpause with " + cmd + " trim pause" + clrDesc + ".");
 		}
 		return true;
 	}

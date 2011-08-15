@@ -35,6 +35,7 @@ public class Config
 	public static DecimalFormat coord = new DecimalFormat("0.0");
 	private static int borderTask = -1;
 	public static WorldFillTask fillTask = null;
+	public static WorldTrimTask trimTask = null;
 	public static Set<String> movedPlayers = Collections.synchronizedSet(new HashSet<String>());
 	private static Runtime rt = Runtime.getRuntime();
 	private static ColouredConsoleSender console = null;
@@ -234,6 +235,13 @@ public class Config
 			int task = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, fillTask, 20, tickFrequency);
 			fillTask.setTaskID(task);
 		}
+	}
+
+
+	public static void StopTrimTask()
+	{
+		if (trimTask != null && trimTask.valid())
+			trimTask.cancel();
 	}
 
 
