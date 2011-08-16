@@ -120,8 +120,8 @@ public class WorldTrimTask implements Runnable
 			if (paused)
 				return;
 
-			// every 10 seconds or so, give basic progress report to let user know how it's going
-			if (Config.Now() > lastReport + 10000)
+			// every 5 seconds or so, give basic progress report to let user know how it's going
+			if (Config.Now() > lastReport + 5000)
 				reportProgress();
 
 			if (regionChunks.isEmpty())

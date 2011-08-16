@@ -134,8 +134,8 @@ public class WorldFillTask implements Runnable
 			if (paused)
 				return;
 
-			// every 10 seconds or so, give basic progress report to let user know how it's going
-			if (Config.Now() > lastReport + 10000)
+			// every 5 seconds or so, give basic progress report to let user know how it's going
+			if (Config.Now() > lastReport + 5000)
 				reportProgress();
 
 			// if we've made it at least partly outside the border, skip past any such chunks
@@ -172,10 +172,10 @@ public class WorldFillTask implements Runnable
 			{
 				CoordXZ coord = storedChunks.remove(0);
 				if (!originalChunks.contains(coord))
-					world.unloadChunk(coord.x, coord.z);
+					world.unloadChunkRequest(coord.x, coord.z);
 				coord = storedChunks.remove(0);
 				if (!originalChunks.contains(coord))
-					world.unloadChunk(coord.x, coord.z);
+					world.unloadChunkRequest(coord.x, coord.z);
 			}
 
 			// move on to next chunk
@@ -257,6 +257,7 @@ public class WorldFillTask implements Runnable
 	// for successful completion
 	public void finish()
 	{
+		this.paused = true;
 		reportProgress();
 		world.save();
 		sendMessage("task successfully completed!");
@@ -285,7 +286,7 @@ public class WorldFillTask implements Runnable
 		{
 			CoordXZ coord = storedChunks.remove(0);
 			if (!originalChunks.contains(coord))
-				world.unloadChunk(coord.x, coord.z);
+				world.unloadChunkRequest(coord.x, coord.z);
 		}
 
 	}
@@ -334,7 +335,6 @@ public class WorldFillTask implements Runnable
 
 		// try to keep memory usage in check and keep things speedy as much as possible...
 		world.save();
-		server.savePlayers();
 	}
 
 	// send a message to the server console/log and possibly to an in-game player
@@ -347,7 +347,7 @@ public class WorldFillTask implements Runnable
 		if (notifyPlayer != null)
 			notifyPlayer.sendMessage("[Fill] " + text);
 
-		if (availMem < 100)
+		if (availMem < 200)
 		{	// running low on memory, auto-pause
 			pausedForMemory = true;
 			Config.StoreFillTask();
