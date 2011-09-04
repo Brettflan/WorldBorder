@@ -97,7 +97,8 @@ public class WorldFillTask implements Runnable
 	}
 
 	public void setTaskID(int ID)
-	{
+	{	
+		if (ID == -1) this.stop();
 		this.taskID = ID;
 	}
 
