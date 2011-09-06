@@ -220,4 +220,23 @@ public class BorderData
 
 		return -1.0;	// no safe Y location?!?!? Must be a rare spot in a Nether world or something
 	}
+
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		else if (obj == null || obj.getClass() != this.getClass())
+			return false;
+
+		BorderData test = (BorderData)obj;
+		return test.x == this.x && test.z == this.z && test.radius == this.radius;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return (((int)(this.x * 10) << 4) + (int)this.z + (this.radius << 2));
+	}
 }

@@ -41,7 +41,7 @@ public class Config
 	private static ColouredConsoleSender console = null;
 	
 	// actual configuration values which can be changed
-	private static boolean shapeRound = false;
+	private static boolean shapeRound = true;
 	private static Map<String, BorderData> borders = Collections.synchronizedMap(new LinkedHashMap<String, BorderData>());
 	private static String message;
 	private static boolean DEBUG = false;
@@ -340,7 +340,7 @@ public class Config
 		int cfgVersion = cfg.getInt("cfg-version", currentCfgVersion);
 
 		message = cfg.getString("message");
-		shapeRound = cfg.getBoolean("round-border", false);
+		shapeRound = cfg.getBoolean("round-border", true);
 		DEBUG = cfg.getBoolean("debug-mode", false);
 		whooshEffect = cfg.getBoolean("whoosh-effect", false);
 		knockBack = cfg.getDouble("knock-back-dist", 3.0);
