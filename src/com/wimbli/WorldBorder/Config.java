@@ -16,9 +16,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
-import org.bukkit.craftbukkit.command.ColouredConsoleSender;
-import org.bukkit.craftbukkit.CraftServer;
-
 import org.anjocaido.groupmanager.GroupManager;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -38,7 +35,6 @@ public class Config
 	public static WorldTrimTask trimTask = null;
 	public static Set<String> movedPlayers = Collections.synchronizedSet(new HashSet<String>());
 	private static Runtime rt = Runtime.getRuntime();
-	private static ColouredConsoleSender console = null;
 	
 	// actual configuration values which can be changed
 	private static boolean shapeRound = true;
@@ -306,14 +302,7 @@ public class Config
 	private static final String logName = "WorldBorder";
 	public static void Log(Level lvl, String text)
 	{
-		if (console != null)
-		{
-			if (lvl != Level.INFO)
-				text = "[" + lvl.getLocalizedName() + "] " + text;
-			console.sendMessage(String.format("[%s] %s", logName, text));
-		}
-		else
-			mcLog.log(lvl, String.format("[%s] %s", logName, text));
+		mcLog.log(lvl, String.format("[%s] %s", logName, text));
 	}
 	public static void Log(String text)
 	{
@@ -334,8 +323,7 @@ public class Config
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
 		plugin = master;
-		console = new ColouredConsoleSender((CraftServer)plugin.getServer());
-		cfg = plugin.getConfiguration();	
+		cfg = plugin.getConfiguration();
 
 		int cfgVersion = cfg.getInt("cfg-version", currentCfgVersion);
 
