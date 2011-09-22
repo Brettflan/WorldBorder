@@ -78,7 +78,7 @@ public class BorderCheckTask implements Runnable
 	{
 		if (Config.Debug())
 		{
-			Config.LogWarn("Border crossing. Border " + border.toString());
+			Config.LogWarn("Border crossing in \"" + loc.getWorld().getName() + "\". Border " + border.toString());
 			Config.LogWarn("Player position X: " + Config.coord.format(loc.getX()) + " Y: " + Config.coord.format(loc.getY()) + " Z: " + Config.coord.format(loc.getZ()));
 		}
 
@@ -93,7 +93,7 @@ public class BorderCheckTask implements Runnable
 		}
 
 		if (Config.Debug())
-			Config.LogWarn("New position X: " + Config.coord.format(newLoc.getX()) + " Y: " + Config.coord.format(newLoc.getY()) + " Z: " + Config.coord.format(newLoc.getZ()));
+			Config.LogWarn("New position in world \"" + newLoc.getWorld().getName() + "\" at X: " + Config.coord.format(newLoc.getX()) + " Y: " + Config.coord.format(newLoc.getY()) + " Z: " + Config.coord.format(newLoc.getZ()));
 
 		player.sendMessage(ChatColor.RED + Config.Message());
 

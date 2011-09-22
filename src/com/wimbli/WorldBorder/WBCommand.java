@@ -336,7 +336,7 @@ public class WBCommand implements CommandExecutor
 			Config.setWhooshEffect(split[1].equalsIgnoreCase("on"));
 
 			if (player != null)
-				Config.Log((Config.Debug() ? "Enabling" : "Disabling") + " \"whoosh\" knockback effect at the command of player \"" + player.getName() + "\".");
+				Config.Log((Config.whooshEffect() ? "Enabling" : "Disabling") + " \"whoosh\" knockback effect at the command of player \"" + player.getName() + "\".");
 
 			if (player != null)
 				sender.sendMessage("\"Whoosh\" knockback effect " + (Config.whooshEffect() ? "enabled" : "disabled") + ".");
