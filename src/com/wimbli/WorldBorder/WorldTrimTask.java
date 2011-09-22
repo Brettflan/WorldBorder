@@ -372,7 +372,7 @@ public class WorldTrimTask implements Runnable
 	{
 		lastReport = Config.Now();
 		double perc = ((double)(reportTotal) / (double)reportTarget) * 100;
-		sendMessage(reportTrimmedRegions + " entire region(s) and " + reportTrimmedChunks + " individual chunk(s) trimmed so far (" + ChatColor.GREEN.toString() + Config.coord.format(perc) + "% done" + ChatColor.WHITE.toString() + ")");
+		sendMessage(reportTrimmedRegions + " entire region(s) and " + reportTrimmedChunks + " individual chunk(s) trimmed so far (" + Config.coord.format(perc) + "% done" + ")");
 	}
 
 	// send a message to the server console/log and possibly to an in-game player

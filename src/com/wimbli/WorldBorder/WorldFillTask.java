@@ -330,7 +330,7 @@ public class WorldFillTask implements Runnable
 	{
 		lastReport = Config.Now();
 		double perc = ((double)(reportTotal + reportNum) / (double)reportTarget) * 100;
-		sendMessage(reportNum + " more map chunks processed (" + (reportTotal + reportNum) + " total, " + ChatColor.GREEN.toString() + Config.coord.format(perc) + "%" + ChatColor.WHITE.toString() + ")");
+		sendMessage(reportNum + " more map chunks processed (" + (reportTotal + reportNum) + " total, " + Config.coord.format(perc) + "%" + ")");
 		reportTotal += reportNum;
 		reportNum = 0;
 
@@ -344,7 +344,7 @@ public class WorldFillTask implements Runnable
 		// Due to the apparent chunk generation memory leak, we need to track memory availability
 		int availMem = Config.AvailableMemory();
 
-		Config.Log("[Fill] " + text + ChatColor.GOLD.toString() + " (free mem: " + availMem + " MB)");
+		Config.Log("[Fill] " + text + " (free mem: " + availMem + " MB)");
 		if (notifyPlayer != null)
 			notifyPlayer.sendMessage("[Fill] " + text);
 
