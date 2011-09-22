@@ -132,7 +132,7 @@ public class WorldFillTask implements Runnable
 		for (int loop = 0; loop < chunksPerRun; loop++)
 		{
 			// in case the task has been paused while we're repeating...
-			if (paused)
+			if (paused || pausedForMemory)
 				return;
 
 			// every 5 seconds or so, give basic progress report to let user know how it's going
