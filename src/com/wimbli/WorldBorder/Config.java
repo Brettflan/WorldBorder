@@ -16,7 +16,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
-import org.anjocaido.groupmanager.GroupManager;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
@@ -27,7 +26,6 @@ public class Config
 	private static WorldBorder plugin;
 	private static Configuration cfg = null;
 	private static PermissionHandler Permissions = null;
-	private static GroupManager GroupPlugin = null;
 	private static final Logger mcLog = Logger.getLogger("Minecraft");
 	public static DecimalFormat coord = new DecimalFormat("0.0");
 	private static int borderTask = -1;
@@ -249,28 +247,18 @@ public class Config
 
 	public static void loadPermissions(WorldBorder plugin)
 	{
-		if (GroupPlugin != null || Permissions != null || plugin == null)
+		if (Permissions != null || plugin == null)
 			return;
 
-		// try GroupManager first
-		Plugin test = plugin.getServer().getPluginManager().getPlugin("GroupManager");
-
-		if (test != null)
-		{
-            GroupPlugin = (GroupManager) test;
-			LogConfig("Will use plugin for permissions: "+((GroupManager)test).getDescription().getFullName());
-			return;
-		}
-
-		// if GroupManager isn't available, try Permissions
-		test = plugin.getServer().getPluginManager().getPlugin("Permissions");
+		// Check for Permissions plugin
+		Plugin test = plugin.getServer().getPluginManager().getPlugin("Permissions");
 
 		if (test != null)
 		{
 			Permissions = ((Permissions)test).getHandler();
 			LogConfig("Will use plugin for permissions: "+((Permissions)test).getDescription().getFullName());
 		} else {
-			LogConfig("Permissions plugin not found. Only Ops will have access to this plugin's commands.");
+			LogConfig("Permissions plugin not found. Defaulting to Bukkit's built-in SuperPerms system.");
 		}
 	}
 
@@ -281,12 +269,7 @@ public class Config
 		else if (player.isOp())			// Op, always permitted
 			return true;
 
-		if (GroupPlugin != null)	// GroupManager plugin available
-		{
-			if (GroupPlugin.getWorldsHolder().getWorldPermissions(player).has(player, "worldborder." + request))
-				return true;
-		}
-		else if (Permissions != null)	// Permissions plugin available
+		if (Permissions != null)	// Permissions plugin available
 		{
 			if (Permissions.permission(player, "worldborder." + request))
 				return true;
