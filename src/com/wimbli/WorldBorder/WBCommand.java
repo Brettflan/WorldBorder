@@ -636,7 +636,7 @@ public class WBCommand implements CommandExecutor
 
 	private String fillWorld = "";
 	private int fillFrequency = 20;
-	private int fillPadding = CoordXZ.chunkToBlock(11);
+	private int fillPadding = CoordXZ.chunkToBlock(13);
 
 	private void fillDefaults()
 	{
@@ -644,7 +644,7 @@ public class WBCommand implements CommandExecutor
 		fillFrequency = 20;
 		// with "view-distance=10" in server.properties and "Render Distance: Far" in client, hitting border during testing
 		// was loading 11 chunks beyond the border in a couple of directions (10 chunks in the other two directions); thus:
-		fillPadding = CoordXZ.chunkToBlock(11);
+		fillPadding = CoordXZ.chunkToBlock(13);
 	}
 
 	private boolean cmdFill(CommandSender sender, Player player, String world, boolean confirm, boolean cancel, boolean pause, String pad, String frequency)
@@ -731,7 +731,7 @@ public class WBCommand implements CommandExecutor
 			}
 
 			String cmd = clrCmd + ((player == null) ? "wb" : "/wb");
-			sender.sendMessage(clrHead + "World generation task is ready for world \"" + fillWorld + "\", padding the map out to " + fillPadding + " blocks beyond the border (default " + CoordXZ.chunkToBlock(11) + "), and the task will try to process up to " + fillFrequency + " chunks per second (default 20).");
+			sender.sendMessage(clrHead + "World generation task is ready for world \"" + fillWorld + "\", padding the map out to " + fillPadding + " blocks beyond the border (default " + CoordXZ.chunkToBlock(13) + "), and the task will try to process up to " + fillFrequency + " chunks per second (default 20).");
 			sender.sendMessage(clrHead + "This process can take a very long time depending on the world's border size. Also, depending on the chunk processing rate, players will likely experience severe lag for the duration.");
 			sender.sendMessage(clrDesc + "You should now use " + cmd + " fill confirm" + clrDesc + " to start the process.");
 			sender.sendMessage(clrDesc + "You can cancel at any time with " + cmd + " fill cancel" + clrDesc + ", or pause/unpause with " + cmd + " fill pause" + clrDesc + ".");
@@ -742,13 +742,13 @@ public class WBCommand implements CommandExecutor
 
 	private String trimWorld = "";
 	private int trimFrequency = 5000;
-	private int trimPadding = CoordXZ.chunkToBlock(12);
+	private int trimPadding = CoordXZ.chunkToBlock(13);
 
 	private void trimDefaults()
 	{
 		trimWorld = "";
 		trimFrequency = 5000;
-		trimPadding = CoordXZ.chunkToBlock(12);
+		trimPadding = CoordXZ.chunkToBlock(13);
 	}
 
 	private boolean cmdTrim(CommandSender sender, Player player, String world, boolean confirm, boolean cancel, boolean pause, String pad, String frequency)
@@ -835,7 +835,7 @@ public class WBCommand implements CommandExecutor
 			}
 
 			String cmd = clrCmd + ((player == null) ? "wb" : "/wb");
-			sender.sendMessage(clrHead + "World trimming task is ready for world \"" + trimWorld + "\", trimming the map past " + trimPadding + " blocks beyond the border (default " + CoordXZ.chunkToBlock(12) + "), and the task will try to process up to " + trimFrequency + " chunks per second (default 5000).");
+			sender.sendMessage(clrHead + "World trimming task is ready for world \"" + trimWorld + "\", trimming the map past " + trimPadding + " blocks beyond the border (default " + CoordXZ.chunkToBlock(13) + "), and the task will try to process up to " + trimFrequency + " chunks per second (default 5000).");
 			sender.sendMessage(clrHead + "This process can take a while depending on the world's overall size. Also, depending on the chunk processing rate, players may experience lag for the duration.");
 			sender.sendMessage(clrDesc + "You should now use " + cmd + " trim confirm" + clrDesc + " to start the process.");
 			sender.sendMessage(clrDesc + "You can cancel at any time with " + cmd + " trim cancel" + clrDesc + ", or pause/unpause with " + cmd + " trim pause" + clrDesc + ".");

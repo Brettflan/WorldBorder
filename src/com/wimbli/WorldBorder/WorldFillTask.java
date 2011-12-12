@@ -27,7 +27,7 @@ public class WorldFillTask implements Runnable
 	private transient boolean continueNotice = false;
 	
 	// these are only stored for saving task to config
-	private transient int fillDistance = 176;
+	private transient int fillDistance = 208;
 	private transient int tickFrequency = 1;
 	private transient int refX = 0, lastLegX = 0;
 	private transient int refZ = 0, lastLegZ = 0;
