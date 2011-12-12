@@ -11,8 +11,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
@@ -24,7 +27,7 @@ public class Config
 {
 	// private stuff used within this class
 	private static WorldBorder plugin;
-	private static Configuration cfg = null;
+	private static FileConfiguration cfg = null;
 	private static PermissionHandler Permissions = null;
 	private static final Logger mcLog = Logger.getLogger("Minecraft");
 	public static DecimalFormat coord = new DecimalFormat("0.0");
@@ -241,7 +244,7 @@ public class Config
 
 	public static int AvailableMemory()
 	{
-		return (int)((rt.maxMemory() - rt.totalMemory() + rt.freeMemory()) / 1024L / 1024L);
+		return (int)((rt.maxMemory() - rt.totalMemory() + rt.freeMemory()) / 1048576);  // 1024*1024 = 1048576 (bytes in 1 MB)
 	}
 
 
@@ -253,7 +256,7 @@ public class Config
 		// Check for Permissions plugin
 		Plugin test = plugin.getServer().getPluginManager().getPlugin("Permissions");
 
-		if (test != null)
+		if (test != null && test.getClass().getName().equals("com.nijikokun.bukkit.Permissions.Permissions"))
 		{
 			Permissions = ((Permissions)test).getHandler();
 			LogConfig("Will use plugin for permissions: "+((Permissions)test).getDescription().getFullName());
@@ -301,12 +304,19 @@ public class Config
 	}
 
 
-	private static final int currentCfgVersion = 3;
+	private static final int currentCfgVersion = 4;
 
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
 		plugin = master;
-		cfg = plugin.getConfiguration();
+
+		// do this first, in case config.yml has any old "¨" compatibility characters in it which cause errors in Bukkit's new configuration handler
+		compat_load();
+
+		plugin.reloadConfig();
+		cfg = plugin.getConfig();
+//		cfg.options().pathSeparator('>');  // should work to get rid of hackish "world names with periods in them" workaround
+		// ^ sadly, while Bukkit saves the data fine with periods intact using this, it does not load it correctly (bugged, still treats periods as separators in addition to chosen separator)
 
 		int cfgVersion = cfg.getInt("cfg-version", currentCfgVersion);
 
@@ -317,8 +327,6 @@ public class Config
 		knockBack = cfg.getDouble("knock-back-dist", 3.0);
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);
 		LogConfig("Using " + (shapeRound ? "round" : "square") + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
-
-		DEBUG = cfg.getBoolean("debug-mode", false);
 
 		StartBorderTimer();
 
@@ -332,31 +340,28 @@ public class Config
 			return;
 		}
 
-		Map<String, ConfigurationNode> worlds = cfg.getNodes("worlds");
+		ConfigurationSection worlds = cfg.getConfigurationSection("worlds");
 		if (worlds != null)
 		{
-			Iterator world = worlds.entrySet().iterator();
-			while(world.hasNext())
+			Set<String> worldNames = worlds.getKeys(false);
+
+			for(String worldName : worldNames)
 			{
-				Entry wdata = (Entry)world.next();
+				ConfigurationSection bord = worlds.getConfigurationSection(worldName);
 
-				String name = null;
-				// we're swapping "¨" (from extended ASCII set) and "." back and forth at save and load since periods denote configuration nodes, and world names with periods otherwise wreak havoc
-				if (cfgVersion > 1)
-					name = ((String)wdata.getKey()).replace("¨", ".");
-				else	// old v1 format, periods encoded as slashes, which had problems
-					name = ((String)wdata.getKey()).replace("/", ".");
+				// we're swapping "<" to "." at load since periods denote configuration nodes without a working way to change that, so world names with periods wreak havoc and are thus modified for storage
+				if (cfgVersion > 3)
+					worldName = worldName.replace("<", ".");
 
-				ConfigurationNode bord = (ConfigurationNode)wdata.getValue();
-				Boolean overrideShape = (Boolean) bord.getProperty("shape-round");
+				Boolean overrideShape = (Boolean) bord.get("shape-round");
 				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radius", 0), overrideShape);
-				borders.put(name, border);
-				LogConfig(BorderDescription(name));
+				borders.put(worldName, border);
+				LogConfig(BorderDescription(worldName));
 			}
 		}
 
 		// if we have an unfinished fill task stored from a previous run, load it up
-		ConfigurationNode storedFillTask = cfg.getNode("fillTask");
+		ConfigurationSection storedFillTask = cfg.getConfigurationSection("fillTask");
 		if (storedFillTask != null)
 		{
 			String worldName = storedFillTask.getString("world");
@@ -386,47 +391,115 @@ public class Config
 	{	// save config to file
 		if (cfg == null) return;
 
-		cfg.setProperty("cfg-version", currentCfgVersion);
-		cfg.setProperty("message", message);
-		cfg.setProperty("round-border", shapeRound);
-		cfg.setProperty("debug-mode", DEBUG);
-		cfg.setProperty("whoosh-effect", whooshEffect);
-		cfg.setProperty("knock-back-dist", knockBack);
-		cfg.setProperty("timer-delay-ticks", timerTicks);
+		cfg.set("cfg-version", currentCfgVersion);
+		cfg.set("message", message);
+		cfg.set("round-border", shapeRound);
+		cfg.set("debug-mode", DEBUG);
+		cfg.set("whoosh-effect", whooshEffect);
+		cfg.set("knock-back-dist", knockBack);
+		cfg.set("timer-delay-ticks", timerTicks);
 
-		cfg.removeProperty("worlds");
+		cfg.set("worlds", null);
 		Iterator world = borders.entrySet().iterator();
 		while(world.hasNext())
 		{
 			Entry wdata = (Entry)world.next();
-			String name = (String)wdata.getKey();
+			String name = ((String)wdata.getKey()).replace(".", "<");
 			BorderData bord = (BorderData)wdata.getValue();
 
-			cfg.setProperty("worlds." + name.replace(".", "¨") + ".x", bord.getX());
-			cfg.setProperty("worlds." + name.replace(".", "¨") + ".z", bord.getZ());
-			cfg.setProperty("worlds." + name.replace(".", "¨") + ".radius", bord.getRadius());
+			cfg.set("worlds." + name + ".x", bord.getX());
+			cfg.set("worlds." + name + ".z", bord.getZ());
+			cfg.set("worlds." + name + ".radius", bord.getRadius());
+/*			cfg.set("worlds>" + name + ">x", bord.getX());
+			cfg.set("worlds>" + name + ">z", bord.getZ());
+			cfg.set("worlds>" + name + ">radius", bord.getRadius());
+ */
 
 			if (bord.getShape() != null)
-				cfg.setProperty("worlds." + name.replace(".", "¨") + ".shape-round", bord.getShape());
+				cfg.set("worlds." + name + ".shape-round", bord.getShape());
 		}
 
 		if (storeFillTask && fillTask != null && fillTask.valid())
 		{
-			cfg.setProperty("fillTask.world", fillTask.refWorld());
-			cfg.setProperty("fillTask.fillDistance", fillTask.refFillDistance());
-			cfg.setProperty("fillTask.chunksPerRun", fillTask.refChunksPerRun());
-			cfg.setProperty("fillTask.tickFrequency", fillTask.refTickFrequency());
-			cfg.setProperty("fillTask.x", fillTask.refX());
-			cfg.setProperty("fillTask.z", fillTask.refZ());
-			cfg.setProperty("fillTask.length", fillTask.refLength());
-			cfg.setProperty("fillTask.total", fillTask.refTotal());
+			cfg.set("fillTask.world", fillTask.refWorld());
+			cfg.set("fillTask.fillDistance", fillTask.refFillDistance());
+			cfg.set("fillTask.chunksPerRun", fillTask.refChunksPerRun());
+			cfg.set("fillTask.tickFrequency", fillTask.refTickFrequency());
+			cfg.set("fillTask.x", fillTask.refX());
+			cfg.set("fillTask.z", fillTask.refZ());
+			cfg.set("fillTask.length", fillTask.refLength());
+			cfg.set("fillTask.total", fillTask.refTotal());
 		}
 		else
-			cfg.removeProperty("fillTask");
+			cfg.set("fillTask", null);
 
-		cfg.save();
+		plugin.saveConfig();
 
 		if (logIt)
 			LogConfig("Configuration saved.");
+	}
+
+	public static void compat_load()
+	{ // load config from file
+		Configuration old_cfg = plugin.getConfiguration();
+
+		int cfgVersion = old_cfg.getInt("cfg-version", currentCfgVersion);
+
+		// if the config version is newer than this, it's safe to load through the normal handler
+		if (cfgVersion > 3)
+			return;
+
+		LogConfig("Upgrading older version config file.");
+
+		message = old_cfg.getString("message");
+		shapeRound = old_cfg.getBoolean("round-border", true);
+		DEBUG = old_cfg.getBoolean("debug-mode", false);
+		whooshEffect = old_cfg.getBoolean("whoosh-effect", false);
+		knockBack = old_cfg.getDouble("knock-back-dist", 3.0);
+		timerTicks = old_cfg.getInt("timer-delay-ticks", 5);
+
+		borders.clear();
+
+		Map<String, ConfigurationNode> worlds = old_cfg.getNodes("worlds");
+		if (worlds != null)
+		{
+			Iterator world = worlds.entrySet().iterator();
+			while(world.hasNext())
+			{
+				Entry wdata = (Entry)world.next();
+
+				String name = null;
+				// we're swapping "¨" (from extended ASCII set) and "." back and forth at save and load since periods denote configuration nodes, and world names with periods otherwise wreak havoc
+				if (cfgVersion > 1)
+					name = ((String)wdata.getKey()).replace("¨", ".");
+				else // old v1 format, periods encoded as slashes, which had problems
+					name = ((String)wdata.getKey()).replace("/", ".");
+
+				ConfigurationNode bord = (ConfigurationNode)wdata.getValue();
+				Boolean overrideShape = (Boolean) bord.getProperty("shape-round");
+				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radius", 0), overrideShape);
+				borders.put(name, border);
+			}
+		}
+
+		// if we have an unfinished fill task stored from a previous run, load it up
+		ConfigurationNode storedFillTask = old_cfg.getNode("fillTask");
+		if (storedFillTask != null)
+		{
+			String worldName = storedFillTask.getString("world");
+			int fillDistance = storedFillTask.getInt("fillDistance", 176);
+			int chunksPerRun = storedFillTask.getInt("chunksPerRun", 5);
+			int tickFrequency = storedFillTask.getInt("tickFrequency", 20);
+			int fillX = storedFillTask.getInt("x", 0);
+			int fillZ = storedFillTask.getInt("z", 0);
+			int fillLength = storedFillTask.getInt("length", 0);
+			int fillTotal = storedFillTask.getInt("total", 0);
+			RestoreFillTask(worldName, fillDistance, chunksPerRun, tickFrequency, fillX, fillZ, fillLength, fillTotal);
+		}
+
+		old_cfg.removeProperty("worlds");
+		old_cfg.save();
+		cfg = plugin.getConfig();
+		save(false, false);
 	}
 }
