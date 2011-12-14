@@ -439,6 +439,7 @@ public class Config
 			LogConfig("Configuration saved.");
 	}
 
+	// needed in case config.yml has any old "¨" compatibility characters in it, since they cause parse errors in Bukkit's new configuration handler
 	public static void compat_load()
 	{ // load config from file
 		Configuration old_cfg = plugin.getConfiguration();

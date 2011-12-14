@@ -3,6 +3,7 @@ package com.wimbli.WorldBorder;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -165,7 +166,15 @@ public class BorderData
 			zLoc = z + vZ / magV * (radius - Config.KnockBack());
 		}
 
-		yLoc = getSafeY(loc.getWorld(), Location.locToBlock(xLoc), Location.locToBlock(yLoc), Location.locToBlock(zLoc));
+		int ixLoc = Location.locToBlock(xLoc);
+		int izLoc = Location.locToBlock(zLoc);
+
+		// Make sure the chunk we're checking in is actually loaded
+		Chunk tChunk = loc.getWorld().getChunkAt(CoordXZ.blockToChunk(ixLoc), CoordXZ.blockToChunk(izLoc));
+		if (!tChunk.isLoaded())
+			tChunk.load();
+
+		yLoc = getSafeY(loc.getWorld(), ixLoc, Location.locToBlock(yLoc), izLoc);
 		if (yLoc == -1)
 			return null;
 
@@ -178,12 +187,12 @@ public class BorderData
 
 	//these material IDs are acceptable for places to teleport player; breathable blocks and water
 	private static final LinkedHashSet<Integer> safeOpenBlocks = new LinkedHashSet<Integer>(Arrays.asList(
-		 new Integer[] {0, 6, 8, 9, 27, 28, 30, 31, 32, 37, 38, 39, 40, 50, 55, 59, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 78, 83, 90, 93, 94, 96, 104, 105, 106}
+		 new Integer[] {0, 6, 8, 9, 27, 28, 30, 31, 32, 37, 38, 39, 40, 50, 55, 59, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 78, 83, 90, 93, 94, 96, 104, 105, 106, 115}
 	));
 
-	//these material IDs are ones we don't want to drop the player onto, like cactus or lava or fire
+	//these material IDs are ones we don't want to drop the player onto, like cactus or lava or fire or activated Ender portal
 	private static final LinkedHashSet<Integer> painfulBlocks = new LinkedHashSet<Integer>(Arrays.asList(
-		 new Integer[] {10, 11, 51, 81}
+		 new Integer[] {10, 11, 51, 81, 119}
 	));
 
 	// check if a particular spot consists of 2 breathable blocks over something relatively solid
@@ -197,7 +206,7 @@ public class BorderData
 			);
 	}
 
-	private static final int limTop = 120, limBot = 1;
+	private static final int limTop = 126, limBot = 1;
 
 	// find closest safe Y position from the starting position
 	private double getSafeY(World world, int X, int Y, int Z)
@@ -206,13 +215,15 @@ public class BorderData
 
 		for(int y1 = Y, y2 = Y; (y1 > limBot) || (y2 < limTop); y1--, y2++){
 			// Look below.
-			if(y1 > limBot){
+			if(y1 > limBot)
+			{
 				if (isSafeSpot(world, X, y1, Z))
 					return (double)y1;
 			}
 
 			// Look above.
-			if(y2 < limTop && y2 != y1){
+			if(y2 < limTop && y2 != y1)
+			{
 				if (isSafeSpot(world, X, y2, Z))
 					return (double)y2;
 			}
