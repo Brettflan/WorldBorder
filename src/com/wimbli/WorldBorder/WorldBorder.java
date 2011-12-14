@@ -1,5 +1,7 @@
 package com.wimbli.WorldBorder;
 
+import org.bukkit.event.Event;
+import org.bukkit.event.Event.Priority;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -7,6 +9,8 @@ import org.bukkit.plugin.PluginDescriptionFile;
 
 public class WorldBorder extends JavaPlugin
 {
+	private final WBPlayerListener pl = new WBPlayerListener();
+	
 	public void onEnable()
 	{
 		PluginDescriptionFile desc = this.getDescription();
@@ -23,16 +27,8 @@ public class WorldBorder extends JavaPlugin
 		// our one real command, though it does also have aliases "wb" and "worldborder"
 		getCommand("wborder").setExecutor(new WBCommand(this));
 
-/*		// for monitoring plugin efficiency
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable()
-		{
-			public long startTime = Config.Now();
-			public void run()
-			{
-				Config.Log("Running for " + (int)((Config.Now() - startTime) / (60000)) + " minutes, has used total border checking time of " + Config.timeUsed + "ms.");
-			}
-		}, 1200, 1200);
-*/
+		// keep an eye on teleports, to redirect them to a spot inside the border if necessary
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, pl, Priority.Lowest, this);
 	}
 
 	public void onDisable()

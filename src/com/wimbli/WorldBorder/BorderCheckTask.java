@@ -20,58 +20,64 @@ public class BorderCheckTask implements Runnable
 
 	public void run()
 	{
-//		long startTime = Config.Now();  // for monitoring plugin efficiency
 		if (server == null)
-		{
-//			Config.timeUsed += Config.Now() - startTime;  // for monitoring plugin efficiency
 			return;
-		}
 
 		Player[] players = server.getOnlinePlayers();
 
 		for (int i = 0; i < players.length; i++){
-			if (players[i] == null || !players[i].isOnline()) continue;
+			checkPlayer(players[i], null, false);
+		}
+	}
 
-			Location loc = players[i].getLocation();
-			if (loc == null) continue;
+	// set targetLoc only if not current player location; set returnLocationOnly to true to have new Location returned if they need to be moved to one, instead of directly handling it
+	public static Location checkPlayer(Player player, Location targetLoc, boolean returnLocationOnly)
+	{
+		if (player == null || !player.isOnline()) return null;
 
-			World world = loc.getWorld();
-			if (world == null) continue;
-			BorderData border = Config.Border(world.getName());
-			if (border == null) continue;
+		Location loc = (targetLoc == null) ? player.getLocation() : targetLoc;
+		if (loc == null) return null;
 
-			if (border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound()))
-				continue;
+		World world = loc.getWorld();
+		if (world == null) return null;
+		BorderData border = Config.Border(world.getName());
+		if (border == null) return null;
 
-			Location newLoc = newLocation(players[i], loc, border);
+		if (border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound()))
+			return null;
 
-			if (!players[i].isInsideVehicle())
-				players[i].teleport(newLoc);
-			else
-			{
-				Vehicle ride = players[i].getVehicle();
-				if (ride != null)
-				{	// vehicles need to be offset vertically and have velocity stopped
-					double vertOffset = ride.getLocation().getY() - loc.getY();
-					newLoc.setY(newLoc.getY() + vertOffset);
-					ride.setVelocity(new Vector(0, 0, 0));
-					ride.teleport(newLoc);
-				}
-				else
-				{	// if player.getVehicle() returns null (when riding a pig on older Bukkit releases, for instance), player has to be ejected
-					players[i].leaveVehicle();
-					players[i].teleport(newLoc);
-				}
+		Location newLoc = newLocation(player, loc, border);
+
+		if (Config.whooshEffect())
+		{	// show some smoke and play the extinguish sound effect where the player was beyond the border
+			world.playEffect(loc, Effect.SMOKE, 4);
+			world.playEffect(loc, Effect.SMOKE, 4);
+			world.playEffect(loc, Effect.EXTINGUISH, 0);
+		}
+
+		if (returnLocationOnly)
+			return newLoc;
+
+		if (!player.isInsideVehicle())
+			player.teleport(newLoc);
+		else
+		{
+			Vehicle ride = player.getVehicle();
+			if (ride != null)
+			{	// vehicles need to be offset vertically and have velocity stopped
+				double vertOffset = ride.getLocation().getY() - loc.getY();
+				newLoc.setY(newLoc.getY() + vertOffset);
+				ride.setVelocity(new Vector(0, 0, 0));
+				ride.teleport(newLoc);
 			}
-
-			if (Config.whooshEffect())
-			{	// show some smoke and play the extinguish sound effect where the player was beyond the border
-				world.playEffect(loc, Effect.SMOKE, 4);
-				world.playEffect(loc, Effect.SMOKE, 4);
-				world.playEffect(loc, Effect.EXTINGUISH, 0);
+			else
+			{	// if player.getVehicle() returns null (when riding a pig on older Bukkit releases, for instance), player has to be ejected
+				player.leaveVehicle();
+				player.teleport(newLoc);
 			}
 		}
-//		Config.timeUsed += Config.Now() - startTime;  // for monitoring plugin efficiency
+
+		return null;
 	}
 
 	private static Location newLocation(Player player, Location loc, BorderData border)
