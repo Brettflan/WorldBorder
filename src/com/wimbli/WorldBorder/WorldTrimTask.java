@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -68,16 +67,21 @@ public class WorldTrimTask implements Runnable
 
 		this.border.setRadius(border.getRadius() + trimDistance);
 
-		regionFolder = new File("./"+worldName+"/region");
+		regionFolder = new File(this.world.getWorldFolder(), "region");
 		if (!regionFolder.exists() || !regionFolder.isDirectory())
 		{
 			String mainRegionFolder = regionFolder.getPath();
-			regionFolder = new File("./"+worldName+"/DIM-1/region");
+			regionFolder = new File(this.world.getWorldFolder(), "DIM-1"+File.separator+"region");  // nether worlds
 			if (!regionFolder.exists() || !regionFolder.isDirectory())
 			{
-				sendMessage("Could not validate folder for world's region files. Looked in: "+mainRegionFolder+" -and- "+regionFolder.getPath());
-				this.stop();
-				return;
+				String subRegionFolder = regionFolder.getPath();
+				regionFolder = new File(this.world.getWorldFolder(), "DIM1"+File.separator+"region");  // "the end" worlds; not sure why "DIM1" vs "DIM-1", but that's how it is
+				if (!regionFolder.exists() || !regionFolder.isDirectory())
+				{
+					sendMessage("Could not validate folder for world's region files. Looked in: "+mainRegionFolder+" -and- "+subRegionFolder+" -and- "+regionFolder.getPath());
+					this.stop();
+					return;
+				}
 			}
 		}
 		regionFiles = regionFolder.listFiles(new RegionFileFilter());
