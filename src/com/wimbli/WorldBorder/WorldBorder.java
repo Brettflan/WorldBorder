@@ -16,9 +16,8 @@ public class WorldBorder extends JavaPlugin
 		PluginDescriptionFile desc = this.getDescription();
 		System.out.println( desc.getName() + " version " + desc.getVersion() + " loading" );
 
-		// Load (or create new) config file, and connect to Permissions if it's available
+		// Load (or create new) config file
 		Config.load(this, false);
-		Config.loadPermissions(this);
 
 		// Well I for one find this info useful, so...
 		Location spawn = getServer().getWorlds().get(0).getSpawnLocation();

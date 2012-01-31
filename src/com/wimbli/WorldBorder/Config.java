@@ -19,8 +19,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
 
-import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
 
 
 public class Config
@@ -28,7 +26,6 @@ public class Config
 	// private stuff used within this class
 	private static WorldBorder plugin;
 	private static FileConfiguration cfg = null;
-	private static PermissionHandler Permissions = null;
 	private static final Logger mcLog = Logger.getLogger("Minecraft");
 	public static DecimalFormat coord = new DecimalFormat("0.0");
 	private static int borderTask = -1;
@@ -248,23 +245,6 @@ public class Config
 	}
 
 
-	public static void loadPermissions(WorldBorder plugin)
-	{
-		if (Permissions != null || plugin == null)
-			return;
-
-		// Check for Permissions plugin
-		Plugin test = plugin.getServer().getPluginManager().getPlugin("Permissions");
-
-		if (test != null && test.getClass().getName().equals("com.nijikokun.bukkit.Permissions.Permissions"))
-		{
-			Permissions = ((Permissions)test).getHandler();
-			LogConfig("Will use plugin for permissions: "+((Permissions)test).getDescription().getFullName());
-		} else {
-			LogConfig("Permissions plugin not found. Defaulting to Bukkit's built-in SuperPerms system.");
-		}
-	}
-
 	public static boolean HasPermission(Player player, String request)
 	{
 		if (player == null)				// console, always permitted
@@ -272,11 +252,6 @@ public class Config
 		else if (player.isOp())			// Op, always permitted
 			return true;
 
-		if (Permissions != null)	// Permissions plugin available
-		{
-			if (Permissions.permission(player, "worldborder." + request))
-				return true;
-		}
 		if (player.hasPermission("worldborder." + request))	// built-in Bukkit superperms
 			return true;
 
