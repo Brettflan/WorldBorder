@@ -1,7 +1,5 @@
 package com.wimbli.WorldBorder;
 
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -9,8 +7,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 
 public class WorldBorder extends JavaPlugin
 {
-	private final WBPlayerListener pl = new WBPlayerListener();
-	
+	@Override
 	public void onEnable()
 	{
 		PluginDescriptionFile desc = this.getDescription();
@@ -27,9 +24,10 @@ public class WorldBorder extends JavaPlugin
 		getCommand("wborder").setExecutor(new WBCommand(this));
 
 		// keep an eye on teleports, to redirect them to a spot inside the border if necessary
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, pl, Priority.Lowest, this);
+		getServer().getPluginManager().registerEvents(new WBListener(), this);
 	}
 
+	@Override
 	public void onDisable()
 	{
 		PluginDescriptionFile desc = this.getDescription();

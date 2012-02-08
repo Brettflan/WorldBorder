@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 import org.bukkit.Server;
@@ -108,10 +107,8 @@ public class WorldFillTask implements Runnable
 		if (continueNotice)
 		{	// notify user that task has continued automatically
 			continueNotice = false;
-			String clrCmd = ChatColor.AQUA.toString();
-			String clrDesc = ChatColor.WHITE.toString();
 			sendMessage("World map generation task automatically continuing.");
-			sendMessage("Reminder: you can cancel at any time with " + clrCmd + "wb fill cancel" + clrDesc + ", or pause/unpause with " + clrCmd + "wb fill pause" + clrDesc + ".");
+			sendMessage("Reminder: you can cancel at any time with \"wb fill cancel\", or pause/unpause with \"wb fill pause\".");
 		}
 
 		if (pausedForMemory)

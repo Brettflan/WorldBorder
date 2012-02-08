@@ -14,7 +14,6 @@ import java.util.Set;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import org.bukkit.util.config.Configuration;
 import org.bukkit.util.config.ConfigurationNode;
