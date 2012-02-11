@@ -54,6 +54,6 @@ public class CoordXZ
 	@Override
 	public int hashCode()
 	{
-		return (this.x << 6) + this.z;
+		return (this.x << 9) + this.z;
 	}
 }

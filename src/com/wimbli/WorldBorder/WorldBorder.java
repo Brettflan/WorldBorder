@@ -10,9 +10,6 @@ public class WorldBorder extends JavaPlugin
 	@Override
 	public void onEnable()
 	{
-		PluginDescriptionFile desc = this.getDescription();
-		System.out.println( desc.getName() + " version " + desc.getVersion() + " loading" );
-
 		// Load (or create new) config file
 		Config.load(this, false);
 
@@ -30,8 +27,6 @@ public class WorldBorder extends JavaPlugin
 	@Override
 	public void onDisable()
 	{
-		PluginDescriptionFile desc = this.getDescription();
-		System.out.println( desc.getName() + " version " + desc.getVersion() + " shutting down" );
 		Config.StopBorderTimer();
 		Config.StoreFillTask();
 		Config.StopFillTask();

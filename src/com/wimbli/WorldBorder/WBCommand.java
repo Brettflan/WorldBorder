@@ -457,7 +457,7 @@ public class WBCommand implements CommandExecutor
 			String pad = "", frequency = "";
 			if (split.length >= 3)
 			{
-				cancel = split[2].equalsIgnoreCase("cancel");
+				cancel = split[2].equalsIgnoreCase("cancel") || split[2].equalsIgnoreCase("stop");
 				confirm = split[2].equalsIgnoreCase("confirm");
 				pause = split[2].equalsIgnoreCase("pause");
 				if (!cancel && !confirm && !pause)
@@ -480,7 +480,7 @@ public class WBCommand implements CommandExecutor
 			String pad = "", frequency = "";
 			if (split.length >= 2)
 			{
-				cancel = split[1].equalsIgnoreCase("cancel");
+				cancel = split[1].equalsIgnoreCase("cancel") || split[1].equalsIgnoreCase("stop");
 				confirm = split[1].equalsIgnoreCase("confirm");
 				pause = split[1].equalsIgnoreCase("pause");
 				if (!cancel && !confirm && !pause)
@@ -511,7 +511,7 @@ public class WBCommand implements CommandExecutor
 			String pad = "", frequency = "";
 			if (split.length >= 3)
 			{
-				cancel = split[2].equalsIgnoreCase("cancel");
+				cancel = split[2].equalsIgnoreCase("cancel") || split[2].equalsIgnoreCase("stop");
 				confirm = split[2].equalsIgnoreCase("confirm");
 				pause = split[2].equalsIgnoreCase("pause");
 				if (!cancel && !confirm && !pause)
@@ -534,7 +534,7 @@ public class WBCommand implements CommandExecutor
 			String pad = "", frequency = "";
 			if (split.length >= 2)
 			{
-				cancel = split[1].equalsIgnoreCase("cancel");
+				cancel = split[1].equalsIgnoreCase("cancel") || split[1].equalsIgnoreCase("stop");
 				confirm = split[1].equalsIgnoreCase("confirm");
 				pause = split[1].equalsIgnoreCase("pause");
 				if (!cancel && !confirm && !pause)
@@ -731,7 +731,7 @@ public class WBCommand implements CommandExecutor
 			}
 
 			String cmd = clrCmd + ((player == null) ? "wb" : "/wb");
-			sender.sendMessage(clrHead + "World generation task is ready for world \"" + fillWorld + "\", padding the map out to " + fillPadding + " blocks beyond the border (default " + CoordXZ.chunkToBlock(13) + "), and the task will try to process up to " + fillFrequency + " chunks per second (default 20).");
+			sender.sendMessage(clrHead + "World generation task is ready for world \"" + fillWorld + "\", padding the map out to " + fillPadding + " blocks beyond the border (default " + CoordXZ.chunkToBlock(13) + "), and the task will try to generate up to " + fillFrequency + " chunks per second (default 20).");
 			sender.sendMessage(clrHead + "This process can take a very long time depending on the world's border size. Also, depending on the chunk processing rate, players will likely experience severe lag for the duration.");
 			sender.sendMessage(clrDesc + "You should now use " + cmd + " fill confirm" + clrDesc + " to start the process.");
 			sender.sendMessage(clrDesc + "You can cancel at any time with " + cmd + " fill cancel" + clrDesc + ", or pause/unpause with " + cmd + " fill pause" + clrDesc + ".");
