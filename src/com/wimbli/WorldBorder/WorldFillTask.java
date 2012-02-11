@@ -17,6 +17,7 @@ public class WorldFillTask implements Runnable
 	private transient Server server = null;
 	private transient World world = null;
 	private transient BorderData border = null;
+	private transient WorldFileData worldData = null;
 	private transient boolean readyToGo = false;
 	private transient boolean paused = false;
 	private transient boolean pausedForMemory = false;
@@ -43,9 +44,11 @@ public class WorldFillTask implements Runnable
 	private transient boolean insideBorder = true;
 	private List<CoordXZ> storedChunks = new LinkedList<CoordXZ>();
 	private Set<CoordXZ> originalChunks = new HashSet<CoordXZ>();
+	private transient CoordXZ lastChunk = new CoordXZ(0, 0);
 
 	// for reporting progress back to user occasionally
 	private transient long lastReport = Config.Now();
+	private transient int reportSkipped = 0;
 	private transient int reportTarget = 0;
 	private transient int reportTotal = 0;
 	private transient int reportNum = 0;
@@ -74,6 +77,14 @@ public class WorldFillTask implements Runnable
 		if (this.border == null)
 		{
 			sendMessage("No border found for world \"" + worldName + "\"!");
+			this.stop();
+			return;
+		}
+
+		// load up a new WorldFileData for the world in question, used to scan region files for which chunks are already fully generated and such
+		worldData = WorldFileData.create(world, notifyPlayer);
+		if (worldData == null)
+		{
 			this.stop();
 			return;
 		}
@@ -117,6 +128,7 @@ public class WorldFillTask implements Runnable
 				return;
 
 			pausedForMemory = false;
+			readyToGo = true;
 			sendMessage("Available memory is sufficient, automatically continuing.");
 		}
 
@@ -125,6 +137,8 @@ public class WorldFillTask implements Runnable
 
 		// this is set so it only does one iteration at a time, no matter how frequently the timer fires
 		readyToGo = false;
+		// and this is tracked to keep one iteration from dragging on too long and possibly choking the system if the user specified a really high frequency
+		long loopStartTime = Config.Now();
 
 		for (int loop = 0; loop < chunksPerRun; loop++)
 		{
@@ -132,9 +146,18 @@ public class WorldFillTask implements Runnable
 			if (paused || pausedForMemory)
 				return;
 
+			long now = Config.Now();
+
 			// every 5 seconds or so, give basic progress report to let user know how it's going
-			if (Config.Now() > lastReport + 5000)
+			if (now > lastReport + 5000)
 				reportProgress();
+
+			// if this iteration has been running for 250ms (~5 ticks) or more, stop to take a breather
+			if (now > loopStartTime + 250)
+			{
+				readyToGo = true;
+				return;
+			}
 
 			// if we've made it at least partly outside the border, skip past any such chunks
 			while (!border.insideBorder(CoordXZ.chunkToBlock(x) + 8, CoordXZ.chunkToBlock(z) + 8))
@@ -144,16 +167,18 @@ public class WorldFillTask implements Runnable
 			}
 			insideBorder = true;
 
-			// skip past any chunks which are currently loaded (they're definitely already generated)
-			while (world.isChunkLoaded(x, z))
+			// skip past any chunks which are confirmed as fully generated using our super-special isChunkFullyGenerated routine
+			while (worldData.isChunkFullyGenerated(x, z))
 			{
+				reportSkipped++;
 				insideBorder = true;
 				if (!moveToNext())
 					return;
 			}
 
-			// load the target chunk and generate it if necessary (no way to check if chunk has been generated first, simply have to load it)
+			// load the target chunk and generate it if necessary
 			world.loadChunk(x, z, true);
+			worldData.chunkExistsNow(x, z);
 
 			// There need to be enough nearby chunks loaded to make the server populate a chunk with trees, snow, etc.
 			// So, we keep the last few chunks loaded, and need to also temporarily load an extra inside chunk (neighbor closest to center of map)
@@ -161,17 +186,21 @@ public class WorldFillTask implements Runnable
 			int popZ = isZLeg ? z : (z + (!isNeg ? -1 : 1));
 			world.loadChunk(popX, popZ, false);
 
+			// make sure the previous chunk in our spiral is loaded as well (might have already existed and been skipped over)
+			if (!storedChunks.contains(lastChunk) && !originalChunks.contains(lastChunk))
+			{
+				world.loadChunk(lastChunk.x, lastChunk.z, false);
+				storedChunks.add(new CoordXZ(lastChunk.x, lastChunk.z));
+			}
+
 			// Store the coordinates of these latest 2 chunks we just loaded, so we can unload them after a bit...
-			storedChunks.add(new CoordXZ(x, z));
 			storedChunks.add(new CoordXZ(popX, popZ));
+			storedChunks.add(new CoordXZ(x, z));
 
 			// If enough stored chunks are buffered in, go ahead and unload the oldest to free up memory
-			if (storedChunks.size() > 6)
+			while (storedChunks.size() > 8)
 			{
 				CoordXZ coord = storedChunks.remove(0);
-				if (!originalChunks.contains(coord))
-					world.unloadChunkRequest(coord.x, coord.z);
-				coord = storedChunks.remove(0);
 				if (!originalChunks.contains(coord))
 					world.unloadChunkRequest(coord.x, coord.z);
 			}
@@ -188,6 +217,9 @@ public class WorldFillTask implements Runnable
 	// step through chunks in spiral pattern from center; returns false if we're done, otherwise returns true
 	public boolean moveToNext()
 	{
+		if (paused || pausedForMemory)
+			return false;
+
 		reportNum++;
 
 		// keep track of progress in case we need to save to config for restoring progress after server restart
@@ -219,6 +251,10 @@ public class WorldFillTask implements Runnable
 				length++;
 			}
 		}
+
+		// keep track of the last chunk we were at
+		lastChunk.x = x;
+		lastChunk.z = z;
 
 		// move one chunk further in the appropriate direction
 		if (isZLeg)
@@ -323,22 +359,30 @@ public class WorldFillTask implements Runnable
 	}
 
 	// let the user know how things are coming along
+	private int reportCounter = 0;
 	private void reportProgress()
 	{
 		lastReport = Config.Now();
 		double perc = ((double)(reportTotal + reportNum) / (double)reportTarget) * 100;
-		sendMessage(reportNum + " more map chunks processed (" + (reportTotal + reportNum) + " total, " + Config.coord.format(perc) + "%" + ")");
+		if (perc > 100) perc = 100;
+		sendMessage(reportNum + " more chunks processed (" + (reportTotal + reportNum) + " total with " + reportSkipped + " skipped, ~" + Config.coord.format(perc) + "%" + ")");
 		reportTotal += reportNum;
 		reportNum = 0;
 
-		// try to keep memory usage in check and keep things speedy as much as possible...
-		world.save();
+		reportCounter++;
+		// go ahead and save world to disk every 30 seconds or so, just in case; can take a couple of seconds or more, so we don't want to run it too often
+		if (reportCounter >= 6)
+		{
+			reportCounter = 0;
+			sendMessage("Saving the world to disk, just to be on the safe side.");
+			world.save();
+		}
 	}
 
 	// send a message to the server console/log and possibly to an in-game player
 	private void sendMessage(String text)
 	{
-		// Due to the apparent chunk generation memory leak, we need to track memory availability
+		// Due to chunk generation eating up memory and Java being too slow about GC, we need to track memory availability
 		int availMem = Config.AvailableMemory();
 
 		Config.Log("[Fill] " + text + " (free mem: " + availMem + " MB)");
@@ -349,10 +393,13 @@ public class WorldFillTask implements Runnable
 		{	// running low on memory, auto-pause
 			pausedForMemory = true;
 			Config.StoreFillTask();
-			text = "Available memory is very low, task is pausing. Will automatically continue if/when sufficient memory is freed up.\n Alternately, if you restart the server, this task will automatically continue once the server is back up.";
+			text = "Available memory is very low, task is pausing. A cleanup will be attempted now, and the task will automatically continue if/when sufficient memory is freed up.\n Alternatively, if you restart the server, this task will automatically continue once the server is back up.";
 			Config.Log("[Fill] " + text);
 			if (notifyPlayer != null)
 				notifyPlayer.sendMessage("[Fill] " + text);
+			// prod Java with a request to go ahead and do GC to clean unloaded chunks from memory; this seems to work wonders almost immediately
+			// yes, explicit calls to System.gc() are normally bad, but in this case it otherwise can take a long long long time for Java to recover memory
+			System.gc();
 		}
 	}
 

@@ -14,8 +14,7 @@ public class WorldTrimTask implements Runnable
 	// general task-related reference data
 	private transient Server server = null;
 	private transient World world = null;
-	private transient File regionFolder = null;
-	private transient File[] regionFiles = null;
+	private transient WorldFileData worldData = null;
 	private transient BorderData border = null;
 	private transient boolean readyToGo = false;
 	private transient boolean paused = false;
@@ -67,34 +66,15 @@ public class WorldTrimTask implements Runnable
 
 		this.border.setRadius(border.getRadius() + trimDistance);
 
-		regionFolder = new File(this.world.getWorldFolder(), "region");
-		if (!regionFolder.exists() || !regionFolder.isDirectory())
+		worldData = WorldFileData.create(world, notifyPlayer);
+		if (worldData == null)
 		{
-			String mainRegionFolder = regionFolder.getPath();
-			regionFolder = new File(this.world.getWorldFolder(), "DIM-1"+File.separator+"region");  // nether worlds
-			if (!regionFolder.exists() || !regionFolder.isDirectory())
-			{
-				String subRegionFolder = regionFolder.getPath();
-				regionFolder = new File(this.world.getWorldFolder(), "DIM1"+File.separator+"region");  // "the end" worlds; not sure why "DIM1" vs "DIM-1", but that's how it is
-				if (!regionFolder.exists() || !regionFolder.isDirectory())
-				{
-					sendMessage("Could not validate folder for world's region files. Looked in: "+mainRegionFolder+" -and- "+subRegionFolder+" -and- "+regionFolder.getPath());
-					this.stop();
-					return;
-				}
-			}
-		}
-		regionFiles = regionFolder.listFiles(new RegionFileFilter());
-
-		if (regionFiles == null || regionFiles.length == 0)
-		{
-			sendMessage("Could not find any region files. Looked in: "+regionFolder.getPath());
 			this.stop();
 			return;
 		}
 
 		// each region file covers up to 1024 chunks; with all operations we might need to do, let's figure 3X that
-		this.reportTarget = regionFiles.length * 3072;
+		this.reportTarget = worldData.regionFileCount() * 3072;
 
 		// queue up the first file
 		if (!nextFile())
@@ -147,9 +127,10 @@ public class WorldTrimTask implements Runnable
 				trimChunks = regionChunks;
 				unloadChunks();
 				reportTrimmedRegions++;
-				if (!regionFiles[currentRegion].delete())
+				File regionFile = worldData.regionFile(currentRegion);
+				if (!regionFile.delete())
 				{
-					sendMessage("Error! Region file which is outside the border could not be deleted: "+regionFiles[currentRegion].getName());
+					sendMessage("Error! Region file which is outside the border could not be deleted: "+regionFile.getName());
 					wipeChunks();
 				}
 				nextFile();
@@ -189,7 +170,7 @@ public class WorldTrimTask implements Runnable
 		trimChunks = new ArrayList<CoordXZ>(1024);
 
 		// have we already handled all region files?
-		if (currentRegion >= regionFiles.length)
+		if (currentRegion >= worldData.regionFileCount())
 		{	// hey, we're done
 			paused = true;
 			readyToGo = false;
@@ -199,19 +180,13 @@ public class WorldTrimTask implements Runnable
 
 		counter += 16;
 
-		// get the X and Z coordinates of the current region from the filename
-		String[] coords = regionFiles[currentRegion].getName().split("\\.");
-		try
-		{
-			regionX = Integer.parseInt(coords[1]);
-			regionZ = Integer.parseInt(coords[2]);
-		}
-		catch(Exception ex)
-		{
-			sendMessage("Error! Region file found with abnormal name: "+regionFiles[currentRegion].getName());
+		// get the X and Z coordinates of the current region
+		CoordXZ coord = worldData.regionFileCoordinates(currentRegion);
+		if (coord == null)
 			return false;
-		}
 
+		regionX = coord.x;
+		regionZ = coord.z;
 		return true;
 	}
 
@@ -279,12 +254,13 @@ public class WorldTrimTask implements Runnable
 	// by the way, this method was created based on the divulged region file format: http://mojang.com/2011/02/16/minecraft-save-file-format-in-beta-1-3/
 	private void wipeChunks()
 	{
-		if (!regionFiles[currentRegion].canWrite())
+		File regionFile = worldData.regionFile(currentRegion);
+		if (!regionFile.canWrite())
 		{
-			regionFiles[currentRegion].setWritable(true);
-			if (!regionFiles[currentRegion].canWrite())
+			regionFile.setWritable(true);
+			if (!regionFile.canWrite())
 			{
-				sendMessage("Error! region file is locked and can't be trimmed: "+regionFiles[currentRegion].getName());
+				sendMessage("Error! region file is locked and can't be trimmed: "+regionFile.getName());
 				return;
 			}
 		}
@@ -296,7 +272,7 @@ public class WorldTrimTask implements Runnable
 
 		try
 		{
-			RandomAccessFile unChunk = new RandomAccessFile(regionFiles[currentRegion], "rwd");
+			RandomAccessFile unChunk = new RandomAccessFile(regionFile, "rwd");
 			for (CoordXZ wipe : trimChunks)
 			{	// wipe this extraneous chunk's pointer... note that this method isn't perfect since the actual chunk data is left orphaned,
 				// but Minecraft will overwrite the orphaned data sector if/when another chunk is created in the region, so it's not so bad
@@ -309,11 +285,11 @@ public class WorldTrimTask implements Runnable
 		}
 		catch (FileNotFoundException ex)
 		{
-			sendMessage("Error! Could not open region file to wipe individual chunks: "+regionFiles[currentRegion].getName());
+			sendMessage("Error! Could not open region file to wipe individual chunks: "+regionFile.getName());
 		}
 		catch (IOException ex)
 		{
-			sendMessage("Error! Could not modify region file to wipe individual chunks: "+regionFiles[currentRegion].getName());
+			sendMessage("Error! Could not modify region file to wipe individual chunks: "+regionFile.getName());
 		}
 		counter += trimChunks.size();
 	}
@@ -386,18 +362,5 @@ public class WorldTrimTask implements Runnable
 		Config.Log("[Trim] " + text);
 		if (notifyPlayer != null)
 			notifyPlayer.sendMessage("[Trim] " + text);
-	}
-
-	// filter for region files
-	private static class RegionFileFilter implements FileFilter
-	{
-		public boolean accept(File file)
-		{
-			return (
-				   file.exists()
-				&& file.isFile()
-				&& file.getName().toLowerCase().endsWith(".mcr")
-				);
-		}
 	}
 }
