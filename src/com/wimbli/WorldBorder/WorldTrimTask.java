@@ -251,7 +251,6 @@ public class WorldTrimTask implements Runnable
 	}
 
 	// edit region file to wipe all chunk pointers for chunks outside the border
-	// by the way, this method was created based on the divulged region file format: http://mojang.com/2011/02/16/minecraft-save-file-format-in-beta-1-3/
 	private void wipeChunks()
 	{
 		File regionFile = worldData.regionFile(currentRegion);

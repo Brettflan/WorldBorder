@@ -15,10 +15,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
-
-
 
 public class Config
 {
@@ -28,8 +24,8 @@ public class Config
 	private static final Logger mcLog = Logger.getLogger("Minecraft");
 	public static DecimalFormat coord = new DecimalFormat("0.0");
 	private static int borderTask = -1;
-	public static WorldFillTask fillTask = null;
-	public static WorldTrimTask trimTask = null;
+	public static WorldFillTask fillTask;
+	public static WorldTrimTask trimTask;
 	public static Set<String> movedPlayers = Collections.synchronizedSet(new HashSet<String>());
 	private static Runtime rt = Runtime.getRuntime();
 	
@@ -284,13 +280,8 @@ public class Config
 	{	// load config from file
 		plugin = master;
 
-		// do this first, in case config.yml has any old "¨" compatibility characters in it which cause errors in Bukkit's new configuration handler
-		compat_load();
-
 		plugin.reloadConfig();
 		cfg = plugin.getConfig();
-//		cfg.options().pathSeparator('>');  // should work to get rid of hackish "world names with periods in them" workaround
-		// ^ sadly, while Bukkit saves the data fine with periods intact using this, it does not load it correctly (bugged, still treats periods as separators in addition to chosen separator)
 
 		int cfgVersion = cfg.getInt("cfg-version", currentCfgVersion);
 
@@ -384,10 +375,6 @@ public class Config
 			cfg.set("worlds." + name + ".x", bord.getX());
 			cfg.set("worlds." + name + ".z", bord.getZ());
 			cfg.set("worlds." + name + ".radius", bord.getRadius());
-/*			cfg.set("worlds>" + name + ">x", bord.getX());
-			cfg.set("worlds>" + name + ">z", bord.getZ());
-			cfg.set("worlds>" + name + ">radius", bord.getRadius());
- */
 
 			if (bord.getShape() != null)
 				cfg.set("worlds." + name + ".shape-round", bord.getShape());
@@ -411,70 +398,5 @@ public class Config
 
 		if (logIt)
 			LogConfig("Configuration saved.");
-	}
-
-	// needed in case config.yml has any old "¨" compatibility characters in it, since they cause parse errors in Bukkit's new configuration handler
-	public static void compat_load()
-	{ // load config from file
-		Configuration old_cfg = plugin.getConfiguration();
-
-		int cfgVersion = old_cfg.getInt("cfg-version", currentCfgVersion);
-
-		// if the config version is newer than this, it's safe to load through the normal handler
-		if (cfgVersion > 3)
-			return;
-
-		LogConfig("Upgrading older version config file.");
-
-		message = old_cfg.getString("message");
-		shapeRound = old_cfg.getBoolean("round-border", true);
-		DEBUG = old_cfg.getBoolean("debug-mode", false);
-		whooshEffect = old_cfg.getBoolean("whoosh-effect", false);
-		knockBack = old_cfg.getDouble("knock-back-dist", 3.0);
-		timerTicks = old_cfg.getInt("timer-delay-ticks", 5);
-
-		borders.clear();
-
-		Map<String, ConfigurationNode> worlds = old_cfg.getNodes("worlds");
-		if (worlds != null)
-		{
-			Iterator world = worlds.entrySet().iterator();
-			while(world.hasNext())
-			{
-				Entry wdata = (Entry)world.next();
-
-				String name = null;
-				// we're swapping "¨" (from extended ASCII set) and "." back and forth at save and load since periods denote configuration nodes, and world names with periods otherwise wreak havoc
-				if (cfgVersion > 1)
-					name = ((String)wdata.getKey()).replace("¨", ".");
-				else // old v1 format, periods encoded as slashes, which had problems
-					name = ((String)wdata.getKey()).replace("/", ".");
-
-				ConfigurationNode bord = (ConfigurationNode)wdata.getValue();
-				Boolean overrideShape = (Boolean) bord.getProperty("shape-round");
-				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radius", 0), overrideShape);
-				borders.put(name, border);
-			}
-		}
-
-		// if we have an unfinished fill task stored from a previous run, load it up
-		ConfigurationNode storedFillTask = old_cfg.getNode("fillTask");
-		if (storedFillTask != null)
-		{
-			String worldName = storedFillTask.getString("world");
-			int fillDistance = storedFillTask.getInt("fillDistance", 176);
-			int chunksPerRun = storedFillTask.getInt("chunksPerRun", 5);
-			int tickFrequency = storedFillTask.getInt("tickFrequency", 20);
-			int fillX = storedFillTask.getInt("x", 0);
-			int fillZ = storedFillTask.getInt("z", 0);
-			int fillLength = storedFillTask.getInt("length", 0);
-			int fillTotal = storedFillTask.getInt("total", 0);
-			RestoreFillTask(worldName, fillDistance, chunksPerRun, tickFrequency, fillX, fillZ, fillLength, fillTotal);
-		}
-
-		old_cfg.removeProperty("worlds");
-		old_cfg.save();
-		cfg = plugin.getConfig();
-		save(false, false);
 	}
 }

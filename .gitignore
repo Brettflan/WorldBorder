@@ -1,10 +1,10 @@
 
-/lib/craftbukkit-0.0.1-SNAPSHOT.jar
+/lib/craftbukkit.jar
 /lib/Permissions.jar
 /nbproject/private
 /build
 /dist
 /lib/GroupManager.jar
 /nbproject/pmd.settings
-/lib/craftbukkit-1.0.0-SNAPSHOT.jar
-/lib/craftbukkit-1.0.1-R1.jar
+
+/nbproject/findbugs.settings

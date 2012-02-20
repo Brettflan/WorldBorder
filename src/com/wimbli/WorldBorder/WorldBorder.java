@@ -2,7 +2,6 @@ package com.wimbli.WorldBorder;
 
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 
 
 public class WorldBorder extends JavaPlugin

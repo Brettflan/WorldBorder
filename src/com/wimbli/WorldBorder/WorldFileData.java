@@ -16,6 +16,8 @@ import java.awt.image.*;
 import javax.imageio.*;
 
 
+// by the way, this region file handler was created based on the divulged region file format: http://mojang.com/2011/02/16/minecraft-save-file-format-in-beta-1-3/
+
 public class WorldFileData
 {
 	private transient World world;
@@ -143,7 +145,7 @@ public class WorldFileData
 
 
 
-	// region is 32 X 32 chunks; chunk pointers are stored in region file at position: x + z*32 (max 1024)
+	// region is 32 * 32 chunks; chunk pointers are stored in region file at position: x + z*32 (32 * 32 chunks = 1024)
 	// input x and z values can be world-based chunk coordinates or local-to-region chunk coordinates either one
 	private int coordToRegionOffset(int x, int z)
 	{
@@ -181,7 +183,7 @@ public class WorldFileData
 			try
 			{
 				RandomAccessFile regionData = new RandomAccessFile(this.regionFile(i), "r");
-				// first 4096 bytes of region file consists of 4-byte int pointers to chunk data in the file
+				// first 4096 bytes of region file consists of 4-byte int pointers to chunk data in the file (32*32 chunks = 1024; 1024 chunks * 4 bytes each = 4096)
 				for (int j = 0; j < 1024; j++)
 				{
 					// if chunk pointer data is 0, chunk doesn't exist yet; otherwise, it does
