@@ -49,10 +49,13 @@ public class BorderCheckTask implements Runnable
 		Location newLoc = newLocation(player, loc, border);
 
 		if (Config.whooshEffect())
-		{	// show some smoke and play the extinguish sound effect where the player was beyond the border
+		{	// give some particle and sound effects where the player was beyond the border
+			world.playEffect(loc, Effect.ENDER_SIGNAL, 0);
+			world.playEffect(loc, Effect.ENDER_SIGNAL, 0);
 			world.playEffect(loc, Effect.SMOKE, 4);
 			world.playEffect(loc, Effect.SMOKE, 4);
-			world.playEffect(loc, Effect.EXTINGUISH, 0);
+			world.playEffect(loc, Effect.SMOKE, 4);
+			world.playEffect(loc, Effect.GHAST_SHOOT, 0);
 		}
 
 		if (returnLocationOnly)
