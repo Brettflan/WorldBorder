@@ -35,7 +35,7 @@ public class BorderCheckTask implements Runnable
 	{
 		if (player == null || !player.isOnline()) return null;
 
-		Location loc = (targetLoc == null) ? player.getLocation() : targetLoc;
+		Location loc = (targetLoc == null) ? player.getLocation().clone() : targetLoc;
 		if (loc == null) return null;
 
 		World world = loc.getWorld();
@@ -65,7 +65,7 @@ public class BorderCheckTask implements Runnable
 			player.teleport(newLoc);
 		else
 		{
-			Vehicle ride = player.getVehicle();
+			Vehicle ride = (Vehicle)player.getVehicle();
 			if (ride != null)
 			{	// vehicles need to be offset vertically and have velocity stopped
 				double vertOffset = ride.getLocation().getY() - loc.getY();
