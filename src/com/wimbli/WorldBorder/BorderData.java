@@ -206,11 +206,12 @@ public class BorderData
 			);
 	}
 
-	private static final int limTop = 126, limBot = 1;
+	private static final int limBot = 1;
 
 	// find closest safe Y position from the starting position
 	private double getSafeY(World world, int X, int Y, int Z)
 	{
+		final int limTop = world.getMaxHeight() - 2;
 		// Expanding Y search method adapted from Acru's code in the Nether plugin
 
 		for(int y1 = Y, y2 = Y; (y1 > limBot) || (y2 < limTop); y1--, y2++){
