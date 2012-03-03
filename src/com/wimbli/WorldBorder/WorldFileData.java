@@ -47,12 +47,17 @@ public class WorldFileData
 				}
 			}
 		}
-		newData.regionFiles = newData.regionFolder.listFiles(new RegionFileFilter());
 
+		// Accepted region file formats: MCR is from late beta versions through 1.1, MCA is from 1.2+
+		newData.regionFiles = newData.regionFolder.listFiles(new ExtFileFilter(".MCA"));
 		if (newData.regionFiles == null || newData.regionFiles.length == 0)
 		{
-			newData.sendMessage("Could not find any region files. Looked in: "+newData.regionFolder.getPath());
-			return null;
+			newData.regionFiles = newData.regionFolder.listFiles(new ExtFileFilter(".MCR"));
+			if (newData.regionFiles == null || newData.regionFiles.length == 0)
+			{
+				newData.sendMessage("Could not find any region files. Looked in: "+newData.regionFolder.getPath());
+				return null;
+			}
 		}
 
 		return newData;
@@ -191,6 +196,7 @@ public class WorldFileData
 						data.set(j, true);
 					counter++;
 				}
+				regionData.close();
 			}
 			catch (FileNotFoundException ex)
 			{
@@ -214,16 +220,22 @@ public class WorldFileData
 			notifyPlayer.sendMessage("[WorldData] " + text);
 	}
 
-	// filter for region files
-	private static class RegionFileFilter implements FileFilter
+	// file filter used for region files
+	private static class ExtFileFilter implements FileFilter
 	{
+		String ext;
+		public ExtFileFilter(String extension)
+		{
+			this.ext = extension.toLowerCase();
+		}
+
 		@Override
 		public boolean accept(File file)
 		{
 			return (
 				   file.exists()
 				&& file.isFile()
-				&& file.getName().toLowerCase().endsWith(".mcr")
+				&& file.getName().toLowerCase().endsWith(ext)
 				);
 		}
 	}
