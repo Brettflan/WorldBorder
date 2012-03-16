@@ -133,6 +133,12 @@ public class WorldTrimTask implements Runnable
 					sendMessage("Error! Region file which is outside the border could not be deleted: "+regionFile.getName());
 					wipeChunks();
 				}
+				else
+				{
+					// if DynMap is installed, re-render the trimmed region ... disabled since it's not currently working, oh well
+//					DynMapFeatures.renderRegion(world.getName(), new CoordXZ(regionX, regionZ));
+				}
+
 				nextFile();
 				continue;
 			}
@@ -280,6 +286,10 @@ public class WorldTrimTask implements Runnable
 				unChunk.writeInt(0);
 			}
 			unChunk.close();
+
+			// if DynMap is installed, re-render the trimmed chunks ... disabled since it's not currently working, oh well
+//			DynMapFeatures.renderChunks(world.getName(), trimChunks);
+
 			reportTrimmedChunks += trimChunks.size();
 		}
 		catch (FileNotFoundException ex)

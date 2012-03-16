@@ -37,6 +37,8 @@ public class Config
 	private static double knockBack = 3.0;
 	private static int timerTicks = 4;
 	private static boolean whooshEffect = false;
+	private static boolean dynmapEnable = true;
+	private static String dynmapMessage;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -51,6 +53,7 @@ public class Config
 		borders.put(world, border);
 		Log("Border set. " + BorderDescription(world));
 		save(true);
+		DynMapFeatures.showBorder(world, border);
 	}
 	public static void setBorder(String world, int radius, double x, double z, Boolean shapeRound)
 	{
@@ -68,6 +71,7 @@ public class Config
 		borders.remove(world);
 		Log("Removed border for world \"" + world + "\".");
 		save(true);
+		DynMapFeatures.removeBorder(world);
 	}
 
 	public static void removeAllBorders()
@@ -75,6 +79,7 @@ public class Config
 		borders.clear();
 		Log("Removed all borders for all worlds.");
 		save(true);
+		DynMapFeatures.removeAllBorders();
 	}
 
 	public static String BorderDescription(String world)
@@ -104,6 +109,11 @@ public class Config
 		return borders.get(world);
 	}
 
+	public static Map<String, BorderData> getBorders()
+	{
+		return new LinkedHashMap<String, BorderData>(borders);
+	}
+
 	public static void setMessage(String msg)
 	{
 		message = msg;
@@ -121,6 +131,7 @@ public class Config
 		shapeRound = round;
 		Log("Set default border shape to " + (round ? "round" : "square") + ".");
 		save(true);
+		DynMapFeatures.showAllBorders();
 	}
 
 	public static boolean ShapeRound()
@@ -176,6 +187,34 @@ public class Config
 	{
 		return timerTicks;
 	}
+
+
+	public static void setDynmapBorderEnabled(boolean enable)
+	{
+		dynmapEnable = enable;
+		Log("DynMap border display is now " + (enable ? "enabled" : "disabled") + ".");
+		save(true);
+		DynMapFeatures.showAllBorders();
+	}
+
+	public static boolean DynmapBorderEnabled()
+	{
+		return dynmapEnable;
+	}
+
+	public static void setDynmapMessage(String msg)
+	{
+		dynmapMessage = msg;
+		Log("DynMap border label is now set to: " + msg);
+		save(true);
+		DynMapFeatures.showAllBorders();
+	}
+
+	public static String DynmapMessage()
+	{
+		return dynmapMessage;
+	}
+
 
 
 	public static void StartBorderTimer()
@@ -274,7 +313,7 @@ public class Config
 	}
 
 
-	private static final int currentCfgVersion = 4;
+	private static final int currentCfgVersion = 5;
 
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
@@ -291,6 +330,8 @@ public class Config
 		whooshEffect = cfg.getBoolean("whoosh-effect", false);
 		knockBack = cfg.getDouble("knock-back-dist", 3.0);
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);
+		dynmapEnable = cfg.getBoolean("dynmap-border-enabled", true);
+		dynmapMessage = cfg.getString("dynmap-border-message", "The border of the world.");
 		LogConfig("Using " + (shapeRound ? "round" : "square") + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
 
 		StartBorderTimer();
@@ -363,6 +404,8 @@ public class Config
 		cfg.set("whoosh-effect", whooshEffect);
 		cfg.set("knock-back-dist", knockBack);
 		cfg.set("timer-delay-ticks", timerTicks);
+		cfg.set("dynmap-border-enabled", dynmapEnable);
+		cfg.set("dynmap-border-message", dynmapMessage);
 
 		cfg.set("worlds", null);
 		Iterator world = borders.entrySet().iterator();

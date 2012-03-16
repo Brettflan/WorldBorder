@@ -1,12 +1,10 @@
 name: WorldBorder
 author: Brettflan
 description: Efficient, feature-rich plugin for limiting the size of your worlds.
-version: 1.5.3
+version: 1.5.4_dev
 main: com.wimbli.WorldBorder.WorldBorder
 softdepend:
-  - Essentials
-  - GroupManager
-  - Permissions
+  - dynmap
 commands:
   wborder:
     description: Primary command for WorldBorder.
@@ -28,6 +26,8 @@ commands:
            /<command> wshape [world] <round|square|default> - override shape.
            /<command> [world] fill [freq] [pad] - generate world out to border.
            /<command> [world] trim [freq] [pad] - trim world outside of border.
+           /<command> dynmap <on/off> - turn DynMap border display on or off.
+           /<command> dynmapmsg <text> - DynMap border labels will show this.
            /<command> debug <on/off> - turn debug mode on or off.
 permissions:
   worldborder.*:
@@ -49,6 +49,8 @@ permissions:
       worldborder.trim: true
       worldborder.help: true
       worldborder.whoosh: true
+      worldborder.dynmap: true
+      worldborder.dynmapmsg: true
   worldborder.set:
     description: Can set borders for any world
     default: op
@@ -96,4 +98,10 @@ permissions:
     default: op
   worldborder.whoosh:
     description: Can enable/disable "whoosh" knockback effect
+    default: op
+  worldborder.dynmap:
+    description: Can enable/disable DynMap border display integration
+    default: op
+  worldborder.dynmapmsg:
+    description: Can set the label text for borders shown in DynMap
     default: op

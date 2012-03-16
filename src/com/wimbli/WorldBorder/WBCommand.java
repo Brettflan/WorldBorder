@@ -319,7 +319,7 @@ public class WBCommand implements CommandExecutor
 		{
 			if (!Config.HasPermission(player, "debug")) return true;
 
-			Config.setDebug(split[1].equalsIgnoreCase("on"));
+			Config.setDebug(strAsBool(split[1]));
 
 			if (player != null)
 				Config.Log((Config.Debug() ? "Enabling" : "Disabling") + " debug output at the command of player \"" + player.getName() + "\".");
@@ -333,7 +333,7 @@ public class WBCommand implements CommandExecutor
 		{
 			if (!Config.HasPermission(player, "whoosh")) return true;
 
-			Config.setWhooshEffect(split[1].equalsIgnoreCase("on"));
+			Config.setWhooshEffect(strAsBool(split[1]));
 
 			if (player != null)
 				Config.Log((Config.whooshEffect() ? "Enabling" : "Disabling") + " \"whoosh\" knockback effect at the command of player \"" + player.getName() + "\".");
@@ -556,6 +556,42 @@ public class WBCommand implements CommandExecutor
 			cmdTrim(sender, player, world, confirm, cancel, pause, pad, frequency);
 		}
 
+		// "dynmap" command from player or console
+		else if (split.length == 2 && split[0].equalsIgnoreCase("dynmap"))
+		{
+			if (!Config.HasPermission(player, "dynmap")) return true;
+
+			Config.setDynmapBorderEnabled(strAsBool(split[1]));
+
+			if (player != null)
+				Config.Log((Config.Debug() ? "Enabling" : "Disabling") + " DynMap border display at the command of player \"" + player.getName() + "\".");
+
+			if (player != null)
+				sender.sendMessage("DynMap border display " + (Config.Debug() ? "enabled" : "disabled") + ".");
+		}
+
+		// "dynmapmsg" command from player or console
+		else if (split.length >= 2 && split[0].equalsIgnoreCase("dynmapmsg"))
+		{
+			if (!Config.HasPermission(player, "dynmapmsg")) return true;
+
+			String message = "";
+			for(int i = 1; i < split.length; i++)
+			{
+				if (i != 1)
+					message += ' ';
+				message += split[i];
+			}
+
+			Config.setDynmapMessage(message);
+
+			if (player != null)
+			{
+				sender.sendMessage("DynMap border label is now set to:");
+				sender.sendMessage(clrErr + Config.DynmapMessage());
+			}
+		}
+
 		// we couldn't decipher any known commands, so show help
 		else
 		{
@@ -571,11 +607,11 @@ public class WBCommand implements CommandExecutor
 				catch(NumberFormatException ex)
 				{
 				}
-				if (page > 2)
+				if (page > 3)
 					page = 1;
 			}
 
-			sender.sendMessage(clrHead + plugin.getDescription().getFullName() + " - commands (" + clrReq + "<required> " + clrOpt + "[optional]" + clrHead + ")" + (page > 0 ? " " + page + "/2" : "") + ":");
+			sender.sendMessage(clrHead + plugin.getDescription().getFullName() + " - commands (" + clrReq + "<required> " + clrOpt + "[optional]" + clrHead + ")" + (page > 0 ? " " + page + "/3" : "") + ":");
 
 			if (page == 0 || page == 1)
 			{
@@ -591,7 +627,6 @@ public class WBCommand implements CommandExecutor
 				if (page == 1)
 					sender.sendMessage(cmd+" 2" + clrDesc + " - view second page of commands.");
 			}
-
 			if (page == 0 || page == 2)
 			{
 				sender.sendMessage(cmdW+" fill " + clrOpt + "[freq] [pad]" + clrDesc + " - generate world out to border.");
@@ -602,9 +637,15 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage(cmd+" whoosh " + clrReq + "<on|off>" + clrDesc + " - turn knockback effect on or off.");
 				sender.sendMessage(cmd+" delay " + clrReq + "<amount>" + clrDesc + " - time between border checks.");
 				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
-				if (player == null)
-					sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
 				if (page == 2)
+					sender.sendMessage(cmd+" 3" + clrDesc + " - view third page of commands.");
+			}
+			if (page == 0 || page == 3)
+			{
+				sender.sendMessage(cmd+" dynmap " + clrReq + "<on|off>" + clrDesc + " - turn DynMap border display on or off.");
+				sender.sendMessage(cmd+" dynmapmsg " + clrReq + "<text>" + clrDesc + " - DynMap border labels will show this.");
+				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
+				if (page == 3)
 					sender.sendMessage(cmd + clrDesc + " - view first page of commands.");
 			}
 		}
@@ -612,6 +653,16 @@ public class WBCommand implements CommandExecutor
 		return true;
 	}
 
+
+	private boolean strAsBool(String str)
+	{
+		str = str.toLowerCase();
+		if (str.startsWith("y") || str.startsWith("t") || str.startsWith("on") || str.startsWith("+") || str.startsWith("1"))
+		{
+			return true;
+		}
+		return false;
+	}
 
 	private boolean cmdSet(CommandSender sender, String world, String[] data, int offset)
 	{
