@@ -57,8 +57,16 @@ public class DynMapFeatures
 			return;
 		}
 
-		markApi = api.getMarkerAPI();
-		if (markApi == null) return;
+		try
+		{
+			markApi = api.getMarkerAPI();
+			if (markApi == null) return;
+		}
+		catch (NullPointerException ex)
+		{
+			Config.LogConfig("DynMap is present, but a NullPointerException was encountered while attempting to integrate. Border display disabled.");
+			return;
+		}
 
 		// go ahead and show borders for all worlds
 		showAllBorders();
