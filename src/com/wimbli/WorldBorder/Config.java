@@ -283,8 +283,6 @@ public class Config
 	{
 		if (player == null)				// console, always permitted
 			return true;
-		else if (player.isOp())			// Op, always permitted
-			return true;
 
 		if (player.hasPermission("worldborder." + request))	// built-in Bukkit superperms
 			return true;

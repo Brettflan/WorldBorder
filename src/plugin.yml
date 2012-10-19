@@ -31,7 +31,7 @@ commands:
            /<command> debug <on/off> - turn debug mode on or off.
 permissions:
   worldborder.*:
-    description: Grants all WorldBorder permissions
+    description: Grants all WorldBorder permissions, except for bypass
     children:
       worldborder.set: true
       worldborder.radius: true
@@ -105,3 +105,6 @@ permissions:
   worldborder.dynmapmsg:
     description: Can set the label text for borders shown in DynMap
     default: op
+  worldborder.bypass:
+    description: Can go beyond the border without being knocked back
+    default: none
