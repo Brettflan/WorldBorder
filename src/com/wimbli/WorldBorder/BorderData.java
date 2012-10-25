@@ -211,7 +211,8 @@ public class BorderData
 	// find closest safe Y position from the starting position
 	private double getSafeY(World world, int X, int Y, int Z)
 	{
-		final int limTop = world.getMaxHeight() - 2;
+		// artificial height limit of 127 added for Nether worlds since CraftBukkit still incorrectly returns 255 for their max height, leading to players sent to the "roof" of the Nether
+		final int limTop = (world.getEnvironment() == World.Environment.NETHER) ? 125 : world.getMaxHeight() - 2;
 		// Expanding Y search method adapted from Acru's code in the Nether plugin
 
 		for(int y1 = Y, y2 = Y; (y1 > limBot) || (y2 < limTop); y1--, y2++){
