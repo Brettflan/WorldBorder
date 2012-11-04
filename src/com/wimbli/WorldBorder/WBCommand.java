@@ -563,11 +563,10 @@ public class WBCommand implements CommandExecutor
 
 			Config.setDynmapBorderEnabled(strAsBool(split[1]));
 
-			if (player != null)
-				Config.Log((Config.Debug() ? "Enabling" : "Disabling") + " DynMap border display at the command of player \"" + player.getName() + "\".");
+			sender.sendMessage("DynMap border display " + (Config.Debug() ? "enabled" : "disabled") + ".");
 
 			if (player != null)
-				sender.sendMessage("DynMap border display " + (Config.Debug() ? "enabled" : "disabled") + ".");
+				Config.Log((Config.DynmapBorderEnabled() ? "Enabled" : "Disabled") + " DynMap border display at the command of player \"" + player.getName() + "\".");
 		}
 
 		// "dynmapmsg" command from player or console
