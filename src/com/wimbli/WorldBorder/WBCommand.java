@@ -354,13 +354,13 @@ public class WBCommand implements CommandExecutor
 			}
 			catch(NumberFormatException ex)
 			{
-				sender.sendMessage(clrErr + "The knockback must be a decimal value of at least 1.0.");
+				sender.sendMessage(clrErr + "The knockback must be a decimal value of at least 1.0, or it can be 0.");
 				return true;
 			}
 
-			if (numBlocks < 1.0)
+			if (numBlocks < 0.0 || (numBlocks > 0.0 && numBlocks < 1.0))
 			{
-				sender.sendMessage(clrErr + "The knockback must be a decimal value of at least 1.0.");
+				sender.sendMessage(clrErr + "The knockback must be a decimal value of at least 1.0, or it can be 0.");
 				return true;
 			}
 

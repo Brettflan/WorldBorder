@@ -134,6 +134,10 @@ public class BorderData
 
 	public Location correctedPosition(Location loc, boolean round)
 	{
+		// if knockback is set to 0, simply return
+		if (Config.KnockBack() == 0.0)
+			return loc;
+
 		// if this border has a shape override set, use it
 		if (shapeRound != null)
 			round = shapeRound.booleanValue();
