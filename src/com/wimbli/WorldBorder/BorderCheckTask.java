@@ -10,6 +10,7 @@ import org.bukkit.Server;
 import org.bukkit.util.Vector;
 import org.bukkit.World;
 
+
 public class BorderCheckTask implements Runnable
 {
 	private transient Server server = null;
