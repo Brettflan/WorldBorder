@@ -47,7 +47,7 @@ public class BorderCheckTask implements Runnable
 			return null;
 
 		// if player has "worldborder.bypass" permission, allow them beyond border
-		if (Config.HasPermission(player, "bypass"))
+		if (Config.HasPermission(player, "bypass", false))
 			return null;
 
 		Location newLoc = newLocation(player, loc, border);

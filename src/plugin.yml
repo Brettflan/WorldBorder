@@ -107,4 +107,4 @@ permissions:
     default: op
   worldborder.bypass:
     description: Can go beyond the border without being knocked back
-    default: none
+    default: false

@@ -281,13 +281,19 @@ public class Config
 
 	public static boolean HasPermission(Player player, String request)
 	{
+		return HasPermission(player, request, true);
+	}
+	public static boolean HasPermission(Player player, String request, boolean notify)
+	{
 		if (player == null)				// console, always permitted
 			return true;
 
 		if (player.hasPermission("worldborder." + request))	// built-in Bukkit superperms
 			return true;
 
-		player.sendMessage("You do not have sufficient permissions.");
+		if (notify)
+			player.sendMessage("You do not have sufficient permissions.");
+
 		return false;
 	}
 
