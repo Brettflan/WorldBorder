@@ -3,6 +3,7 @@ package com.wimbli.WorldBorder;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -21,6 +22,10 @@ public class BorderCheckTask implements Runnable
 	public void run()
 	{
 		if (server == null)
+			return;
+
+		// if knockback is set to 0, simply return
+		if (Config.KnockBack() == 0.0)
 			return;
 
 		Player[] players = server.getOnlinePlayers();
@@ -72,7 +77,7 @@ public class BorderCheckTask implements Runnable
 			Entity ride = player.getVehicle();
 			if (ride != null)
 			{	// vehicles need to be offset vertically and have velocity stopped
-				double vertOffset = ride.getLocation().getY() - loc.getY();
+				double vertOffset = (ride instanceof LivingEntity) ? 0 : ride.getLocation().getY() - loc.getY();
 				newLoc.setY(newLoc.getY() + vertOffset);
 				ride.setVelocity(new Vector(0, 0, 0));
 				ride.teleport(newLoc);

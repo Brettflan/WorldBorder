@@ -14,6 +14,10 @@ public class WBListener implements Listener
 	{
 		if (event.isCancelled()) return;
 
+		// if knockback is set to 0, simply return
+		if (Config.KnockBack() == 0.0)
+			return;
+
 		Location newLoc = BorderCheckTask.checkPlayer(event.getPlayer(), event.getTo(), true);
 		if (newLoc != null)
 			event.setTo(newLoc);
