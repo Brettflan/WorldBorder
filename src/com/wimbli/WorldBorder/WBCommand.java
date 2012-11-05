@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -325,7 +326,7 @@ public class WBCommand implements CommandExecutor
 				Config.Log((Config.Debug() ? "Enabling" : "Disabling") + " debug output at the command of player \"" + player.getName() + "\".");
 
 			if (player != null)
-				sender.sendMessage("Debug mode " + (Config.Debug() ? "enabled" : "disabled") + ".");
+				sender.sendMessage("Debug mode " + enabledColored(Config.Debug()) + ".");
 		}
 
 		// "whoosh" command from player or console
@@ -339,7 +340,7 @@ public class WBCommand implements CommandExecutor
 				Config.Log((Config.whooshEffect() ? "Enabling" : "Disabling") + " \"whoosh\" knockback effect at the command of player \"" + player.getName() + "\".");
 
 			if (player != null)
-				sender.sendMessage("\"Whoosh\" knockback effect " + (Config.whooshEffect() ? "enabled" : "disabled") + ".");
+				sender.sendMessage("\"Whoosh\" knockback effect " + enabledColored(Config.whooshEffect()) + ".");
 		}
 
 		// "knockback" command from player or console
@@ -563,7 +564,7 @@ public class WBCommand implements CommandExecutor
 
 			Config.setDynmapBorderEnabled(strAsBool(split[1]));
 
-			sender.sendMessage("DynMap border display " + (Config.Debug() ? "enabled" : "disabled") + ".");
+			sender.sendMessage("DynMap border display " + (Config.DynmapBorderEnabled() ? "enabled" : "disabled") + ".");
 
 			if (player != null)
 				Config.Log((Config.DynmapBorderEnabled() ? "Enabled" : "Disabled") + " DynMap border display at the command of player \"" + player.getName() + "\".");
@@ -589,6 +590,42 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage("DynMap border label is now set to:");
 				sender.sendMessage(clrErr + Config.DynmapMessage());
 			}
+		}
+
+		// "bypass" command from player or console, player specified, on/off optionally specified
+		else if (split.length >= 2 && split[0].equalsIgnoreCase("bypass"))
+		{
+			if (!Config.HasPermission(player, "bypass")) return true;
+
+			String sPlayer = split[1];
+
+			boolean bypassing = !Config.isPlayerBypassing(sPlayer);
+			if (split.length > 2)
+				bypassing = strAsBool(split[2]);
+
+			Config.setPlayerBypass(sPlayer, bypassing);
+
+			Player target = Bukkit.getPlayer(sPlayer);
+			if (target != null && target.isOnline())
+				target.sendMessage("Border bypass is now " + enabledColored(bypassing) + ".");
+
+			Config.Log("Border bypass for player \"" + sPlayer + "\" is " + (bypassing ? "enabled" : "disabled") + (player != null ? " at the command of player \"" + player.getName() + "\"" : "") + ".");
+			if (player != null && player != target)
+				sender.sendMessage("Border bypass for player \"" + sPlayer + "\" is " + enabledColored(bypassing) + ".");
+		}
+
+		// "bypass" command from player, using them for player
+		else if (split.length == 1 && split[0].equalsIgnoreCase("bypass") && player != null)
+		{
+			if (!Config.HasPermission(player, "bypass")) return true;
+
+			String sPlayer = player.getName();
+
+			boolean bypassing = !Config.isPlayerBypassing(sPlayer);
+			Config.setPlayerBypass(sPlayer, bypassing);
+
+			Config.Log("Border bypass is " + (bypassing ? "enabled" : "disabled") + " for player \"" + sPlayer + "\".");
+			sender.sendMessage("Border bypass is now " + enabledColored(bypassing) + ".");
 		}
 
 		// we couldn't decipher any known commands, so show help
@@ -630,17 +667,18 @@ public class WBCommand implements CommandExecutor
 			{
 				sender.sendMessage(cmdW+" fill " + clrOpt + "[freq] [pad]" + clrDesc + " - generate world out to border.");
 				sender.sendMessage(cmdW+" trim " + clrOpt + "[freq] [pad]" + clrDesc + " - trim world outside of border.");
+				sender.sendMessage(cmd+" bypass " + ((player == null) ? clrReq + "<player>" : clrOpt + "[player]") + clrOpt + " [on/off]" + clrDesc + " - let player go beyond border.");
 				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <round|square|default>" + clrDesc + " - shape override.");
 				sender.sendMessage(cmd+" getmsg" + clrDesc + " - display border message.");
 				sender.sendMessage(cmd+" setmsg " + clrReq + "<text>" + clrDesc + " - set border message.");
 				sender.sendMessage(cmd+" whoosh " + clrReq + "<on|off>" + clrDesc + " - turn knockback effect on or off.");
 				sender.sendMessage(cmd+" delay " + clrReq + "<amount>" + clrDesc + " - time between border checks.");
-				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
 				if (page == 2)
 					sender.sendMessage(cmd+" 3" + clrDesc + " - view third page of commands.");
 			}
 			if (page == 0 || page == 3)
 			{
+				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
 				sender.sendMessage(cmd+" dynmap " + clrReq + "<on|off>" + clrDesc + " - turn DynMap border display on or off.");
 				sender.sendMessage(cmd+" dynmapmsg " + clrReq + "<text>" + clrDesc + " - DynMap border labels will show this.");
 				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
@@ -661,6 +699,11 @@ public class WBCommand implements CommandExecutor
 			return true;
 		}
 		return false;
+	}
+
+	private String enabledColored(boolean enabled)
+	{
+		return enabled ? clrReq+"enabled" : clrErr+"disabled";
 	}
 
 	private boolean cmdSet(CommandSender sender, String world, String[] data, int offset)

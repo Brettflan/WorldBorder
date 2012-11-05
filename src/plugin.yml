@@ -26,6 +26,7 @@ commands:
            /<command> wshape [world] <round|square|default> - override shape.
            /<command> [world] fill [freq] [pad] - generate world out to border.
            /<command> [world] trim [freq] [pad] - trim world outside of border.
+           /<command> bypass [player] [on/off] - let player go beyond border.
            /<command> dynmap <on/off> - turn DynMap border display on or off.
            /<command> dynmapmsg <text> - DynMap border labels will show this.
            /<command> debug <on/off> - turn debug mode on or off.
@@ -107,4 +108,4 @@ permissions:
     default: op
   worldborder.bypass:
     description: Can go beyond the border without being knocked back
-    default: false
+    default: op
