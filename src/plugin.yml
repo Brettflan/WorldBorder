@@ -1,7 +1,7 @@
 name: WorldBorder
 author: Brettflan
 description: Efficient, feature-rich plugin for limiting the size of your worlds.
-version: 1.5.5
+version: 1.6.0
 main: com.wimbli.WorldBorder.WorldBorder
 softdepend:
   - dynmap
@@ -32,7 +32,7 @@ commands:
            /<command> debug <on/off> - turn debug mode on or off.
 permissions:
   worldborder.*:
-    description: Grants all WorldBorder permissions, except for bypass
+    description: Grants all WorldBorder permissions
     children:
       worldborder.set: true
       worldborder.radius: true
@@ -52,6 +52,7 @@ permissions:
       worldborder.whoosh: true
       worldborder.dynmap: true
       worldborder.dynmapmsg: true
+      worldborder.bypass: true
   worldborder.set:
     description: Can set borders for any world
     default: op
