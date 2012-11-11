@@ -236,6 +236,12 @@ public class Config
 
 
 
+	public static boolean isBorderTimerRunning()
+	{
+		if (borderTask == -1) return false;
+		return (plugin.getServer().getScheduler().isQueued(borderTask) || plugin.getServer().getScheduler().isCurrentlyRunning(borderTask));
+	}
+
 	public static void StartBorderTimer()
 	{
 		StopBorderTimer();
