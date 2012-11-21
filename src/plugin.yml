@@ -1,7 +1,7 @@
 name: WorldBorder
 author: Brettflan
 description: Efficient, feature-rich plugin for limiting the size of your worlds.
-version: 1.6.0
+version: 1.6.1
 main: com.wimbli.WorldBorder.WorldBorder
 softdepend:
   - dynmap
@@ -108,5 +108,5 @@ permissions:
     description: Can set the label text for borders shown in DynMap
     default: op
   worldborder.bypass:
-    description: Can go beyond the border without being knocked back
+    description: Can enable bypass mode to go beyond the border
     default: op
