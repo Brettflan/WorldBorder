@@ -64,7 +64,8 @@ public class WorldTrimTask implements Runnable
 			return;
 		}
 
-		this.border.setRadius(border.getRadius() + trimDistance);
+		this.border.setRadiusX(border.getRadiusX() + trimDistance);
+		this.border.setRadiusZ(border.getRadiusZ() + trimDistance);
 
 		worldData = WorldFileData.create(world, notifyPlayer);
 		if (worldData == null)
