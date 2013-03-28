@@ -71,7 +71,7 @@ public class WBCommand implements CommandExecutor
 		}
 
 		// "set" command from player or console, world specified
-		if (split.length == 5 && split[1].equalsIgnoreCase("set"))
+		if (split.length == 6 && split[1].equalsIgnoreCase("set"))
 		{
 			if (!Config.HasPermission(player, "set")) return true;
 
@@ -84,7 +84,7 @@ public class WBCommand implements CommandExecutor
 		}
 
 		// "set" command from player, using current world, X and Z specified
-		else if (split.length == 4 && split[0].equalsIgnoreCase("set") && player != null)
+		else if (split.length == 5 && split[0].equalsIgnoreCase("set") && player != null)
 		{
 			if (!Config.HasPermission(player, "set")) return true;
 
@@ -95,7 +95,7 @@ public class WBCommand implements CommandExecutor
 		}
 
 		// "set" command from player, using current world, X and Z NOT specified
-		else if (split.length == 2 && split[0].equalsIgnoreCase("set") && player != null)
+		else if (split.length == 3 && split[0].equalsIgnoreCase("set") && player != null)
 		{
 			if (!Config.HasPermission(player, "set")) return true;
 
@@ -103,23 +103,25 @@ public class WBCommand implements CommandExecutor
 
 			double x = player.getLocation().getX();
 			double z = player.getLocation().getZ();
-			int radius;
+			int radiusX;
+			int radiusZ;
 			try
 			{
-				radius = Integer.parseInt(split[1]);
+				radiusX = Integer.parseInt(split[1]);
+				radiusZ = Integer.parseInt(split[2]);
 			}
 			catch(NumberFormatException ex)
 			{
-				sender.sendMessage(clrErr + "The radius value must be an integer.");
+				sender.sendMessage(clrErr + "The radius values must be integers.");
 				return true;
 			}
 
-			Config.setBorder(world, radius, x, z);
+			Config.setBorder(world, radiusX, radiusZ, x, z);
 			sender.sendMessage("Border has been set. " + Config.BorderDescription(world));
 		}
 
 		// "radius" command from player or console, world specified
-		else if (split.length == 3 && split[1].equalsIgnoreCase("radius"))
+		else if (split.length == 4 && split[1].equalsIgnoreCase("radius"))
 		{
 			if (!Config.HasPermission(player, "radius")) return true;
 
@@ -134,25 +136,27 @@ public class WBCommand implements CommandExecutor
 
 			double x = border.getX();
 			double z = border.getZ();
-			int radius;
+			int radiusX;
+			int radiusZ;
 			try
 			{
-				radius = Integer.parseInt(split[2]);
+				radiusX = Integer.parseInt(split[2]);
+				radiusZ = Integer.parseInt(split[3]);
 			}
 			catch(NumberFormatException ex)
 			{
-				sender.sendMessage(clrErr + "The radius value must be an integer.");
+				sender.sendMessage(clrErr + "The radius values must be integers.");
 				return true;
 			}
 
-			Config.setBorder(world, radius, x, z);
+			Config.setBorder(world, radiusX, radiusZ, x, z);
 
 			if (player != null)
 				sender.sendMessage("Radius has been set. " + Config.BorderDescription(world));
 		}
 
 		// "radius" command from player, using current world
-		else if (split.length == 2 && split[0].equalsIgnoreCase("radius") && player != null)
+		else if (split.length == 3 && split[0].equalsIgnoreCase("radius") && player != null)
 		{
 			if (!Config.HasPermission(player, "radius")) return true;
 
@@ -167,18 +171,20 @@ public class WBCommand implements CommandExecutor
 
 			double x = border.getX();
 			double z = border.getZ();
-			int radius;
+			int radiusX;
+			int radiusZ;
 			try
 			{
-				radius = Integer.parseInt(split[1]);
+				radiusX = Integer.parseInt(split[2]);
+				radiusZ = Integer.parseInt(split[3]);
 			}
 			catch(NumberFormatException ex)
 			{
-				sender.sendMessage(clrErr + "The radius value must be an integer.");
+				sender.sendMessage(clrErr + "The radius values must be integers.");
 				return true;
 			}
 
-			Config.setBorder(world, radius, x, z);
+			Config.setBorder(world, radiusX, radiusZ, x, z);
 			sender.sendMessage("Radius has been set. " + Config.BorderDescription(world));
 		}
 
@@ -234,7 +240,7 @@ public class WBCommand implements CommandExecutor
 		{
 			if (!Config.HasPermission(player, "list")) return true;
 
-			sender.sendMessage("Default border shape for all worlds is \"" + (Config.ShapeRound() ? "round" : "square") + "\".");
+			sender.sendMessage("Default border shape for all worlds is \"" + (Config.ShapeRound() ? "elliptic" : "rectangular") + "\".");
 
 			Set<String> list = Config.BorderDescriptions();
 
@@ -256,18 +262,18 @@ public class WBCommand implements CommandExecutor
 		{
 			if (!Config.HasPermission(player, "shape")) return true;
 
-			if (split[1].equalsIgnoreCase("square"))
+			if (split[1].equalsIgnoreCase("rectangular"))
 				Config.setShape(false);
-			else if (split[1].equalsIgnoreCase("round"))
+			else if (split[1].equalsIgnoreCase("elliptic"))
 				Config.setShape(true);
 			else
 			{
-				sender.sendMessage("You must specify a shape of \"round\" or \"square\".");
+				sender.sendMessage("You must specify a shape of \"elliptic\" or \"rectangular\".");
 				return true;
 			}
 
 			if (player != null)
-				sender.sendMessage("Default border shape for all worlds is now set to \"" + (Config.ShapeRound() ? "round" : "square") + "\".");
+				sender.sendMessage("Default border shape for all worlds is now set to \"" + (Config.ShapeRound() ? "elliptic" : "rectangular") + "\".");
 		}
 
 		// "getmsg" command from player or console
@@ -412,16 +418,16 @@ public class WBCommand implements CommandExecutor
 			}
 
 			Boolean shape = null;
-			if (split[2].equalsIgnoreCase("square"))
+			if (split[2].equalsIgnoreCase("rectangular"))
 				shape = false;
-			else if (split[2].equalsIgnoreCase("round"))
+			else if (split[2].equalsIgnoreCase("elliptic"))
 				shape = true;
 
 			border.setShape(shape);
 			Config.setBorder(world, border);
 
 			if (player != null)
-				sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : (shape.booleanValue() ? "round" : "square")) + "\".");
+				sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : (shape.booleanValue() ? "elliptic" : "rectangular")) + "\".");
 		}
 
 		// "wshape" command from player, using current world
@@ -438,15 +444,15 @@ public class WBCommand implements CommandExecutor
 			}
 
 			Boolean shape = null;
-			if (split[1].equalsIgnoreCase("square"))
+			if (split[1].equalsIgnoreCase("rectangular"))
 				shape = false;
-			else if (split[1].equalsIgnoreCase("round"))
+			else if (split[1].equalsIgnoreCase("elliptic"))
 				shape = true;
 
 			border.setShape(shape);
 			Config.setBorder(world, border);
 
-			sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : (shape.booleanValue() ? "round" : "square")) + "\".");
+			sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : (shape.booleanValue() ? "elliptic" : "rectangular")) + "\".");
 		}
 
 		// "fill" command from player or console, world specified
@@ -652,13 +658,13 @@ public class WBCommand implements CommandExecutor
 			if (page == 0 || page == 1)
 			{
 				if (player != null)
-					sender.sendMessage(cmd+" set " + clrReq + "<radius>" + clrDesc + " - set world border, centered on you.");
-				sender.sendMessage(cmdW+" set " + clrReq + "<radius> <x> <z>" + clrDesc + " - set world border.");
-				sender.sendMessage(cmdW+" radius " + clrReq + "<radius>" + clrDesc + " - change a border radius.");
+					sender.sendMessage(cmd+" set " + clrReq + "<radiusX> <radiusZ>" + clrDesc + " - set world border, centered on you.");
+				sender.sendMessage(cmdW+" set " + clrReq + "<radiusX> <radiusZ> <x> <z>" + clrDesc + " - set world border.");
+				sender.sendMessage(cmdW+" radius " + clrReq + "<radiusX> <radiusZ>" + clrDesc + " - change a border radius.");
 				sender.sendMessage(cmdW+" clear" + clrDesc + " - remove border for this world.");
 				sender.sendMessage(cmd+" clear all" + clrDesc + " - remove border for all worlds.");
 				sender.sendMessage(cmd+" list" + clrDesc + " - show border information for all worlds.");
-				sender.sendMessage(cmd+" shape " + clrReq + "<round|square>" + clrDesc + " - set the default border shape.");
+				sender.sendMessage(cmd+" shape " + clrReq + "<elliptic|rectangular>" + clrDesc + " - set the default border shape.");
 				sender.sendMessage(cmd+" knockback " + clrReq + "<distance>" + clrDesc + " - how far to move the player back.");
 				if (page == 1)
 					sender.sendMessage(cmd+" 2" + clrDesc + " - view second page of commands.");
@@ -668,7 +674,7 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage(cmdW+" fill " + clrOpt + "[freq] [pad]" + clrDesc + " - generate world out to border.");
 				sender.sendMessage(cmdW+" trim " + clrOpt + "[freq] [pad]" + clrDesc + " - trim world outside of border.");
 				sender.sendMessage(cmd+" bypass " + ((player == null) ? clrReq + "<player>" : clrOpt + "[player]") + clrOpt + " [on/off]" + clrDesc + " - let player go beyond border.");
-				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <round|square|default>" + clrDesc + " - shape override.");
+				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <elliptic|rectangular|default>" + clrDesc + " - shape override.");
 				sender.sendMessage(cmd+" getmsg" + clrDesc + " - display border message.");
 				sender.sendMessage(cmd+" setmsg " + clrReq + "<text>" + clrDesc + " - set border message.");
 				sender.sendMessage(cmd+" whoosh " + clrReq + "<on|off>" + clrDesc + " - turn knockback effect on or off.");
@@ -708,21 +714,22 @@ public class WBCommand implements CommandExecutor
 
 	private boolean cmdSet(CommandSender sender, String world, String[] data, int offset)
 	{
-		int radius;
+		int radiusX, radiusZ;
 		double x, z;
 		try
 		{
-			radius = Integer.parseInt(data[offset]);
-			x = Double.parseDouble(data[offset+1]);
-			z = Double.parseDouble(data[offset+2]);
+			radiusX = Integer.parseInt(data[offset]);
+			radiusZ = Integer.parseInt(data[offset+1]);
+			x = Double.parseDouble(data[offset+2]);
+			z = Double.parseDouble(data[offset+3]);
 		}
 		catch(NumberFormatException ex)
 		{
-			sender.sendMessage(clrErr + "The radius value must be an integer and the x and z values must be numerical.");
+			sender.sendMessage(clrErr + "The radius values must be integers and the x and z values must be numerical.");
 			return false;
 		}
 
-		Config.setBorder(world, radius, x, z);
+		Config.setBorder(world, radiusX, radiusZ, x, z);
 		return true;
 	}
 

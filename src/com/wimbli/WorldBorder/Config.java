@@ -56,15 +56,16 @@ public class Config
 		save(true);
 		DynMapFeatures.showBorder(world, border);
 	}
-	public static void setBorder(String world, int radius, double x, double z, Boolean shapeRound)
+	
+	public static void setBorder(String world, int radiusX, int radiusZ, double x, double z, Boolean shapeRound)
 	{
-		setBorder(world, new BorderData(x, z, radius, shapeRound));
+		setBorder(world, new BorderData(x, z, radiusX, radiusZ, shapeRound));
 	}
-	public static void setBorder(String world, int radius, double x, double z)
+	public static void setBorder(String world, int radiusX, int radiusZ, double x, double z)
 	{
 		BorderData old = Border(world);
 		Boolean oldShape = (old == null) ? null : old.getShape();
-		setBorder(world, new BorderData(x, z, radius, oldShape));
+		setBorder(world, new BorderData(x, z, radiusX, radiusZ, oldShape));
 	}
 
 	public static void removeBorder(String world)
@@ -130,7 +131,7 @@ public class Config
 	public static void setShape(boolean round)
 	{
 		shapeRound = round;
-		Log("Set default border shape to " + (round ? "round" : "square") + ".");
+		Log("Set default border shape to " + (round ? "elliptic" : "rectangular") + ".");
 		save(true);
 		DynMapFeatures.showAllBorders();
 	}
@@ -361,7 +362,7 @@ public class Config
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);
 		dynmapEnable = cfg.getBoolean("dynmap-border-enabled", true);
 		dynmapMessage = cfg.getString("dynmap-border-message", "The border of the world.");
-		LogConfig("Using " + (shapeRound ? "round" : "square") + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
+		LogConfig("Using " + (shapeRound ? "elliptic" : "rectangular") + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
 
 		StartBorderTimer();
 
@@ -389,7 +390,7 @@ public class Config
 					worldName = worldName.replace("<", ".");
 
 				Boolean overrideShape = (Boolean) bord.get("shape-round");
-				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radius", 0), overrideShape);
+				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radiusX", 0), bord.getInt("radiusZ", 0), overrideShape);
 				borders.put(worldName, border);
 				LogConfig(BorderDescription(worldName));
 			}
@@ -446,7 +447,8 @@ public class Config
 
 			cfg.set("worlds." + name + ".x", bord.getX());
 			cfg.set("worlds." + name + ".z", bord.getZ());
-			cfg.set("worlds." + name + ".radius", bord.getRadius());
+			cfg.set("worlds." + name + ".radiusX", bord.getRadiusX());
+			cfg.set("worlds." + name + ".radiusZ", bord.getRadiusZ());
 
 			if (bord.getShape() != null)
 				cfg.set("worlds." + name + ".shape-round", bord.getShape());

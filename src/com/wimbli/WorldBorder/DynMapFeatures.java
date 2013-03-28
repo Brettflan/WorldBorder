@@ -178,7 +178,7 @@ public class DynMapFeatures
 		CircleMarker marker = roundBorders.get(worldName);
 		if (marker == null)
 		{
-			marker = markSet.createCircleMarker("worldborder_"+worldName, Config.DynmapMessage(), false, worldName, border.getX(), 64.0, border.getZ(), border.getRadius(), border.getRadius(), true);
+			marker = markSet.createCircleMarker("worldborder_"+worldName, Config.DynmapMessage(), false, worldName, border.getX(), 64.0, border.getZ(), border.getRadiusX(), border.getRadiusZ(), true);
 			marker.setLineStyle(lineWeight, lineOpacity, lineColor);
 			marker.setFillStyle(0.0, 0x000000);
 			roundBorders.put(worldName, marker);
@@ -186,7 +186,7 @@ public class DynMapFeatures
 		else
 		{
 			marker.setCenter(worldName, border.getX(), 64.0, border.getZ());
-			marker.setRadius(border.getRadius(), border.getRadius());
+			marker.setRadius(border.getRadiusX(), border.getRadiusZ());
 		}
 	}
 
@@ -196,8 +196,8 @@ public class DynMapFeatures
 			removeBorder(worldName);
 
 		// corners of the square border
-		double[] xVals = {border.getX() - border.getRadius(), border.getX() + border.getRadius()};
-		double[] zVals = {border.getZ() - border.getRadius(), border.getZ() + border.getRadius()};
+		double[] xVals = {border.getX() - border.getRadiusX(), border.getX() + border.getRadiusX()};
+		double[] zVals = {border.getZ() - border.getRadiusZ(), border.getZ() + border.getRadiusZ()};
 
 		AreaMarker marker = squareBorders.get(worldName);
 		if (marker == null)

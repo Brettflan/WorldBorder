@@ -13,7 +13,8 @@ public class BorderData
 	// the main data interacted with
 	private double x = 0;
 	private double z = 0;
-	private int radius = 0;
+	private int radiusX = 0;
+	private int radiusZ = 0;
 	private Boolean shapeRound = null;
 
 	// some extra data kept handy for faster border checks
@@ -21,28 +22,33 @@ public class BorderData
 	private double minX;
 	private double maxZ;
 	private double minZ;
-	private double radiusSquared;
-	private double DefiniteSquare;
+	private double radiusXSquared;
+	private double radiusZSquared;
+	private double DefiniteRectangleX;
+	private double DefiniteRectangleZ;
+	private double radiusSquaredQuotient;
 
-	public BorderData(double x, double z, int radius)
+	public BorderData(double x, double z, int radiusX, int radiusZ)
 	{
-		setData(x, z, radius, null);
+		setData(x, z, radiusX, radiusZ , null);
 	}
-	public BorderData(double x, double z, int radius, Boolean shapeRound)
+	public BorderData(double x, double z, int radiusX, int radiusZ, Boolean shapeRound)
 	{
-		setData(x, z, radius, shapeRound);
+		setData(x, z, radiusX, radiusZ, shapeRound);
 	}
-	public final void setData(double x, double z, int radius, Boolean shapeRound)
+	
+	public final void setData(double x, double z, int radiusX, int radiusZ, Boolean shapeRound)
 	{
 		this.x = x;
 		this.z = z;
 		this.shapeRound = shapeRound;
-		this.setRadius(radius);
+		this.setRadiusX(radiusX);
+		this.setRadiusZ(radiusZ);
 	}
 
 	public BorderData copy()
 	{
-		return new BorderData(x, z, radius, shapeRound);
+		return new BorderData(x, z, radiusX, radiusZ, shapeRound);
 	}
 
 	public double getX()
@@ -52,8 +58,8 @@ public class BorderData
 	public void setX(double x)
 	{
 		this.x = x;
-		this.maxX = x + radius;
-		this.minX = x - radius;
+		this.maxX = x + radiusX;
+		this.minX = x - radiusX;
 	}
 	public double getZ()
 	{
@@ -62,22 +68,34 @@ public class BorderData
 	public void setZ(double z)
 	{
 		this.z = z;
-		this.maxZ = z + radius;
-		this.minZ = z - radius;
+		this.maxZ = z + radiusZ;
+		this.minZ = z - radiusZ;
 	}
-	public int getRadius()
+	public int getRadiusX()
 	{
-		return radius;
+		return radiusX;
 	}
-	public void setRadius(int radius)
+	public int getRadiusZ()
 	{
-		this.radius = radius;
-		this.maxX = x + radius;
-		this.minX = x - radius;
-		this.maxZ = z + radius;
-		this.minZ = z - radius;
-		this.radiusSquared = (double)radius * (double)radius;
-		this.DefiniteSquare = Math.sqrt(.5 * this.radiusSquared);
+		return radiusZ;
+	}
+	public void setRadiusX(int radiusX)
+	{
+		this.radiusX = radiusX;
+		this.maxX = x + radiusX;
+		this.minX = x - radiusX;
+		this.radiusXSquared = (double)radiusX * (double)radiusX;
+		this.radiusSquaredQuotient = this.radiusXSquared / this.radiusZSquared;
+		this.DefiniteRectangleX = Math.sqrt(.5 * this.radiusXSquared);
+	}
+	public void setRadiusZ(int radiusZ)
+	{
+		this.radiusZ = radiusZ;
+		this.maxZ = z + radiusZ;
+		this.minZ = z - radiusZ;
+		this.radiusZSquared = (double)radiusZ * (double)radiusZ;
+		this.radiusSquaredQuotient = this.radiusXSquared / this.radiusZSquared;
+		this.DefiniteRectangleZ = Math.sqrt(.5 * this.radiusZSquared);
 	}
 
 	public Boolean getShape()
@@ -92,7 +110,7 @@ public class BorderData
 	@Override
 	public String toString()
 	{
-		return "radius " + radius + " at X: " + Config.coord.format(x) + " Z: " + Config.coord.format(z) + (shapeRound != null ? (" (shape override: " + (shapeRound.booleanValue() ? "round" : "square") + ")") : "");
+		return "radius " + radiusX + "-" + radiusZ + " at X: " + Config.coord.format(x) + " Z: " + Config.coord.format(z) + (shapeRound != null ? (" (shape override: " + (shapeRound.booleanValue() ? "round" : "square") + ")") : "");
 	}
 
 	// This algorithm of course needs to be fast, since it will be run very frequently
@@ -113,11 +131,11 @@ public class BorderData
 			double X = Math.abs(x - xLoc);
 			double Z = Math.abs(z - zLoc);
 
-			if (X < DefiniteSquare && Z < DefiniteSquare)
+			if (X < DefiniteRectangleX && Z < DefiniteRectangleZ)
 				return true;	// Definitely inside
-			else if (X >= radius || Z >= radius)
+			else if (X >= radiusX || Z >= radiusZ) //I'm not sure about this one...the chance that a player is totally outside the rectangle around the ellipse is only given if he teleports, and that shouldn't be that frequently
 				return false;	// Definitely outside
-			else if (X * X + Z * Z < radiusSquared)
+			else if (X * X + Z * Z * radiusSquaredQuotient < radiusXSquared)
 				return true;	// After further calculation, inside
 			else
 				return false;	// Apparently outside, then
@@ -159,11 +177,22 @@ public class BorderData
 		else
 		{
 			// algorithm from: http://stackoverflow.com/questions/300871/best-way-to-find-a-point-on-a-circle-closest-to-a-given-point
-			double vX = xLoc - x;
-			double vZ = zLoc - z;
-			double magV = Math.sqrt(vX*vX + vZ*vZ);
-			xLoc = x + vX / magV * (radius - Config.KnockBack());
-			zLoc = z + vZ / magV * (radius - Config.KnockBack());
+			//double vX = xLoc - x;
+			//double vZ = zLoc - z;
+			//double magV = Math.sqrt(vX*vX / radiusXSquared + vZ*vZ / radiusZSquared);
+			//xLoc = x + vX / (radiusX * magV) * (radiusX - Config.KnockBack());
+			//zLoc = z + vZ / (radiusZ * magV) * (radiusZ - Config.KnockBack());
+			
+			
+			//Transform the ellipse to a circle with radius 1 (we need to transform the point the same way)
+			double dX = xLoc - x;
+			double dZ = zLoc - z;
+			double dU = Math.sqrt(dX *dX + dZ * dZ); //distance of the untransformed point from the center
+			double dT = Math.sqrt(dX *dX / radiusXSquared + dZ * dZ / radiusZSquared); //distance of the transformed point from the center
+			double f = (1 / dT - Config.KnockBack() / dU); //"correction" factor for the distances
+			xLoc = x + dX * f;
+			zLoc = z + dZ * f;
+			
 		}
 
 		int ixLoc = Location.locToBlock(xLoc);
@@ -244,12 +273,12 @@ public class BorderData
 			return false;
 
 		BorderData test = (BorderData)obj;
-		return test.x == this.x && test.z == this.z && test.radius == this.radius;
+		return test.x == this.x && test.z == this.z && test.radiusX == this.radiusX && test.radiusZ == this.radiusZ;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return (((int)(this.x * 10) << 4) + (int)this.z + (this.radius << 2));
+		return (((int)(this.x * 10) << 4) + (int)this.z + (this.radiusX << 2));
 	}
 }
