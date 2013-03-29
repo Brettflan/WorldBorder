@@ -11,19 +11,22 @@ commands:
     aliases: [worldborder, wb]
     usage: |
            /<command> - list available commands (show help).
-           /<command> set <radiusX> <radiusY> - set world border, centered on you.
-           /<command> [world] set <radiusX> <radiusZ> <x> <z> - set world border.
-           /<command> [world] radius <radiusX> <radiusZ> - change world's border radius.
+           /<command> set <radiusX> [radiusZ] - set world border, centered on you.
+           /<command> [world] set <radiusX> [radiusZ] <x> <z> - set world border.
+           /<command> [world] setcorners <x1> <z1> <x2> <z2> - set border from corners.
+           /<command> [world] radius <radiusX> [radiusZ] - change border's radius.
            /<command> [world] clear - remove border for this world.
            /<command> clear all - remove border for all worlds.
            /<command> list - show border information for all worlds.
            /<command> shape <elliptic|rectangular> - set the default border shape.
+           /<command> shape <round|square> - same as above, backwards compatible.
            /<command> getmsg - display border message.
            /<command> setmsg <text> - set border message.
            /<command> knockback <distance> - how far to move the player back.
            /<command> whoosh <on/off> - turn knockback effect on or off.
            /<command> delay <amount> - time between border checks.
            /<command> wshape [world] <elliptic|rectangular|default> - override shape.
+           /<command> wshape [world] <round|square|default> - same as above values.
            /<command> [world] fill [freq] [pad] - generate world out to border.
            /<command> [world] trim [freq] [pad] - trim world outside of border.
            /<command> bypass [player] [on/off] - let player go beyond border.

@@ -30,13 +30,21 @@ public class BorderData
 
 	public BorderData(double x, double z, int radiusX, int radiusZ)
 	{
-		setData(x, z, radiusX, radiusZ , null);
+		setData(x, z, radiusX, radiusZ, null);
 	}
 	public BorderData(double x, double z, int radiusX, int radiusZ, Boolean shapeRound)
 	{
 		setData(x, z, radiusX, radiusZ, shapeRound);
 	}
-	
+	public BorderData(double x, double z, int radius)
+	{
+		setData(x, z, radius, null);
+	}
+	public BorderData(double x, double z, int radius, Boolean shapeRound)
+	{
+		setData(x, z, radius, shapeRound);
+	}
+
 	public final void setData(double x, double z, int radiusX, int radiusZ, Boolean shapeRound)
 	{
 		this.x = x;
@@ -44,6 +52,10 @@ public class BorderData
 		this.shapeRound = shapeRound;
 		this.setRadiusX(radiusX);
 		this.setRadiusZ(radiusZ);
+	}
+	public final void setData(double x, double z, int radius, Boolean shapeRound)
+	{
+		setData(x, z, radius, radius, shapeRound);
 	}
 
 	public BorderData copy()
@@ -98,6 +110,23 @@ public class BorderData
 		this.DefiniteRectangleZ = Math.sqrt(.5 * this.radiusZSquared);
 	}
 
+
+	// backwards-compatible methods from before elliptical/rectangular shapes were supported
+	/**
+	 * @deprecated  Replaced by {@link #getRadiusX()} and {@link #getRadiusZ()};
+	 * this method now returns an average of those two values and is thus imprecise
+	 */
+	public int getRadius()
+	{
+		return (radiusX + radiusZ) / 2;  // average radius; not great, but probably best for backwards compatibility
+	}
+	public void setRadius(int radius)
+	{
+		setRadiusX(radius);
+		setRadiusZ(radius);
+	}
+
+
 	public Boolean getShape()
 	{
 		return shapeRound;
@@ -110,7 +139,7 @@ public class BorderData
 	@Override
 	public String toString()
 	{
-		return "radius " + radiusX + "-" + radiusZ + " at X: " + Config.coord.format(x) + " Z: " + Config.coord.format(z) + (shapeRound != null ? (" (shape override: " + (shapeRound.booleanValue() ? "round" : "square") + ")") : "");
+		return "radius " + ((radiusX == radiusZ) ? radiusX : radiusX + "x" + radiusZ) + " at X: " + Config.coord.format(x) + " Z: " + Config.coord.format(z) + (shapeRound != null ? (" (shape override: " + Config.ShapeName(shapeRound.booleanValue()) + ")") : "");
 	}
 
 	// This algorithm of course needs to be fast, since it will be run very frequently
@@ -133,7 +162,7 @@ public class BorderData
 
 			if (X < DefiniteRectangleX && Z < DefiniteRectangleZ)
 				return true;	// Definitely inside
-			else if (X >= radiusX || Z >= radiusZ) //I'm not sure about this one...the chance that a player is totally outside the rectangle around the ellipse is only given if he teleports, and that shouldn't be that frequently
+			else if (X >= radiusX || Z >= radiusZ)
 				return false;	// Definitely outside
 			else if (X * X + Z * Z * radiusSquaredQuotient < radiusXSquared)
 				return true;	// After further calculation, inside
@@ -176,14 +205,9 @@ public class BorderData
 		// round border
 		else
 		{
-			// algorithm from: http://stackoverflow.com/questions/300871/best-way-to-find-a-point-on-a-circle-closest-to-a-given-point
-			//double vX = xLoc - x;
-			//double vZ = zLoc - z;
-			//double magV = Math.sqrt(vX*vX / radiusXSquared + vZ*vZ / radiusZSquared);
-			//xLoc = x + vX / (radiusX * magV) * (radiusX - Config.KnockBack());
-			//zLoc = z + vZ / (radiusZ * magV) * (radiusZ - Config.KnockBack());
-			
-			
+			// algorithm originally from: http://stackoverflow.com/questions/300871/best-way-to-find-a-point-on-a-circle-closest-to-a-given-point
+			// modified by Lang Lukas to support elliptical border shape
+
 			//Transform the ellipse to a circle with radius 1 (we need to transform the point the same way)
 			double dX = xLoc - x;
 			double dZ = zLoc - z;
@@ -192,7 +216,6 @@ public class BorderData
 			double f = (1 / dT - Config.KnockBack() / dU); //"correction" factor for the distances
 			xLoc = x + dX * f;
 			zLoc = z + dZ * f;
-			
 		}
 
 		int ixLoc = Location.locToBlock(xLoc);
@@ -279,6 +302,6 @@ public class BorderData
 	@Override
 	public int hashCode()
 	{
-		return (((int)(this.x * 10) << 4) + (int)this.z + (this.radiusX << 2));
+		return (((int)(this.x * 10) << 4) + (int)this.z + (this.radiusX << 2) + (this.radiusZ << 3));
 	}
 }

@@ -49,6 +49,7 @@ public class Config
 		return System.currentTimeMillis();
 	}
 
+
 	public static void setBorder(String world, BorderData border)
 	{
 		borders.put(world, border);
@@ -56,7 +57,7 @@ public class Config
 		save(true);
 		DynMapFeatures.showBorder(world, border);
 	}
-	
+
 	public static void setBorder(String world, int radiusX, int radiusZ, double x, double z, Boolean shapeRound)
 	{
 		setBorder(world, new BorderData(x, z, radiusX, radiusZ, shapeRound));
@@ -67,6 +68,35 @@ public class Config
 		Boolean oldShape = (old == null) ? null : old.getShape();
 		setBorder(world, new BorderData(x, z, radiusX, radiusZ, oldShape));
 	}
+
+
+	// backwards-compatible methods from before elliptical/rectangular shapes were supported
+	public static void setBorder(String world, int radius, double x, double z, Boolean shapeRound)
+	{
+		setBorder(world, new BorderData(x, z, radius, radius, shapeRound));
+	}
+	public static void setBorder(String world, int radius, double x, double z)
+	{
+		setBorder(world, radius, radius, x, z);
+	}
+
+
+	// set border based on corner coordinates
+	public static void setBorderCorners(String world, double x1, double z1, double x2, double z2, Boolean shapeRound)
+	{
+		double radiusX = Math.abs(x1 - x2) / 2;
+		double radiusZ = Math.abs(z1 - z2) / 2;
+		double x = ((x1 < x2) ? x1 : x2) + radiusX;
+		double z = ((z1 < z2) ? z1 : z2) + radiusZ;
+		setBorder(world, new BorderData(x, z, (int)Math.round(radiusX), (int)Math.round(radiusZ), shapeRound));
+	}
+	public static void setBorderCorners(String world, double x1, double z1, double x2, double z2)
+	{
+		BorderData old = Border(world);
+		Boolean oldShape = (old == null) ? null : old.getShape();
+		setBorderCorners(world, x1, z1, x2, z2, oldShape);
+	}
+
 
 	public static void removeBorder(String world)
 	{
@@ -131,7 +161,7 @@ public class Config
 	public static void setShape(boolean round)
 	{
 		shapeRound = round;
-		Log("Set default border shape to " + (round ? "elliptic" : "rectangular") + ".");
+		Log("Set default border shape to " + (ShapeName()) + ".");
 		save(true);
 		DynMapFeatures.showAllBorders();
 	}
@@ -139,6 +169,15 @@ public class Config
 	public static boolean ShapeRound()
 	{
 		return shapeRound;
+	}
+
+	public static String ShapeName()
+	{
+		return ShapeName(shapeRound);
+	}
+	public static String ShapeName(boolean round)
+	{
+		return round ? "elliptic/round" : "rectangular/square";
 	}
 
 	public static void setDebug(boolean debugMode)
@@ -343,7 +382,7 @@ public class Config
 	}
 
 
-	private static final int currentCfgVersion = 5;
+	private static final int currentCfgVersion = 6;
 
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
@@ -362,7 +401,7 @@ public class Config
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);
 		dynmapEnable = cfg.getBoolean("dynmap-border-enabled", true);
 		dynmapMessage = cfg.getString("dynmap-border-message", "The border of the world.");
-		LogConfig("Using " + (shapeRound ? "elliptic" : "rectangular") + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
+		LogConfig("Using " + (ShapeName()) + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
 
 		StartBorderTimer();
 
@@ -388,6 +427,14 @@ public class Config
 				// we're swapping "<" to "." at load since periods denote configuration nodes without a working way to change that, so world names with periods wreak havoc and are thus modified for storage
 				if (cfgVersion > 3)
 					worldName = worldName.replace("<", ".");
+
+				// backwards compatibility for config from before elliptical/rectangular borders were supported
+				if (bord.isSet("radius") && !bord.isSet("radiusX"))
+				{
+					int radius = bord.getInt("radius");
+					bord.set("radiusX", radius);
+					bord.set("radiusZ", radius);
+				}
 
 				Boolean overrideShape = (Boolean) bord.get("shape-round");
 				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radiusX", 0), bord.getInt("radiusZ", 0), overrideShape);
