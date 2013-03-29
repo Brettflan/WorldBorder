@@ -160,8 +160,8 @@ public class WorldFillTask implements Runnable
 			if (now > lastReport + 5000)
 				reportProgress();
 
-			// if this iteration has been running for 250ms (~5 ticks) or more, stop to take a breather
-			if (now > loopStartTime + 250)
+			// if this iteration has been running for 45ms (almost 1 tick) or more, stop to take a breather
+			if (now > loopStartTime + 45)
 			{
 				readyToGo = true;
 				return;

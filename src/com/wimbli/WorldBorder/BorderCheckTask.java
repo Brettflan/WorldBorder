@@ -101,7 +101,7 @@ public class BorderCheckTask implements Runnable
 			Config.LogWarn("Player position X: " + Config.coord.format(loc.getX()) + " Y: " + Config.coord.format(loc.getY()) + " Z: " + Config.coord.format(loc.getZ()));
 		}
 
-		Location newLoc = border.correctedPosition(loc, Config.ShapeRound());
+		Location newLoc = border.correctedPosition(loc, Config.ShapeRound(), player.isFlying());
 
 		// it's remotely possible (such as in the Nether) a suitable location isn't available, in which case...
 		if (newLoc == null)

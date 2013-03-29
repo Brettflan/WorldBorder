@@ -179,7 +179,7 @@ public class BorderData
 		return insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound());
 	}
 
-	public Location correctedPosition(Location loc, boolean round)
+	public Location correctedPosition(Location loc, boolean round, boolean flying)
 	{
 		// if this border has a shape override set, use it
 		if (shapeRound != null)
@@ -226,15 +226,19 @@ public class BorderData
 		if (!tChunk.isLoaded())
 			tChunk.load();
 
-		yLoc = getSafeY(loc.getWorld(), ixLoc, Location.locToBlock(yLoc), izLoc);
+		yLoc = getSafeY(loc.getWorld(), ixLoc, Location.locToBlock(yLoc), izLoc, flying);
 		if (yLoc == -1)
 			return null;
 
 		return new Location(loc.getWorld(), Math.floor(xLoc) + 0.5, yLoc, Math.floor(zLoc) + 0.5, loc.getYaw(), loc.getPitch());
 	}
+	public Location correctedPosition(Location loc, boolean round)
+	{
+		return correctedPosition(loc, round, false);
+	}
 	public Location correctedPosition(Location loc)
 	{
-		return correctedPosition(loc, Config.ShapeRound());
+		return correctedPosition(loc, Config.ShapeRound(), false);
 	}
 
 	//these material IDs are acceptable for places to teleport player; breathable blocks and water
@@ -248,20 +252,24 @@ public class BorderData
 	));
 
 	// check if a particular spot consists of 2 breathable blocks over something relatively solid
-	private boolean isSafeSpot(World world, int X, int Y, int Z)
+	private boolean isSafeSpot(World world, int X, int Y, int Z, boolean flying)
 	{
+		boolean safe = safeOpenBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y, Z))		// target block open and safe
+					&& safeOpenBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y + 1, Z));	// above target block open and safe
+		if (!safe || flying)
+			return safe;
+
 		Integer below = (Integer)world.getBlockTypeIdAt(X, Y - 1, Z);
-		return (safeOpenBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y, Z))		// target block open and safe
-			 && safeOpenBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y + 1, Z))	// above target block open and safe
-			 && (!safeOpenBlocks.contains(below) || below == 8 || below == 9)			// below target block not open and safe (probably solid), or is water
-			 && !painfulBlocks.contains(below)											// below target block not painful
+		return (safe
+			 && (!safeOpenBlocks.contains(below) || below == 8 || below == 9)	// below target block not open and safe (probably solid), or is water
+			 && !painfulBlocks.contains(below)									// below target block not painful
 			);
 	}
 
 	private static final int limBot = 1;
 
 	// find closest safe Y position from the starting position
-	private double getSafeY(World world, int X, int Y, int Z)
+	private double getSafeY(World world, int X, int Y, int Z, boolean flying)
 	{
 		// artificial height limit of 127 added for Nether worlds since CraftBukkit still incorrectly returns 255 for their max height, leading to players sent to the "roof" of the Nether
 		final int limTop = (world.getEnvironment() == World.Environment.NETHER) ? 125 : world.getMaxHeight() - 2;
@@ -271,14 +279,14 @@ public class BorderData
 			// Look below.
 			if(y1 > limBot)
 			{
-				if (isSafeSpot(world, X, y1, Z))
+				if (isSafeSpot(world, X, y1, Z, flying))
 					return (double)y1;
 			}
 
 			// Look above.
 			if(y2 < limTop && y2 != y1)
 			{
-				if (isSafeSpot(world, X, y2, Z))
+				if (isSafeSpot(world, X, y2, Z, flying))
 					return (double)y2;
 			}
 		}
