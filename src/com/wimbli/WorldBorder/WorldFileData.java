@@ -34,17 +34,21 @@ public class WorldFileData
 		newData.regionFolder = new File(newData.world.getWorldFolder(), "region");
 		if (!newData.regionFolder.exists() || !newData.regionFolder.isDirectory())
 		{
-			String mainRegionFolder = newData.regionFolder.getPath();
-			newData.regionFolder = new File(newData.world.getWorldFolder(), "DIM-1"+File.separator+"region");  // nether worlds
+			// check for region folder inside a DIM* folder (DIM-1 for nether, DIM1 for end, DIMwhatever for custom world types)
+			File[] possibleDimFolders = newData.world.getWorldFolder().listFiles(new DimFolderFileFilter());
+			for (int i = 0; i < possibleDimFolders.length; i++)
+			{
+				File possible = new File(newData.world.getWorldFolder(), possibleDimFolders[i].getName()+File.separator+"region");
+				if (possible.exists() && possible.isDirectory())
+				{
+					newData.regionFolder = possible;
+					continue;
+				}
+			}
 			if (!newData.regionFolder.exists() || !newData.regionFolder.isDirectory())
 			{
-				String subRegionFolder = newData.regionFolder.getPath();
-				newData.regionFolder = new File(newData.world.getWorldFolder(), "DIM1"+File.separator+"region");  // "the end" worlds; not sure why "DIM1" vs "DIM-1", but that's how it is
-				if (!newData.regionFolder.exists() || !newData.regionFolder.isDirectory())
-				{
-					newData.sendMessage("Could not validate folder for world's region files. Looked in: "+mainRegionFolder+" -and- "+subRegionFolder+" -and- "+newData.regionFolder.getPath());
-					return null;
-				}
+				newData.sendMessage("Could not validate folder for world's region files. Looked in "+newData.world.getWorldFolder().getPath()+" for valid DIM* folder with a region folder in it.");
+				return null;
 			}
 		}
 
@@ -240,6 +244,19 @@ public class WorldFileData
 		}
 	}
 
+	// file filter used for DIM* folders (for nether, End, and custom world types)
+	private static class DimFolderFileFilter implements FileFilter
+	{
+		@Override
+		public boolean accept(File file)
+		{
+			return (
+				   file.exists()
+				&& file.isDirectory()
+				&& file.getName().toLowerCase().startsWith("dim")
+				);
+		}
+	}
 
 
 // crude chunk map PNG image output, for debugging
