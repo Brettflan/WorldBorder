@@ -75,6 +75,7 @@ public class BorderCheckTask implements Runnable
 			player.teleport(newLoc);
 		else
 		{
+		/*	// Bukkit team have removed the ability to teleport any entity which has a passenger, causing this to fail horribly now, so...
 			Entity ride = player.getVehicle();
 			if (ride != null)
 			{	// vehicles need to be offset vertically and have velocity stopped
@@ -88,6 +89,9 @@ public class BorderCheckTask implements Runnable
 				player.leaveVehicle();
 				player.teleport(newLoc);
 			}
+		 */	// so unfortunately until they become sane again we must always eject player from whatever they're riding
+			player.leaveVehicle();
+			player.teleport(newLoc);
 		}
 
 		return null;
