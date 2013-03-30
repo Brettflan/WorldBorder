@@ -42,7 +42,7 @@ public class WorldFileData
 				if (possible.exists() && possible.isDirectory())
 				{
 					newData.regionFolder = possible;
-					continue;
+					break;
 				}
 			}
 			if (!newData.regionFolder.exists() || !newData.regionFolder.isDirectory())

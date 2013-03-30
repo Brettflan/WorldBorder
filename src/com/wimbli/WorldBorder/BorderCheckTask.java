@@ -2,12 +2,12 @@ package com.wimbli.WorldBorder;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
+//import org.bukkit.entity.Entity;
+//import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
 import org.bukkit.Server;
-import org.bukkit.util.Vector;
+//import org.bukkit.util.Vector;
 import org.bukkit.World;
 
 
@@ -32,12 +32,12 @@ public class BorderCheckTask implements Runnable
 		Player[] players = server.getOnlinePlayers();
 
 		for (int i = 0; i < players.length; i++){
-			checkPlayer(players[i], null, false);
+			checkPlayer(players[i], null, false, true);
 		}
 	}
 
 	// set targetLoc only if not current player location; set returnLocationOnly to true to have new Location returned if they need to be moved to one, instead of directly handling it
-	public static Location checkPlayer(Player player, Location targetLoc, boolean returnLocationOnly)
+	public static Location checkPlayer(Player player, Location targetLoc, boolean returnLocationOnly, boolean notify)
 	{
 		if (player == null || !player.isOnline()) return null;
 
@@ -56,7 +56,16 @@ public class BorderCheckTask implements Runnable
 		if (Config.isPlayerBypassing(player.getName()))
 			return null;
 
-		Location newLoc = newLocation(player, loc, border);
+		// since we need to forcibly eject players who are inside vehicles, that fires a teleport event (go figure) and
+		// so would double trigger, so we need to handle it here to prevent sending two messages and two log entries etc.
+		// see further below for why players in vehicles now have to be ejected
+		if (player.isInsideVehicle())
+		{
+			player.leaveVehicle();
+			return null;
+		}
+
+		Location newLoc = newLocation(player, loc, border, notify);
 
 		if (Config.whooshEffect())
 		{	// give some particle and sound effects where the player was beyond the border
@@ -71,11 +80,12 @@ public class BorderCheckTask implements Runnable
 		if (returnLocationOnly)
 			return newLoc;
 
+	/*	// Bukkit team have removed the ability to teleport any entity which has a passenger, causing this to fail horribly now, so...
+	 *	// unfortunately until they become sane again we must always eject player from whatever they're riding, which is done above
 		if (!player.isInsideVehicle())
 			player.teleport(newLoc);
 		else
 		{
-		/*	// Bukkit team have removed the ability to teleport any entity which has a passenger, causing this to fail horribly now, so...
 			Entity ride = player.getVehicle();
 			if (ride != null)
 			{	// vehicles need to be offset vertically and have velocity stopped
@@ -89,19 +99,24 @@ public class BorderCheckTask implements Runnable
 				player.leaveVehicle();
 				player.teleport(newLoc);
 			}
-		 */	// so unfortunately until they become sane again we must always eject player from whatever they're riding
 			player.leaveVehicle();
 			player.teleport(newLoc);
 		}
+	 */	// and in the meantime, since vehicle ejection is handled in new spot above, we can safely relocate the player at this point
+		player.teleport(newLoc);
 
 		return null;
 	}
+	public static Location checkPlayer(Player player, Location targetLoc, boolean returnLocationOnly)
+	{
+		return checkPlayer(player, targetLoc, returnLocationOnly, true);
+	}
 
-	private static Location newLocation(Player player, Location loc, BorderData border)
+	private static Location newLocation(Player player, Location loc, BorderData border, boolean notify)
 	{
 		if (Config.Debug())
 		{
-			Config.LogWarn("Border crossing in \"" + loc.getWorld().getName() + "\". Border " + border.toString());
+			Config.LogWarn((notify ? "Border crossing" : "Check was run") + " in \"" + loc.getWorld().getName() + "\". Border " + border.toString());
 			Config.LogWarn("Player position X: " + Config.coord.format(loc.getX()) + " Y: " + Config.coord.format(loc.getY()) + " Z: " + Config.coord.format(loc.getZ()));
 		}
 
@@ -118,7 +133,8 @@ public class BorderCheckTask implements Runnable
 		if (Config.Debug())
 			Config.LogWarn("New position in world \"" + newLoc.getWorld().getName() + "\" at X: " + Config.coord.format(newLoc.getX()) + " Y: " + Config.coord.format(newLoc.getY()) + " Z: " + Config.coord.format(newLoc.getZ()));
 
-		player.sendMessage(ChatColor.RED + Config.Message());
+		if (notify)
+			player.sendMessage(ChatColor.RED + Config.Message());
 
 		return newLoc;
 	}

@@ -178,6 +178,14 @@ public class BorderData
 	{
 		return insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound());
 	}
+	public boolean insideBorder(CoordXZ coord, boolean round)
+	{
+		return insideBorder(coord.x, coord.z, round);
+	}
+	public boolean insideBorder(CoordXZ coord)
+	{
+		return insideBorder(coord.x, coord.z, Config.ShapeRound());
+	}
 
 	public Location correctedPosition(Location loc, boolean round, boolean flying)
 	{
@@ -243,7 +251,7 @@ public class BorderData
 
 	//these material IDs are acceptable for places to teleport player; breathable blocks and water
 	public static final LinkedHashSet<Integer> safeOpenBlocks = new LinkedHashSet<Integer>(Arrays.asList(
-		 new Integer[] {0, 6, 8, 9, 27, 28, 30, 31, 32, 37, 38, 39, 40, 50, 55, 59, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 78, 83, 90, 93, 94, 96, 104, 105, 106, 115, 131, 132, 141, 142}
+		 new Integer[] {0, 6, 8, 9, 27, 28, 30, 31, 32, 37, 38, 39, 40, 50, 55, 59, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 78, 83, 90, 93, 94, 96, 104, 105, 106, 115, 131, 132, 141, 142, 149, 150, 157}
 	));
 
 	//these material IDs are ones we don't want to drop the player onto, like cactus or lava or fire or activated Ender portal
