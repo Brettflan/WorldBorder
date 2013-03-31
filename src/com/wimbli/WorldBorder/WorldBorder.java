@@ -6,6 +6,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class WorldBorder extends JavaPlugin
 {
+	public static WorldBorder plugin;
+
+	public WorldBorder()
+	{
+		plugin = this;
+	}
+
 	@Override
 	public void onEnable()
 	{

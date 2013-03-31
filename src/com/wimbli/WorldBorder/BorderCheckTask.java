@@ -1,35 +1,27 @@
 package com.wimbli.WorldBorder;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
-//import org.bukkit.entity.Entity;
-//import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Boat;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
-import org.bukkit.Server;
-//import org.bukkit.util.Vector;
+import org.bukkit.util.Vector;
 import org.bukkit.World;
 
 
 public class BorderCheckTask implements Runnable
 {
-	private transient Server server = null;
-
-	public BorderCheckTask(Server theServer)
-	{
-		this.server = theServer;
-	}
-
 	public void run()
 	{
-		if (server == null)
-			return;
-
 		// if knockback is set to 0, simply return
 		if (Config.KnockBack() == 0.0)
 			return;
 
-		Player[] players = server.getOnlinePlayers();
+		Player[] players = Bukkit.getServer().getOnlinePlayers();
 
 		for (int i = 0; i < players.length; i++){
 			checkPlayer(players[i], null, false, true);
@@ -56,12 +48,34 @@ public class BorderCheckTask implements Runnable
 		if (Config.isPlayerBypassing(player.getName()))
 			return null;
 
-		// since we need to forcibly eject players who are inside vehicles, that fires a teleport event (go figure) and
-		// so would double trigger, so we need to handle it here to prevent sending two messages and two log entries etc.
-		// see further below for why players in vehicles now have to be ejected
+		/*
+		 * since we need to forcibly eject players who are inside vehicles, that fires a teleport event (go figure) and
+		 * so would effectively double trigger for us, so we need to handle it here to prevent sending two messages and
+		 * two log entries etc.
+		 * after players are ejected we can wait a few ticks (long enough for their client to receive new entity location)
+		 * and then set them as passenger of the vehicle again
+		 */
 		if (player.isInsideVehicle())
 		{
+			Location newLoc = newLocation(player, loc, border, false);
+			Entity ride = player.getVehicle();
 			player.leaveVehicle();
+			if (ride != null)
+			{	// vehicles need to be offset vertically and have velocity stopped
+				double vertOffset = (ride instanceof LivingEntity) ? 0 : ride.getLocation().getY() - loc.getY();
+				newLoc.setY(newLoc.getY() + vertOffset);
+				if (ride instanceof Boat)
+				{	// boats currently glitch on client when teleported, so crappy workaround is to remove it and spawn a new one
+					ride.remove();
+					ride = world.spawnEntity(newLoc, EntityType.BOAT);
+				}
+				else
+				{
+					ride.setVelocity(new Vector(0, 0, 0));
+					ride.teleport(newLoc);
+				}
+				setPassengerDelayed(ride, player, 10);
+			}
 			return null;
 		}
 
@@ -80,31 +94,7 @@ public class BorderCheckTask implements Runnable
 		if (returnLocationOnly)
 			return newLoc;
 
-	/*	// Bukkit team have removed the ability to teleport any entity which has a passenger, causing this to fail horribly now, so...
-	 *	// unfortunately until they become sane again we must always eject player from whatever they're riding, which is done above
-		if (!player.isInsideVehicle())
-			player.teleport(newLoc);
-		else
-		{
-			Entity ride = player.getVehicle();
-			if (ride != null)
-			{	// vehicles need to be offset vertically and have velocity stopped
-				double vertOffset = (ride instanceof LivingEntity) ? 0 : ride.getLocation().getY() - loc.getY();
-				newLoc.setY(newLoc.getY() + vertOffset);
-				ride.setVelocity(new Vector(0, 0, 0));
-				ride.teleport(newLoc);
-			}
-			else
-			{	// if player.getVehicle() returns null (when riding a pig on older Bukkit releases, for instance), player has to be ejected
-				player.leaveVehicle();
-				player.teleport(newLoc);
-			}
-			player.leaveVehicle();
-			player.teleport(newLoc);
-		}
-	 */	// and in the meantime, since vehicle ejection is handled in new spot above, we can safely relocate the player at this point
 		player.teleport(newLoc);
-
 		return null;
 	}
 	public static Location checkPlayer(Player player, Location targetLoc, boolean returnLocationOnly)
@@ -137,5 +127,17 @@ public class BorderCheckTask implements Runnable
 			player.sendMessage(ChatColor.RED + Config.Message());
 
 		return newLoc;
+	}
+
+	private static void setPassengerDelayed(final Entity vehicle, final Player player, long delay)
+	{
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(WorldBorder.plugin, new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				vehicle.setPassenger(player);
+			}
+		}, delay);
 	}
 }

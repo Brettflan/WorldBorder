@@ -286,7 +286,7 @@ public class Config
 	{
 		StopBorderTimer();
 
-		borderTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new BorderCheckTask(plugin.getServer()), timerTicks, timerTicks);
+		borderTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new BorderCheckTask(), timerTicks, timerTicks);
 
 		if (borderTask == -1)
 			LogWarn("Failed to start timed border-checking task! This will prevent the plugin from working. Try restarting Bukkit.");
