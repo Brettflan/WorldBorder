@@ -269,7 +269,7 @@ public class BorderData
 
 		Integer below = (Integer)world.getBlockTypeIdAt(X, Y - 1, Z);
 		return (safe
-			 && (!safeOpenBlocks.contains(below) || below == 8 || below == 9)	// below target block not open and safe (probably solid), or is water
+			 && (!safeOpenBlocks.contains(below) || below == 8 || below == 9)	// below target block not open/breathable (so presumably solid), or is water
 			 && !painfulBlocks.contains(below)									// below target block not painful
 			);
 	}
