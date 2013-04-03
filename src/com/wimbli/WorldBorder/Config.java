@@ -29,7 +29,7 @@ public class Config
 	public static WorldTrimTask trimTask;
 	private static Set<String> bypassPlayers = Collections.synchronizedSet(new LinkedHashSet<String>());
 	private static Runtime rt = Runtime.getRuntime();
-	
+
 	// actual configuration values which can be changed
 	private static boolean shapeRound = true;
 	private static Map<String, BorderData> borders = Collections.synchronizedMap(new LinkedHashMap<String, BorderData>());
@@ -40,6 +40,7 @@ public class Config
 	private static boolean whooshEffect = false;
 	private static boolean dynmapEnable = true;
 	private static String dynmapMessage;
+	private static boolean isWrapping = false;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -303,6 +304,9 @@ public class Config
 		LogConfig("Border-checking timed task stopped.");
 	}
 
+	public static boolean isWrapping() {
+		retirn isWrapping;
+	}
 
 	public static void StopFillTask()
 	{
@@ -382,7 +386,7 @@ public class Config
 	}
 
 
-	private static final int currentCfgVersion = 6;
+	private static final int currentCfgVersion = 7;
 
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
@@ -401,6 +405,7 @@ public class Config
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);
 		dynmapEnable = cfg.getBoolean("dynmap-border-enabled", true);
 		dynmapMessage = cfg.getString("dynmap-border-message", "The border of the world.");
+		isWrapping = cfg.getBoolean("wrapping-world", false);
 		LogConfig("Using " + (ShapeName()) + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
 
 		StartBorderTimer();
@@ -483,6 +488,7 @@ public class Config
 		cfg.set("timer-delay-ticks", timerTicks);
 		cfg.set("dynmap-border-enabled", dynmapEnable);
 		cfg.set("dynmap-border-message", dynmapMessage);
+		cfg.set("wrapping-world", isWrapping);
 
 		cfg.set("worlds", null);
 		Iterator world = borders.entrySet().iterator();
