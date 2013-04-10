@@ -48,7 +48,6 @@ public class WorldFillTask implements Runnable
 
 	// for reporting progress back to user occasionally
 	private transient long lastReport = Config.Now();
-	private transient int reportSkipped = 0;
 	private transient int reportTarget = 0;
 	private transient int reportTotal = 0;
 	private transient int reportNum = 0;
@@ -178,7 +177,6 @@ public class WorldFillTask implements Runnable
 			// skip past any chunks which are confirmed as fully generated using our super-special isChunkFullyGenerated routine
 			while (worldData.isChunkFullyGenerated(x, z))
 			{
-				reportSkipped++;
 				insideBorder = true;
 				if (!moveToNext())
 					return;
@@ -373,7 +371,7 @@ public class WorldFillTask implements Runnable
 		lastReport = Config.Now();
 		double perc = ((double)(reportTotal + reportNum) / (double)reportTarget) * 100;
 		if (perc > 100) perc = 100;
-		sendMessage(reportNum + " more chunks processed (" + (reportTotal + reportNum) + " total with " + reportSkipped + " skipped, ~" + Config.coord.format(perc) + "%" + ")");
+		sendMessage(reportNum + " more chunks processed (" + (reportTotal + reportNum) + " total, ~" + Config.coord.format(perc) + "%" + ")");
 		reportTotal += reportNum;
 		reportNum = 0;
 
