@@ -61,13 +61,16 @@ public class Config
 
 	public static void setBorder(String world, int radiusX, int radiusZ, double x, double z, Boolean shapeRound)
 	{
-		setBorder(world, new BorderData(x, z, radiusX, radiusZ, shapeRound));
+		BorderData old = Border(world);
+		boolean oldWrap = (old == null) ? false : old.getWrapping();
+		setBorder(world, new BorderData(x, z, radiusX, radiusZ, shapeRound, oldWrap));
 	}
 	public static void setBorder(String world, int radiusX, int radiusZ, double x, double z)
 	{
 		BorderData old = Border(world);
 		Boolean oldShape = (old == null) ? null : old.getShape();
-		setBorder(world, new BorderData(x, z, radiusX, radiusZ, oldShape));
+		boolean oldWrap = (old == null) ? false : old.getWrapping();
+		setBorder(world, new BorderData(x, z, radiusX, radiusZ, oldShape, oldWrap));
 	}
 
 
@@ -83,19 +86,24 @@ public class Config
 
 
 	// set border based on corner coordinates
-	public static void setBorderCorners(String world, double x1, double z1, double x2, double z2, Boolean shapeRound)
+	public static void setBorderCorners(String world, double x1, double z1, double x2, double z2, Boolean shapeRound, boolean wrap)
 	{
 		double radiusX = Math.abs(x1 - x2) / 2;
 		double radiusZ = Math.abs(z1 - z2) / 2;
 		double x = ((x1 < x2) ? x1 : x2) + radiusX;
 		double z = ((z1 < z2) ? z1 : z2) + radiusZ;
-		setBorder(world, new BorderData(x, z, (int)Math.round(radiusX), (int)Math.round(radiusZ), shapeRound));
+		setBorder(world, new BorderData(x, z, (int)Math.round(radiusX), (int)Math.round(radiusZ), shapeRound, wrap));
+	}
+	public static void setBorderCorners(String world, double x1, double z1, double x2, double z2, Boolean shapeRound)
+	{
+		setBorderCorners(world, x1, z1, x2, z2, shapeRound, false);
 	}
 	public static void setBorderCorners(String world, double x1, double z1, double x2, double z2)
 	{
 		BorderData old = Border(world);
 		Boolean oldShape = (old == null) ? null : old.getShape();
-		setBorderCorners(world, x1, z1, x2, z2, oldShape);
+		boolean oldWrap = (old == null) ? false : old.getWrapping();
+		setBorderCorners(world, x1, z1, x2, z2, oldShape, oldWrap);
 	}
 
 

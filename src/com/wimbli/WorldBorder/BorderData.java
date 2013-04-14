@@ -61,7 +61,7 @@ public class BorderData
 	}
 	public final void setData(double x, double z, int radiusX, int radiusZ, Boolean shapeRound)
 	{
-		setData(x, z, radiusZ, radiusZ, shapeRound, false);
+		setData(x, z, radiusX, radiusZ, shapeRound, false);
 	}
 	public final void setData(double x, double z, int radius, Boolean shapeRound)
 	{
