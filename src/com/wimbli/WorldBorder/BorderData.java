@@ -200,14 +200,28 @@ public class BorderData
 		// square border
 		if (!round)
 		{
-			if (xLoc <= minX)
-				xLoc = minX + Config.KnockBack();
-			else if (xLoc >= maxX)
-				xLoc = maxX - Config.KnockBack();
-			if (zLoc <= minZ)
-				zLoc = minZ + Config.KnockBack();
-			else if (zLoc >= maxZ)
-				zLoc = maxZ - Config.KnockBack();
+			if (Config.isWrapping())
+			{
+				if (xLoc <= minX)
+					xLoc = maxX - Config.KnockBack();
+				else if (xLoc >= maxX)
+					xLoc = minX + Config.KnockBack();
+				if (zLoc <= minZ)
+					zLoc = maxZ - Config.KnockBack();
+				else if (zLoc >= maxZ)
+					zLoc = minZ + Config.KnockBack();
+			}
+			else
+			{
+				if (xLoc <= minX)
+					xLoc = minX + Config.KnockBack();
+				else if (xLoc >= maxX)
+					xLoc = maxX - Config.KnockBack();
+				if (zLoc <= minZ)
+					zLoc = minZ + Config.KnockBack();
+				else if (zLoc >= maxZ)
+					zLoc = maxZ - Config.KnockBack();
+			}
 		}
 
 		// round border
@@ -222,8 +236,14 @@ public class BorderData
 			double dU = Math.sqrt(dX *dX + dZ * dZ); //distance of the untransformed point from the center
 			double dT = Math.sqrt(dX *dX / radiusXSquared + dZ * dZ / radiusZSquared); //distance of the transformed point from the center
 			double f = (1 / dT - Config.KnockBack() / dU); //"correction" factor for the distances
-			xLoc = x + dX * f;
-			zLoc = z + dZ * f;
+			if (Config.isWrapping())
+			{
+				xLoc = x - dX * f;
+				zLoc = z - dZ * f;
+			} else {
+				xLoc = x + dX * f;
+				zLoc = z + dZ * f;
+			}
 		}
 
 		int ixLoc = Location.locToBlock(xLoc);
