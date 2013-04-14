@@ -38,6 +38,7 @@ public class Config
 	private static double knockBack = 3.0;
 	private static int timerTicks = 4;
 	private static boolean whooshEffect = false;
+	private static boolean portalRedirection = true;
 	private static boolean dynmapEnable = true;
 	private static String dynmapMessage;
 
@@ -195,13 +196,25 @@ public class Config
 	public static void setWhooshEffect(boolean enable)
 	{
 		whooshEffect = enable;
-		Log("\"Whoosh\" knockback effect " + (whooshEffect ? "enabled" : "disabled") + ".");
+		Log("\"Whoosh\" knockback effect " + (enable ? "enabled" : "disabled") + ".");
 		save(true);
 	}
 
 	public static boolean whooshEffect()
 	{
 		return whooshEffect;
+	}
+
+	public static void setPortalRedirection(boolean enable)
+	{
+		portalRedirection = enable;
+		Log("Portal redirection " + (enable ? "enabled" : "disabled") + ".");
+		save(true);
+	}
+
+	public static boolean portalRedirection()
+	{
+		return portalRedirection;
 	}
 
 	public static void setKnockBack(double numBlocks)
@@ -396,6 +409,7 @@ public class Config
 		shapeRound = cfg.getBoolean("round-border", true);
 		DEBUG = cfg.getBoolean("debug-mode", false);
 		whooshEffect = cfg.getBoolean("whoosh-effect", false);
+		portalRedirection = cfg.getBoolean("portal-redirection", true);
 		knockBack = cfg.getDouble("knock-back-dist", 3.0);
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);
 		dynmapEnable = cfg.getBoolean("dynmap-border-enabled", true);
@@ -479,6 +493,7 @@ public class Config
 		cfg.set("round-border", shapeRound);
 		cfg.set("debug-mode", DEBUG);
 		cfg.set("whoosh-effect", whooshEffect);
+		cfg.set("portal-redirection", portalRedirection);
 		cfg.set("knock-back-dist", knockBack);
 		cfg.set("timer-delay-ticks", timerTicks);
 		cfg.set("dynmap-border-enabled", dynmapEnable);

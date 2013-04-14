@@ -404,10 +404,10 @@ public class WBCommand implements CommandExecutor
 			Config.setWhooshEffect(strAsBool(split[1]));
 
 			if (player != null)
+			{
 				Config.Log((Config.whooshEffect() ? "Enabling" : "Disabling") + " \"whoosh\" knockback effect at the command of player \"" + player.getName() + "\".");
-
-			if (player != null)
 				sender.sendMessage("\"Whoosh\" knockback effect " + enabledColored(Config.whooshEffect()) + ".");
+			}
 		}
 
 		// "knockback" command from player or console
@@ -555,6 +555,20 @@ public class WBCommand implements CommandExecutor
 			Config.setBorder(world, border);
 
 			sender.sendMessage("Border for world \"" + world + "\" is now set to " + (wrap ? "" : "not ") + "wrap around.");
+		}
+
+		// "portal" command from player or console
+		else if (split.length == 2 && split[0].equalsIgnoreCase("portal"))
+		{
+			if (!Config.HasPermission(player, "portal")) return true;
+
+			Config.setPortalRedirection(strAsBool(split[1]));
+
+			if (player != null)
+			{
+				Config.Log((Config.portalRedirection() ? "Enabling" : "Disabling") + " portal redirection at the command of player \"" + player.getName() + "\".");
+				sender.sendMessage("Portal redirection " + enabledColored(Config.portalRedirection()) + ".");
+			}
 		}
 
 		// "fill" command from player or console, world specified
@@ -787,6 +801,7 @@ public class WBCommand implements CommandExecutor
 			if (page == 0 || page == 3)
 			{
 				sender.sendMessage(cmd+" whoosh " + clrReq + "<on|off>" + clrDesc + " - turn knockback effect on or off.");
+				sender.sendMessage(cmd+" portal " + clrReq + "<on|off>" + clrDesc + " - turn portal redirection on or off.");
 				sender.sendMessage(cmd+" getmsg" + clrDesc + " - display border message.");
 				sender.sendMessage(cmd+" setmsg " + clrReq + "<text>" + clrDesc + " - set border message.");
 				sender.sendMessage(cmd+" knockback " + clrReq + "<distance>" + clrDesc + " - how far to move the player back.");

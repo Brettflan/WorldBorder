@@ -24,6 +24,7 @@ commands:
            /<command> setmsg <text> - set border message.
            /<command> knockback <distance> - how far to move the player back.
            /<command> whoosh <on/off> - turn knockback effect on or off.
+           /<command> portal <on/off> - turn portal redirection on or off.
            /<command> delay <amount> - time between border checks.
            /<command> wshape [world] <elliptic|rectangular|default> - override shape.
            /<command> wshape [world] <round|square|default> - same as above values.
@@ -58,6 +59,7 @@ permissions:
       worldborder.dynmapmsg: true
       worldborder.bypass: true
       worldborder.wrap: true
+      worldborder.portal: true
   worldborder.set:
     description: Can set borders for any world
     default: op
@@ -108,6 +110,9 @@ permissions:
     default: op
   worldborder.whoosh:
     description: Can enable/disable "whoosh" knockback effect
+    default: op
+  worldborder.portal:
+    description: Can enable/disable portal redirection to be inside border
     default: op
   worldborder.dynmap:
     description: Can enable/disable DynMap border display integration

@@ -26,8 +26,8 @@ public class WBListener implements Listener
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerPortal(PlayerPortalEvent event)
 	{
-		// if knockback is set to 0, simply return
-		if (Config.KnockBack() == 0.0)
+		// if knockback is set to 0, or portal redirection is disabled, simply return
+		if (Config.KnockBack() == 0.0 || !Config.portalRedirection())
 			return;
 
 		Location newLoc = BorderCheckTask.checkPlayer(event.getPlayer(), event.getTo(), true, false);
