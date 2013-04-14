@@ -516,6 +516,47 @@ public class WBCommand implements CommandExecutor
 			sender.sendMessage("Border shape for world \"" + world + "\" is now set to \"" + (shape == null ? "default" : Config.ShapeName(shape.booleanValue())) + "\".");
 		}
 
+		// "wrap" command from player or console, world specified
+		else if (split.length == 3 && split[0].equalsIgnoreCase("wrap"))
+		{
+			if (!Config.HasPermission(player, "wrap")) return true;
+
+			String world = split[1];
+			BorderData border = Config.Border(world);
+			if (border == null)
+			{
+				sender.sendMessage("The world you specified (\"" + world + "\") does not have a border set.");
+				return true;
+			}
+
+			boolean wrap = strAsBool(split[2]);
+			border.setWrapping(wrap);
+			Config.setBorder(world, border);
+
+			if (player != null)
+				sender.sendMessage("Border for world \"" + world + "\" is now set to " + (wrap ? "" : "not ") + "wrap around.");
+		}
+
+		// "wrap" command from player, using current world
+		else if (split.length == 2 && split[0].equalsIgnoreCase("wrap") && player != null)
+		{
+			if (!Config.HasPermission(player, "wrap")) return true;
+
+			String world = player.getWorld().getName();
+			BorderData border = Config.Border(world);
+			if (border == null)
+			{
+				sender.sendMessage("This world (\"" + world + "\") does not have a border set.");
+				return true;
+			}
+
+			boolean wrap = strAsBool(split[1]);
+			border.setWrapping(wrap);
+			Config.setBorder(world, border);
+
+			sender.sendMessage("Border for world \"" + world + "\" is now set to " + (wrap ? "" : "not ") + "wrap around.");
+		}
+
 		// "fill" command from player or console, world specified
 		else if (split.length >= 2 && split[1].equalsIgnoreCase("fill"))
 		{
@@ -710,11 +751,11 @@ public class WBCommand implements CommandExecutor
 				catch(NumberFormatException ex)
 				{
 				}
-				if (page > 3)
+				if (page > 4)
 					page = 1;
 			}
 
-			sender.sendMessage(clrHead + plugin.getDescription().getFullName() + " - commands (" + clrReq + "<required> " + clrOpt + "[optional]" + clrHead + ")" + (page > 0 ? " " + page + "/3" : "") + ":");
+			sender.sendMessage(clrHead + plugin.getDescription().getFullName() + " - commands (" + clrReq + "<required> " + clrOpt + "[optional]" + clrHead + ")" + (page > 0 ? " " + page + "/4" : "") + ":");
 
 			if (page == 0 || page == 1)
 			{
@@ -737,22 +778,29 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage(cmdW+" trim " + clrOpt + "[freq] [pad]" + clrDesc + " - trim world outside of border.");
 				sender.sendMessage(cmd+" bypass " + ((player == null) ? clrReq + "<player>" : clrOpt + "[player]") + clrOpt + " [on/off]" + clrDesc + " - let player go beyond border.");
 				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <elliptic|rectangular|default>" + clrDesc + " - shape override for this world.");
+				// above command takes 2 lines, so only 7 commands total listed for this page
 				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <round|square|default>" + clrDesc + " - same as above.");
-				sender.sendMessage(cmd+" whoosh " + clrReq + "<on|off>" + clrDesc + " - turn knockback effect on or off.");
+				sender.sendMessage(cmd+" wrap " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <on/off>" + clrDesc + " - can make border crossings wrap.");
 				if (page == 2)
 					sender.sendMessage(cmd+" 3" + clrDesc + " - view third page of commands.");
 			}
 			if (page == 0 || page == 3)
 			{
+				sender.sendMessage(cmd+" whoosh " + clrReq + "<on|off>" + clrDesc + " - turn knockback effect on or off.");
 				sender.sendMessage(cmd+" getmsg" + clrDesc + " - display border message.");
 				sender.sendMessage(cmd+" setmsg " + clrReq + "<text>" + clrDesc + " - set border message.");
 				sender.sendMessage(cmd+" knockback " + clrReq + "<distance>" + clrDesc + " - how far to move the player back.");
 				sender.sendMessage(cmd+" delay " + clrReq + "<amount>" + clrDesc + " - time between border checks.");
-				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
 				sender.sendMessage(cmd+" dynmap " + clrReq + "<on|off>" + clrDesc + " - turn DynMap border display on or off.");
 				sender.sendMessage(cmd+" dynmapmsg " + clrReq + "<text>" + clrDesc + " - DynMap border labels will show this.");
-				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
 				if (page == 3)
+					sender.sendMessage(cmd+" 4" + clrDesc + " - view fourth page of commands.");
+			}
+			if (page == 0 || page == 4)
+			{
+				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
+				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
+				if (page == 4)
 					sender.sendMessage(cmd + clrDesc + " - view first page of commands.");
 			}
 		}

@@ -27,6 +27,7 @@ commands:
            /<command> delay <amount> - time between border checks.
            /<command> wshape [world] <elliptic|rectangular|default> - override shape.
            /<command> wshape [world] <round|square|default> - same as above values.
+           /<command> wrap [world] <on/off> - can make border crossings wrap around.
            /<command> [world] fill [freq] [pad] - generate world out to border.
            /<command> [world] trim [freq] [pad] - trim world outside of border.
            /<command> bypass [player] [on/off] - let player go beyond border.
@@ -56,6 +57,7 @@ permissions:
       worldborder.dynmap: true
       worldborder.dynmapmsg: true
       worldborder.bypass: true
+      worldborder.wrap: true
   worldborder.set:
     description: Can set borders for any world
     default: op
@@ -91,6 +93,9 @@ permissions:
     default: op
   worldborder.wshape:
     description: Can set an overriding border shape for a single world
+    default: op
+  worldborder.wrap:
+    description: Can set border crossings to wrap around to the other side of the world
     default: op
   worldborder.fill:
     description: Can fill in (generate) any missing map chunks out to the border

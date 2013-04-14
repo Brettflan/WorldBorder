@@ -16,6 +16,7 @@ public class BorderData
 	private int radiusX = 0;
 	private int radiusZ = 0;
 	private Boolean shapeRound = null;
+	private boolean wrapping = false;
 
 	// some extra data kept handy for faster border checks
 	private double maxX;
@@ -28,6 +29,10 @@ public class BorderData
 	private double DefiniteRectangleZ;
 	private double radiusSquaredQuotient;
 
+	public BorderData(double x, double z, int radiusX, int radiusZ, Boolean shapeRound, boolean wrap)
+	{
+		setData(x, z, radiusX, radiusZ, shapeRound, wrap);
+	}
 	public BorderData(double x, double z, int radiusX, int radiusZ)
 	{
 		setData(x, z, radiusX, radiusZ, null);
@@ -45,22 +50,27 @@ public class BorderData
 		setData(x, z, radius, shapeRound);
 	}
 
-	public final void setData(double x, double z, int radiusX, int radiusZ, Boolean shapeRound)
+	public final void setData(double x, double z, int radiusX, int radiusZ, Boolean shapeRound, boolean wrap)
 	{
 		this.x = x;
 		this.z = z;
 		this.shapeRound = shapeRound;
+		this.wrapping = wrap;
 		this.setRadiusX(radiusX);
 		this.setRadiusZ(radiusZ);
 	}
+	public final void setData(double x, double z, int radiusX, int radiusZ, Boolean shapeRound)
+	{
+		setData(x, z, radiusZ, radiusZ, shapeRound, false);
+	}
 	public final void setData(double x, double z, int radius, Boolean shapeRound)
 	{
-		setData(x, z, radius, radius, shapeRound);
+		setData(x, z, radius, radius, shapeRound, false);
 	}
 
 	public BorderData copy()
 	{
-		return new BorderData(x, z, radiusX, radiusZ, shapeRound);
+		return new BorderData(x, z, radiusX, radiusZ, shapeRound, wrapping);
 	}
 
 	public double getX()
@@ -136,10 +146,21 @@ public class BorderData
 		this.shapeRound = shapeRound;
 	}
 
+
+	public boolean getWrapping()
+	{
+		return wrapping;
+	}
+	public void setWrapping(boolean wrap)
+	{
+		this.wrapping = wrap;
+	}
+
+
 	@Override
 	public String toString()
 	{
-		return "radius " + ((radiusX == radiusZ) ? radiusX : radiusX + "x" + radiusZ) + " at X: " + Config.coord.format(x) + " Z: " + Config.coord.format(z) + (shapeRound != null ? (" (shape override: " + Config.ShapeName(shapeRound.booleanValue()) + ")") : "");
+		return "radius " + ((radiusX == radiusZ) ? radiusX : radiusX + "x" + radiusZ) + " at X: " + Config.coord.format(x) + " Z: " + Config.coord.format(z) + (shapeRound != null ? (" (shape override: " + Config.ShapeName(shapeRound.booleanValue()) + ")") : "") + (wrapping ? (" (wrapping)") : "");
 	}
 
 	// This algorithm of course needs to be fast, since it will be run very frequently
@@ -200,7 +221,7 @@ public class BorderData
 		// square border
 		if (!round)
 		{
-			if (Config.isWrapping())
+			if (wrapping)
 			{
 				if (xLoc <= minX)
 					xLoc = maxX - Config.KnockBack();
@@ -236,7 +257,7 @@ public class BorderData
 			double dU = Math.sqrt(dX *dX + dZ * dZ); //distance of the untransformed point from the center
 			double dT = Math.sqrt(dX *dX / radiusXSquared + dZ * dZ / radiusZSquared); //distance of the transformed point from the center
 			double f = (1 / dT - Config.KnockBack() / dU); //"correction" factor for the distances
-			if (Config.isWrapping())
+			if (wrapping)
 			{
 				xLoc = x - dX * f;
 				zLoc = z - dZ * f;

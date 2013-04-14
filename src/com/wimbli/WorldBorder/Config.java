@@ -40,7 +40,6 @@ public class Config
 	private static boolean whooshEffect = false;
 	private static boolean dynmapEnable = true;
 	private static String dynmapMessage;
-	private static boolean isWrapping = false;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -304,10 +303,6 @@ public class Config
 		LogConfig("Border-checking timed task stopped.");
 	}
 
-	public static boolean isWrapping() {
-		retirn isWrapping;
-	}
-
 	public static void StopFillTask()
 	{
 		if (fillTask != null && fillTask.valid())
@@ -405,7 +400,6 @@ public class Config
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);
 		dynmapEnable = cfg.getBoolean("dynmap-border-enabled", true);
 		dynmapMessage = cfg.getString("dynmap-border-message", "The border of the world.");
-		isWrapping = cfg.getBoolean("wrapping-world", false);
 		LogConfig("Using " + (ShapeName()) + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
 
 		StartBorderTimer();
@@ -442,7 +436,8 @@ public class Config
 				}
 
 				Boolean overrideShape = (Boolean) bord.get("shape-round");
-				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radiusX", 0), bord.getInt("radiusZ", 0), overrideShape);
+				boolean wrap = (boolean) bord.getBoolean("wrapping", false);
+				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radiusX", 0), bord.getInt("radiusZ", 0), overrideShape, wrap);
 				borders.put(worldName, border);
 				LogConfig(BorderDescription(worldName));
 			}
@@ -488,7 +483,6 @@ public class Config
 		cfg.set("timer-delay-ticks", timerTicks);
 		cfg.set("dynmap-border-enabled", dynmapEnable);
 		cfg.set("dynmap-border-message", dynmapMessage);
-		cfg.set("wrapping-world", isWrapping);
 
 		cfg.set("worlds", null);
 		Iterator world = borders.entrySet().iterator();
@@ -502,6 +496,7 @@ public class Config
 			cfg.set("worlds." + name + ".z", bord.getZ());
 			cfg.set("worlds." + name + ".radiusX", bord.getRadiusX());
 			cfg.set("worlds." + name + ".radiusZ", bord.getRadiusZ());
+			cfg.set("worlds." + name + ".wrapping", bord.getWrapping());
 
 			if (bord.getShape() != null)
 				cfg.set("worlds." + name + ".shape-round", bord.getShape());
