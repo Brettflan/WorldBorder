@@ -667,7 +667,7 @@ public class WBCommand implements CommandExecutor
 				pad = split[2];
 
 			String world = "";
-			if (player != null)
+			if (player != null && !cancel && !confirm && !pause)
 				world = player.getWorld().getName();
 
 			if (!cancel && !confirm && !pause && world.isEmpty())
