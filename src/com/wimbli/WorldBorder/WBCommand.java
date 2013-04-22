@@ -613,7 +613,7 @@ public class WBCommand implements CommandExecutor
 				pad = split[2];
 
 			String world = "";
-			if (player != null)
+			if (player != null && !cancel && !confirm && !pause)
 				world = player.getWorld().getName();
 
 			if (!cancel && !confirm && !pause && world.isEmpty())
@@ -949,7 +949,7 @@ public class WBCommand implements CommandExecutor
 			{
 				int task = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, Config.fillTask, ticks, ticks);
 				Config.fillTask.setTaskID(task);
-				sender.sendMessage("WorldBorder map generation task started.");
+				sender.sendMessage("WorldBorder map generation for world \"" + fillWorld + "\" task started.");
 			}
 			else
 				sender.sendMessage(clrErr + "The world map generation task failed to start.");
@@ -1053,7 +1053,7 @@ public class WBCommand implements CommandExecutor
 			{
 				int task = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, Config.trimTask, ticks, ticks);
 				Config.trimTask.setTaskID(task);
-				sender.sendMessage("WorldBorder map trimming task started.");
+				sender.sendMessage("WorldBorder map trimming task for world \"" + trimWorld + "\" started.");
 			}
 			else
 				sender.sendMessage(clrErr + "The world map trimming task failed to start.");

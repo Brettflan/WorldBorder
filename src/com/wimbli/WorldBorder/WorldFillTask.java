@@ -328,7 +328,6 @@ public class WorldFillTask implements Runnable
 			if (!originalChunks.contains(coord))
 				world.unloadChunkRequest(coord.x, coord.z);
 		}
-
 	}
 
 	// is this task still valid/workable?
