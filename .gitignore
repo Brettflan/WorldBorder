@@ -1,10 +1,2 @@
+target/
 
-/lib/craftbukkit.jar
-/lib/Permissions.jar
-/nbproject/private
-/build
-/dist
-/lib/GroupManager.jar
-/nbproject/pmd.settings
-
-/nbproject/findbugs.settings
