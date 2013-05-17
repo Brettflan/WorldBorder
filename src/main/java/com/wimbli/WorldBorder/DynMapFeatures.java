@@ -59,6 +59,11 @@ public class DynMapFeatures
 			Config.LogConfig("DynMap is available, but border display is currently disabled: you need DynMap v0.36 or newer.");
 			return;
 		}
+		catch (NullPointerException ex)
+		{
+			Config.LogConfig("DynMap is present, but an NPE (type 1) was encountered while trying to integrate. Border display disabled.");
+			return;
+		}
 
 		try
 		{
@@ -67,7 +72,7 @@ public class DynMapFeatures
 		}
 		catch (NullPointerException ex)
 		{
-			Config.LogConfig("DynMap is present, but a NullPointerException was encountered while attempting to integrate. Border display disabled.");
+			Config.LogConfig("DynMap is present, but an NPE (type 2) was encountered while trying to integrate. Border display disabled.");
 			return;
 		}
 
