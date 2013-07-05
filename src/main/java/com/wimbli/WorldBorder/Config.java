@@ -14,7 +14,10 @@ import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.Effect;
 import org.bukkit.entity.Player;
+import org.bukkit.Location;
+import org.bukkit.World;
 
 
 public class Config
@@ -211,6 +214,20 @@ public class Config
 	public static boolean whooshEffect()
 	{
 		return whooshEffect;
+	}
+
+	public static void showWhooshEffect(Location loc)
+	{
+		if (!whooshEffect())
+			return;
+
+		World world = loc.getWorld();
+		world.playEffect(loc, Effect.ENDER_SIGNAL, 0);
+		world.playEffect(loc, Effect.ENDER_SIGNAL, 0);
+		world.playEffect(loc, Effect.SMOKE, 4);
+		world.playEffect(loc, Effect.SMOKE, 4);
+		world.playEffect(loc, Effect.SMOKE, 4);
+		world.playEffect(loc, Effect.GHAST_SHOOT, 0);
 	}
 
 	public static void setPortalRedirection(boolean enable)
