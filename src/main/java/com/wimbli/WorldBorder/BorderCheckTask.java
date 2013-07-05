@@ -1,8 +1,11 @@
 package com.wimbli.WorldBorder;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Effect;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -15,6 +18,7 @@ import org.bukkit.World;
 
 public class BorderCheckTask implements Runnable
 {
+	@Override
 	public void run()
 	{
 		// if knockback is set to 0, simply return
@@ -27,6 +31,9 @@ public class BorderCheckTask implements Runnable
 			checkPlayer(players[i], null, false, true);
 		}
 	}
+
+	// track players who are being handled (moved back inside the border) already; needed since Bukkit is sometimes sending teleport events with the old (now incorrect) location still indicated, which can lead to a loop when we then teleport them thinking they're outside the border, triggering event again, etc.
+	private static Set<String> handlingPlayers = Collections.synchronizedSet(new LinkedHashSet<String>());
 
 	// set targetLoc only if not current player location; set returnLocationOnly to true to have new Location returned if they need to be moved to one, instead of directly handling it
 	public static Location checkPlayer(Player player, Location targetLoc, boolean returnLocationOnly, boolean notify)
@@ -44,9 +51,15 @@ public class BorderCheckTask implements Runnable
 		if (border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound()))
 			return null;
 
-		// if player is in bypass list (from bypass command), allow them beyond border
-		if (Config.isPlayerBypassing(player.getName()))
+		// if player is in bypass list (from bypass command), allow them beyond border; also ignore players currently being handled already
+		if (Config.isPlayerBypassing(player.getName()) || handlingPlayers.contains(player.getName().toLowerCase()))
 			return null;
+
+		// tag this player as being handled so we can't get stuck in a loop due to Bukkit currently sometimes repeatedly providing incorrect location through teleport event
+		handlingPlayers.add(player.getName().toLowerCase());
+
+		Location newLoc = newLocation(player, loc, border, notify);
+		boolean handlingVehicle = false;
 
 		/*
 		 * since we need to forcibly eject players who are inside vehicles, that fires a teleport event (go figure) and
@@ -57,44 +70,42 @@ public class BorderCheckTask implements Runnable
 		 */
 		if (player.isInsideVehicle())
 		{
-			Location newLoc = newLocation(player, loc, border, false);
 			Entity ride = player.getVehicle();
 			player.leaveVehicle();
 			if (ride != null)
 			{	// vehicles need to be offset vertically and have velocity stopped
 				double vertOffset = (ride instanceof LivingEntity) ? 0 : ride.getLocation().getY() - loc.getY();
-				newLoc.setY(newLoc.getY() + vertOffset);
+				Location rideLoc = newLoc.clone();
+				rideLoc.setY(newLoc.getY() + vertOffset);
+				if (Config.Debug())
+					Config.LogWarn("Player was riding a \"" + ride.toString() + "\".");
 				if (ride instanceof Boat)
 				{	// boats currently glitch on client when teleported, so crappy workaround is to remove it and spawn a new one
 					ride.remove();
-					ride = world.spawnEntity(newLoc, EntityType.BOAT);
+					ride = world.spawnEntity(rideLoc, EntityType.BOAT);
 				}
 				else
 				{
 					ride.setVelocity(new Vector(0, 0, 0));
-					ride.teleport(newLoc);
+					ride.teleport(rideLoc);
 				}
-				setPassengerDelayed(ride, player, 10);
+				setPassengerDelayed(ride, player, player.getName(), 10);
+				handlingVehicle = true;
 			}
-			return null;
 		}
 
-		Location newLoc = newLocation(player, loc, border, notify);
+		// give some particle and sound effects where the player was beyond the border, if "whoosh effect" is enabled
+		Config.showWhooshEffect(loc);
 
-		if (Config.whooshEffect())
-		{	// give some particle and sound effects where the player was beyond the border
-			world.playEffect(loc, Effect.ENDER_SIGNAL, 0);
-			world.playEffect(loc, Effect.ENDER_SIGNAL, 0);
-			world.playEffect(loc, Effect.SMOKE, 4);
-			world.playEffect(loc, Effect.SMOKE, 4);
-			world.playEffect(loc, Effect.SMOKE, 4);
-			world.playEffect(loc, Effect.GHAST_SHOOT, 0);
-		}
+		if (!returnLocationOnly)
+			player.teleport(newLoc);
+
+		if (!handlingVehicle)
+			handlingPlayers.remove(player.getName().toLowerCase());
 
 		if (returnLocationOnly)
 			return newLoc;
 
-		player.teleport(newLoc);
 		return null;
 	}
 	public static Location checkPlayer(Player player, Location targetLoc, boolean returnLocationOnly)
@@ -129,13 +140,17 @@ public class BorderCheckTask implements Runnable
 		return newLoc;
 	}
 
-	private static void setPassengerDelayed(final Entity vehicle, final Player player, long delay)
+	private static void setPassengerDelayed(final Entity vehicle, final Player player, final String playerName, long delay)
 	{
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(WorldBorder.plugin, new Runnable()
 		{
 			@Override
 			public void run()
 			{
+				handlingPlayers.remove(playerName.toLowerCase());
+				if (vehicle == null || player == null)
+					return;
+
 				vehicle.setPassenger(player);
 			}
 		}, delay);

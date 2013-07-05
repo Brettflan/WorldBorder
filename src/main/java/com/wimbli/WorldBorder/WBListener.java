@@ -18,6 +18,9 @@ public class WBListener implements Listener
 		if (Config.KnockBack() == 0.0)
 			return;
 
+		if (Config.Debug())
+			Config.LogWarn("Teleport cause: "+event.getCause().toString());
+
 		Location newLoc = BorderCheckTask.checkPlayer(event.getPlayer(), event.getTo(), true, true);
 		if (newLoc != null)
 			event.setTo(newLoc);
