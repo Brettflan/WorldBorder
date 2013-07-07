@@ -89,8 +89,12 @@ public class BorderCheckTask implements Runnable
 					ride.setVelocity(new Vector(0, 0, 0));
 					ride.teleport(rideLoc);
 				}
-				setPassengerDelayed(ride, player, player.getName(), 10);
-				handlingVehicle = true;
+
+				if (Config.RemountTicks() > 0)
+				{
+					setPassengerDelayed(ride, player, player.getName(), Config.RemountTicks());
+					handlingVehicle = true;
+				}
 			}
 		}
 

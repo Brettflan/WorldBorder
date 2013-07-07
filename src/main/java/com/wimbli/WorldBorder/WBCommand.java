@@ -679,6 +679,39 @@ public class WBCommand implements CommandExecutor
 			cmdTrim(sender, player, world, confirm, cancel, pause, pad, frequency);
 		}
 
+		// "remount" command from player or console
+		else if (split.length == 2 && split[0].equalsIgnoreCase("remount"))
+		{
+			if (!Config.HasPermission(player, "remount")) return true;
+
+			int delay = 0;
+			try
+			{
+				delay = Integer.parseInt(split[1]);
+				if (delay < 0)
+					throw new NumberFormatException();
+			}
+			catch(NumberFormatException ex)
+			{
+				sender.sendMessage(clrErr + "The remount delay must be an integer of 0 or higher. Setting to 0 will disable remounting.");
+				return true;
+			}
+
+			Config.setRemountTicks(delay);
+
+			if (player != null)
+			{
+				if (delay == 0)
+					sender.sendMessage("Remount delay set to 0. Players will be left dismounted when knocked back from the border while on a vehicle.");
+				else
+				{
+					sender.sendMessage("Remount delay set to " + delay + " tick(s). That is roughly " + (delay * 50) + "ms / " + (((double)delay * 50.0) / 1000.0) + " seconds. Setting to 0 would disable remounting.");
+					if (delay < 10)
+						sender.sendMessage(clrErr + "WARNING:" + clrDesc + " setting this to less than 10 (and greater than 0) is not recommended. This can lead to nasty client glitches.");
+				}
+			}
+		}
+
 		// "dynmap" command from player or console
 		else if (split.length == 2 && split[0].equalsIgnoreCase("dynmap"))
 		{
@@ -801,11 +834,11 @@ public class WBCommand implements CommandExecutor
 			if (page == 0 || page == 3)
 			{
 				sender.sendMessage(cmd+" whoosh " + clrReq + "<on|off>" + clrDesc + " - turn knockback effect on or off.");
-				sender.sendMessage(cmd+" portal " + clrReq + "<on|off>" + clrDesc + " - turn portal redirection on or off.");
 				sender.sendMessage(cmd+" getmsg" + clrDesc + " - display border message.");
 				sender.sendMessage(cmd+" setmsg " + clrReq + "<text>" + clrDesc + " - set border message.");
 				sender.sendMessage(cmd+" knockback " + clrReq + "<distance>" + clrDesc + " - how far to move the player back.");
 				sender.sendMessage(cmd+" delay " + clrReq + "<amount>" + clrDesc + " - time between border checks.");
+				sender.sendMessage(cmd+" remount " + clrReq + "<amount>" + clrDesc + " - player remount delay after knockback.");
 				sender.sendMessage(cmd+" dynmap " + clrReq + "<on|off>" + clrDesc + " - turn DynMap border display on or off.");
 				sender.sendMessage(cmd+" dynmapmsg " + clrReq + "<text>" + clrDesc + " - DynMap border labels will show this.");
 				if (page == 3)
@@ -813,6 +846,7 @@ public class WBCommand implements CommandExecutor
 			}
 			if (page == 0 || page == 4)
 			{
+				sender.sendMessage(cmd+" portal " + clrReq + "<on|off>" + clrDesc + " - turn portal redirection on or off.");
 				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
 				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
 				if (page == 4)

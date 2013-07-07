@@ -44,6 +44,7 @@ public class Config
 	private static boolean portalRedirection = true;
 	private static boolean dynmapEnable = true;
 	private static String dynmapMessage;
+	private static int remountDelayTicks = 0;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -267,6 +268,23 @@ public class Config
 		return timerTicks;
 	}
 
+	public static void setRemountTicks(int ticks)
+	{
+		remountDelayTicks = ticks;
+		if (remountDelayTicks == 0)
+			Log("Remount delay set to 0. Players will be left dismounted when knocked back from the border while on a vehicle.");
+		else
+			Log("Remount delay set to " + remountDelayTicks + " tick(s). That is roughly " + (remountDelayTicks * 50) + "ms / " + (((double)remountDelayTicks * 50.0) / 1000.0) + " seconds.");
+		if (ticks < 10)
+			LogWarn("setting the remount delay to less than 10 (and greater than 0) is not recommended. This can lead to nasty client glitches.");
+		save(true);
+	}
+
+	public static int RemountTicks()
+	{
+		return remountDelayTicks;
+	}
+
 
 	public static void setDynmapBorderEnabled(boolean enable)
 	{
@@ -437,6 +455,7 @@ public class Config
 		portalRedirection = cfg.getBoolean("portal-redirection", true);
 		knockBack = cfg.getDouble("knock-back-dist", 3.0);
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);
+		remountDelayTicks = cfg.getInt("remount-delay-ticks", 0);
 		dynmapEnable = cfg.getBoolean("dynmap-border-enabled", true);
 		dynmapMessage = cfg.getString("dynmap-border-message", "The border of the world.");
 		LogConfig("Using " + (ShapeName()) + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
@@ -521,6 +540,7 @@ public class Config
 		cfg.set("portal-redirection", portalRedirection);
 		cfg.set("knock-back-dist", knockBack);
 		cfg.set("timer-delay-ticks", timerTicks);
+		cfg.set("remount-delay-ticks", remountDelayTicks);
 		cfg.set("dynmap-border-enabled", dynmapEnable);
 		cfg.set("dynmap-border-message", dynmapMessage);
 
