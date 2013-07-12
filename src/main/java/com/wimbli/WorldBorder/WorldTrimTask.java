@@ -97,6 +97,8 @@ public class WorldTrimTask implements Runnable
 
 		// this is set so it only does one iteration at a time, no matter how frequently the timer fires
 		readyToGo = false;
+		// and this is tracked to keep one iteration from dragging on too long and possibly choking the system if the user specified a really high frequency
+		long loopStartTime = Config.Now();
 
 		counter = 0;
 		while (counter <= chunksPerRun)
@@ -105,9 +107,18 @@ public class WorldTrimTask implements Runnable
 			if (paused)
 				return;
 
+			long now = Config.Now();
+
 			// every 5 seconds or so, give basic progress report to let user know how it's going
-			if (Config.Now() > lastReport + 5000)
+			if (now > lastReport + 5000)
 				reportProgress();
+
+			// if this iteration has been running for 45ms (almost 1 tick) or more, stop to take a breather
+			if (now > loopStartTime + 45)
+			{
+				readyToGo = true;
+				return;
+			}
 
 			if (regionChunks.isEmpty())
 				addCornerChunks();
