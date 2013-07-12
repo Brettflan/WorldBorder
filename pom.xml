@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wimbli.WorldBorder</groupId>
 	<artifactId>WorldBorder</artifactId>
-	<version>1.7.3</version>
+	<version>1.7.5</version>
 	<name>WorldBorder</name>
 	<url>https://github.com/Brettflan/WorldBorder</url>
 	<issueManagement>
@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.6.1-R0.1-SNAPSHOT</version>
+			<version>1.6.2-R0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.dynmap</groupId>

@@ -113,7 +113,7 @@ public class WorldTrimTask implements Runnable
 			if (now > lastReport + 5000)
 				reportProgress();
 
-			// if this iteration has been running for 45ms (almost 1 tick) or more, stop to take a breather
+			// if this iteration has been running for 45ms (almost 1 tick) or more, stop to take a breather; shouldn't normally be possible with Trim, but just in case
 			if (now > loopStartTime + 45)
 			{
 				readyToGo = true;
