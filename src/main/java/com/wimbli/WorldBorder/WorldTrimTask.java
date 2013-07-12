@@ -275,23 +275,30 @@ public class WorldTrimTask implements Runnable
 		int offsetX = CoordXZ.regionToChunk(regionX);
 		int offsetZ = CoordXZ.regionToChunk(regionZ);
 		long wipePos = 0;
+		int chunkCount = 0;
 
 		try
 		{
 			RandomAccessFile unChunk = new RandomAccessFile(regionFile, "rwd");
 			for (CoordXZ wipe : trimChunks)
-			{	// wipe this extraneous chunk's pointer... note that this method isn't perfect since the actual chunk data is left orphaned,
+			{
+				// if the chunk pointer is empty (chunk doesn't technically exist), no need to wipe the already empty pointer
+				if (!worldData.doesChunkExist(wipe.x, wipe.z))
+					continue;
+
+				// wipe this extraneous chunk's pointer... note that this method isn't perfect since the actual chunk data is left orphaned,
 				// but Minecraft will overwrite the orphaned data sector if/when another chunk is created in the region, so it's not so bad
 				wipePos = 4 * ((wipe.x - offsetX) + ((wipe.z - offsetZ) * 32));
 				unChunk.seek(wipePos);
 				unChunk.writeInt(0);
+				chunkCount++;
 			}
 			unChunk.close();
 
 			// if DynMap is installed, re-render the trimmed chunks ... disabled since it's not currently working, oh well
 //			DynMapFeatures.renderChunks(world.getName(), trimChunks);
 
-			reportTrimmedChunks += trimChunks.size();
+			reportTrimmedChunks += chunkCount;
 		}
 		catch (FileNotFoundException ex)
 		{
