@@ -45,6 +45,7 @@ public class Config
 	private static boolean dynmapEnable = true;
 	private static String dynmapMessage;
 	private static int remountDelayTicks = 0;
+	private static boolean killPlayer = false;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -216,7 +217,9 @@ public class Config
 	{
 		return whooshEffect;
 	}
-
+	public static boolean getIfPlayerKill(){
+		return killPlayer;
+	}
 	public static void showWhooshEffect(Location loc)
 	{
 		if (!whooshEffect())
@@ -459,6 +462,7 @@ public class Config
 		dynmapEnable = cfg.getBoolean("dynmap-border-enabled", true);
 		dynmapMessage = cfg.getString("dynmap-border-message", "The border of the world.");
 		LogConfig("Using " + (ShapeName()) + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
+		killPlayer = cfg.getBoolean("player-killed-bad-spawn", false);
 
 		StartBorderTimer();
 
@@ -543,6 +547,7 @@ public class Config
 		cfg.set("remount-delay-ticks", remountDelayTicks);
 		cfg.set("dynmap-border-enabled", dynmapEnable);
 		cfg.set("dynmap-border-message", dynmapMessage);
+		cfg.set("player-killed-bad-spawn", killPlayer);
 
 		cfg.set("worlds", null);
 		Iterator world = borders.entrySet().iterator();
