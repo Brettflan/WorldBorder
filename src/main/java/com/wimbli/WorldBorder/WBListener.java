@@ -1,5 +1,6 @@
 package com.wimbli.WorldBorder;
 
+import org.bukkit.Chunk;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -41,6 +42,19 @@ public class WBListener implements Listener
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onChunkLoad(ChunkLoadEvent event)
 	{
+/*		// tested, found to spam pretty rapidly as client repeatedly requests the same chunks since they're not being sent
+		// definitely too spammy at only 16 blocks outside border
+		// potentially useful at standard 208 block padding as it was triggering only occasionally while trying to get out all along edge of round border, though sometimes up to 3 triggers within a second corresponding to 3 adjacent chunks
+		// would of course need to be further worked on to have it only affect chunks outside a border, along with an option somewhere to disable it or even set specified distance outside border for it to take effect
+
+		// method to prevent new chunks from being generated, core method courtesy of code from NoNewChunk plugin (http://dev.bukkit.org/bukkit-plugins/nonewchunk/)
+		if(event.isNewChunk())
+		{
+			Chunk chunk = event.getChunk();
+			chunk.unload(false, false);
+			Config.LogWarn("New chunk generation has been prevented at X " + chunk.getX() + ", Z " + chunk.getZ());
+		}
+*/
 		// make sure our border monitoring task is still running like it should
 		if (Config.isBorderTimerRunning()) return;
 

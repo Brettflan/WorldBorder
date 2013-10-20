@@ -377,15 +377,20 @@ public class Config
 		save(false);
 	}
 
-	public static void RestoreFillTask(String world, int fillDistance, int chunksPerRun, int tickFrequency, int x, int z, int length, int total)
+	public static void RestoreFillTask(String world, int fillDistance, int chunksPerRun, int tickFrequency, int x, int z, int length, int total, boolean forceLoad)
 	{
-		fillTask = new WorldFillTask(plugin.getServer(), null, world, fillDistance, chunksPerRun, tickFrequency);
+		fillTask = new WorldFillTask(plugin.getServer(), null, world, fillDistance, chunksPerRun, tickFrequency, forceLoad);
 		if (fillTask.valid())
 		{
 			fillTask.continueProgress(x, z, length, total);
 			int task = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, fillTask, 20, tickFrequency);
 			fillTask.setTaskID(task);
 		}
+	}
+	// for backwards compatibility
+	public static void RestoreFillTask(String world, int fillDistance, int chunksPerRun, int tickFrequency, int x, int z, int length, int total)
+	{
+		RestoreFillTask(world, fillDistance, chunksPerRun, tickFrequency, x, z, length, total, false);
 	}
 
 
@@ -517,7 +522,8 @@ public class Config
 			int fillZ = storedFillTask.getInt("z", 0);
 			int fillLength = storedFillTask.getInt("length", 0);
 			int fillTotal = storedFillTask.getInt("total", 0);
-			RestoreFillTask(worldName, fillDistance, chunksPerRun, tickFrequency, fillX, fillZ, fillLength, fillTotal);
+			boolean forceLoad = storedFillTask.getBoolean("forceLoad", false);
+			RestoreFillTask(worldName, fillDistance, chunksPerRun, tickFrequency, fillX, fillZ, fillLength, fillTotal, forceLoad);
 			save(false);
 		}
 
@@ -577,6 +583,7 @@ public class Config
 			cfg.set("fillTask.z", fillTask.refZ());
 			cfg.set("fillTask.length", fillTask.refLength());
 			cfg.set("fillTask.total", fillTask.refTotal());
+			cfg.set("fillTask.forceLoad", fillTask.refForceLoad());
 		}
 		else
 			cfg.set("fillTask", null);

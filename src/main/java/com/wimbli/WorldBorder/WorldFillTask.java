@@ -25,6 +25,7 @@ public class WorldFillTask implements Runnable
 	private transient Player notifyPlayer = null;
 	private transient int chunksPerRun = 1;
 	private transient boolean continueNotice = false;
+	private transient boolean forceLoad = false;
 	
 	// these are only stored for saving task to config
 	private transient int fillDistance = 208;
@@ -53,13 +54,14 @@ public class WorldFillTask implements Runnable
 	private transient int reportNum = 0;
 
 
-	public WorldFillTask(Server theServer, Player player, String worldName, int fillDistance, int chunksPerRun, int tickFrequency)
+	public WorldFillTask(Server theServer, Player player, String worldName, int fillDistance, int chunksPerRun, int tickFrequency, boolean forceLoad)
 	{
 		this.server = theServer;
 		this.notifyPlayer = player;
 		this.fillDistance = fillDistance;
 		this.tickFrequency = tickFrequency;
 		this.chunksPerRun = chunksPerRun;
+		this.forceLoad = forceLoad;
 
 		this.world = server.getWorld(worldName);
 		if (this.world == null)
@@ -111,6 +113,11 @@ public class WorldFillTask implements Runnable
 		}
 
 		this.readyToGo = true;
+	}
+	// for backwards compatibility
+	public WorldFillTask(Server theServer, Player player, String worldName, int fillDistance, int chunksPerRun, int tickFrequency)
+	{
+		this(theServer, player, worldName, fillDistance, chunksPerRun, tickFrequency, false);
 	}
 
 	public void setTaskID(int ID)
@@ -175,12 +182,15 @@ public class WorldFillTask implements Runnable
 			}
 			insideBorder = true;
 
-			// skip past any chunks which are confirmed as fully generated using our super-special isChunkFullyGenerated routine
-			while (worldData.isChunkFullyGenerated(x, z))
+			if (!forceLoad)
 			{
-				insideBorder = true;
-				if (!moveToNext())
-					return;
+				// skip past any chunks which are confirmed as fully generated using our super-special isChunkFullyGenerated routine
+				while (worldData.isChunkFullyGenerated(x, z))
+				{
+					insideBorder = true;
+					if (!moveToNext())
+						return;
+				}
 			}
 
 			// load the target chunk and generate it if necessary
@@ -449,5 +459,9 @@ public class WorldFillTask implements Runnable
 	public String refWorld()
 	{
 		return world.getName();
+	}
+	public boolean refForceLoad()
+	{
+		return forceLoad;
 	}
 }

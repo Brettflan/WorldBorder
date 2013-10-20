@@ -577,7 +577,7 @@ public class WBCommand implements CommandExecutor
 			if (!Config.HasPermission(player, "fill")) return true;
 
 			boolean cancel = false, confirm = false, pause = false;
-			String pad = "", frequency = "";
+			String frequency = "";
 			if (split.length >= 3)
 			{
 				cancel = split[2].equalsIgnoreCase("cancel") || split[2].equalsIgnoreCase("stop");
@@ -586,12 +586,12 @@ public class WBCommand implements CommandExecutor
 				if (!cancel && !confirm && !pause)
 					frequency = split[2];
 			}
-			if (split.length >= 4)
-				pad = split[3];
+			String pad = (split.length >= 4) ? split[3] : "";
+			String forceLoad = (split.length >= 5) ? split[4] : "";
 
 			String world = split[0];
 
-			cmdFill(sender, player, world, confirm, cancel, pause, pad, frequency);
+			cmdFill(sender, player, world, confirm, cancel, pause, pad, frequency, forceLoad);
 		}
 
 		// "fill" command from player (or from console solely if using cancel or confirm), using current world
@@ -600,7 +600,7 @@ public class WBCommand implements CommandExecutor
 			if (!Config.HasPermission(player, "fill")) return true;
 
 			boolean cancel = false, confirm = false, pause = false;
-			String pad = "", frequency = "";
+			String frequency = "";
 			if (split.length >= 2)
 			{
 				cancel = split[1].equalsIgnoreCase("cancel") || split[1].equalsIgnoreCase("stop");
@@ -609,8 +609,8 @@ public class WBCommand implements CommandExecutor
 				if (!cancel && !confirm && !pause)
 					frequency = split[1];
 			}
-			if (split.length >= 3)
-				pad = split[2];
+			String pad = (split.length >= 3) ? split[2] : "";
+			String forceLoad = (split.length >= 4) ? split[3] : "";
 
 			String world = "";
 			if (player != null && !cancel && !confirm && !pause)
@@ -618,11 +618,11 @@ public class WBCommand implements CommandExecutor
 
 			if (!cancel && !confirm && !pause && world.isEmpty())
 			{
-				sender.sendMessage("You must specify a world! Example: " + cmdW+" fill " + clrOpt + "[freq] [pad]");
+				sender.sendMessage("You must specify a world! Example: " + cmdW + " fill " + clrOpt + "[freq] [pad] [force]");
 				return true;
 			}
 
-			cmdFill(sender, player, world, confirm, cancel, pause, pad, frequency);
+			cmdFill(sender, player, world, confirm, cancel, pause, pad, frequency, forceLoad);
 		}
 
 		// "trim" command from player or console, world specified
@@ -821,7 +821,7 @@ public class WBCommand implements CommandExecutor
 			if (page == 0 || page == 2)
 			{
 				sender.sendMessage(cmd+" list" + clrDesc + " - show border information for all worlds.");
-				sender.sendMessage(cmdW+" fill " + clrOpt + "[freq] [pad]" + clrDesc + " - generate world out to border.");
+				sender.sendMessage(cmdW+" fill " + clrOpt + "[freq] [pad] [force]" + clrDesc + " - generate world to border.");
 				sender.sendMessage(cmdW+" trim " + clrOpt + "[freq] [pad]" + clrDesc + " - trim world outside of border.");
 				sender.sendMessage(cmd+" bypass " + ((player == null) ? clrReq + "<player>" : clrOpt + "[player]") + clrOpt + " [on/off]" + clrDesc + " - let player go beyond border.");
 				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <elliptic|rectangular|default>" + clrDesc + " - shape override for this world.");
@@ -905,6 +905,7 @@ public class WBCommand implements CommandExecutor
 	private String fillWorld = "";
 	private int fillFrequency = 20;
 	private int fillPadding = CoordXZ.chunkToBlock(13);
+	private boolean fillForceLoad = false;
 
 	private void fillDefaults()
 	{
@@ -913,9 +914,10 @@ public class WBCommand implements CommandExecutor
 		// with "view-distance=10" in server.properties and "Render Distance: Far" in client, hitting border during testing
 		// was loading 11 chunks beyond the border in a couple of directions (10 chunks in the other two directions); thus:
 		fillPadding = CoordXZ.chunkToBlock(13);
+		fillForceLoad = false;
 	}
 
-	private boolean cmdFill(CommandSender sender, Player player, String world, boolean confirm, boolean cancel, boolean pause, String pad, String frequency)
+	private boolean cmdFill(CommandSender sender, Player player, String world, boolean confirm, boolean cancel, boolean pause, String pad, String frequency, String forceLoad)
 	{
 		if (cancel)
 		{
@@ -956,6 +958,8 @@ public class WBCommand implements CommandExecutor
 			sender.sendMessage(clrErr + "The frequency and padding values must be integers.");
 			return false;
 		}
+		if (!forceLoad.isEmpty())
+			fillForceLoad = strAsBool(forceLoad);
 
 		// set world if it was specified
 		if (!world.isEmpty())
@@ -978,7 +982,7 @@ public class WBCommand implements CommandExecutor
 			else
 				ticks = 20 / fillFrequency;
 				
-			Config.fillTask = new WorldFillTask(plugin.getServer(), player, fillWorld, fillPadding, repeats, ticks);
+			Config.fillTask = new WorldFillTask(plugin.getServer(), player, fillWorld, fillPadding, repeats, ticks, fillForceLoad);
 			if (Config.fillTask.valid())
 			{
 				int task = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, Config.fillTask, ticks, ticks);
@@ -999,7 +1003,7 @@ public class WBCommand implements CommandExecutor
 			}
 
 			String cmd = clrCmd + ((player == null) ? "wb" : "/wb");
-			sender.sendMessage(clrHead + "World generation task is ready for world \"" + fillWorld + "\", padding the map out to " + fillPadding + " blocks beyond the border (default " + CoordXZ.chunkToBlock(13) + "), and the task will try to generate up to " + fillFrequency + " chunks per second (default 20).");
+			sender.sendMessage(clrHead + "World generation task is ready for world \"" + fillWorld + "\", padding the map out to " + fillPadding + " blocks beyond the border (default " + CoordXZ.chunkToBlock(13) + "), and the task will try to generate up to " + fillFrequency + " chunks per second (default 20). Parts of the world which are already fully generated will be " + (fillForceLoad ? "loaded anyway." : "skipped."));
 			sender.sendMessage(clrHead + "This process can take a very long time depending on the world's border size. Also, depending on the chunk processing rate, players will likely experience severe lag for the duration.");
 			sender.sendMessage(clrDesc + "You should now use " + cmd + " fill confirm" + clrDesc + " to start the process.");
 			sender.sendMessage(clrDesc + "You can cancel at any time with " + cmd + " fill cancel" + clrDesc + ", or pause/unpause with " + cmd + " fill pause" + clrDesc + ".");
