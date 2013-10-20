@@ -1,7 +1,7 @@
 name: WorldBorder
 author: Brettflan
 description: Efficient, feature-rich plugin for limiting the size of your worlds.
-version: 1.7.5
+version: 1.7.6
 main: com.wimbli.WorldBorder.WorldBorder
 softdepend:
   - dynmap
@@ -29,7 +29,7 @@ commands:
            /<command> wshape [world] <elliptic|rectangular|default> - override shape.
            /<command> wshape [world] <round|square|default> - same as above values.
            /<command> wrap [world] <on/off> - can make border crossings wrap around.
-           /<command> [world] fill [freq] [pad] - generate world out to border.
+           /<command> [world] fill [freq] [pad] [force] - generate world to border.
            /<command> [world] trim [freq] [pad] - trim world outside of border.
            /<command> bypass [player] [on/off] - let player go beyond border.
            /<command> remount <amount> - delay before remounting after knockback.
