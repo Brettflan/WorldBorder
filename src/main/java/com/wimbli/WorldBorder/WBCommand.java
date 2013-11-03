@@ -343,7 +343,9 @@ public class WBCommand implements CommandExecutor
 			if (!Config.HasPermission(player, "getmsg")) return true;
 
 			sender.sendMessage("Border message is currently set to:");
-			sender.sendMessage(clrErr + Config.Message());
+			sender.sendMessage(Config.MessageRaw());
+			sender.sendMessage("Formatted border message:");
+			sender.sendMessage(Config.Message());
 		}
 
 		// "setmsg" command from player or console
@@ -364,7 +366,9 @@ public class WBCommand implements CommandExecutor
 			if (player != null)
 			{
 				sender.sendMessage("Border message is now set to:");
-				sender.sendMessage(clrErr + Config.Message());
+				sender.sendMessage(Config.MessageRaw());
+				sender.sendMessage("Formatted border message:");
+				sender.sendMessage(Config.Message());
 			}
 		}
 

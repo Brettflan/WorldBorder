@@ -36,7 +36,9 @@ public class Config
 	// actual configuration values which can be changed
 	private static boolean shapeRound = true;
 	private static Map<String, BorderData> borders = Collections.synchronizedMap(new LinkedHashMap<String, BorderData>());
-	private static String message;
+	private static String message;		// raw message without color code formatting
+	private static String messageFmt;	// message with color code formatting ("&" changed to funky sort-of-double-dollar-sign for legitimate color/formatting codes)
+	private static String messageClean;	// message cleaned of formatting codes
 	private static boolean DEBUG = false;
 	private static double knockBack = 3.0;
 	private static int timerTicks = 4;
@@ -162,14 +164,29 @@ public class Config
 
 	public static void setMessage(String msg)
 	{
-		message = msg;
-		Log("Border message is now set to: " + msg);
+		updateMessage(msg);
+		Log("Border message is now set to: " + MessageRaw());
 		save(true);
+	}
+
+	public static void updateMessage(String msg)
+	{
+		message = msg;
+		messageFmt = replaceAmpColors(msg);
+		messageClean = stripAmpColors(msg);
 	}
 
 	public static String Message()
 	{
+		return messageFmt;
+	}
+	public static String MessageRaw()
+	{
 		return message;
+	}
+	public static String MessageClean()
+	{
+		return messageClean;
 	}
 
 	public static void setShape(boolean round)
@@ -426,6 +443,17 @@ public class Config
 	}
 
 
+	// adapted from code posted by Sleaker
+	public static String replaceAmpColors (String message)
+	{
+		return message.replaceAll("(?i)&([a-fk-or0-9])", "\u00A7$1");
+	}
+	public static String stripAmpColors (String message)
+	{
+		return message.replaceAll("(?i)&([a-fk-or0-9])", "");
+	}
+
+
 	private static final String logName = "WorldBorder";
 	public static void Log(Level lvl, String text)
 	{
@@ -445,7 +473,7 @@ public class Config
 	}
 
 
-	private static final int currentCfgVersion = 7;
+	private static final int currentCfgVersion = 8;
 
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
@@ -456,7 +484,7 @@ public class Config
 
 		int cfgVersion = cfg.getInt("cfg-version", currentCfgVersion);
 
-		message = cfg.getString("message");
+		String msg = cfg.getString("message");
 		shapeRound = cfg.getBoolean("round-border", true);
 		DEBUG = cfg.getBoolean("debug-mode", false);
 		whooshEffect = cfg.getBoolean("whoosh-effect", false);
@@ -473,13 +501,21 @@ public class Config
 
 		borders.clear();
 
-		if (message == null || message.isEmpty())
+		// if empty border message, assume no config
+		if (msg == null || msg.isEmpty())
 		{	// store defaults
 			LogConfig("Configuration not present, creating new file.");
-			message = "You have reached the edge of this world.";
+			msg = "&cYou have reached the edge of this world.";
+			updateMessage(msg);
 			save(false);
 			return;
 		}
+		// if loading older config which didn't support color codes in border message, make sure default red color code is added at start of it
+		else if (cfgVersion < 8 && !(msg.substring(0, 1).equals("&")))
+			updateMessage("&c" + msg);
+		// otherwise just set border message
+		else
+			updateMessage(msg);
 
 		ConfigurationSection worlds = cfg.getConfigurationSection("worlds");
 		if (worlds != null)
