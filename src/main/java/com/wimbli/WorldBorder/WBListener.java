@@ -22,7 +22,8 @@ public class WBListener implements Listener
 		if (Config.Debug())
 			Config.Log("Teleport cause: "+event.getCause().toString());
 
-		if(event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL && Config.getDenyEnderpearl()) {
+		if(event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL && Config.getDenyEnderpearl())
+		{
 			event.getPlayer().sendMessage(Config.Message());
 			event.setCancelled(true);
 			return;
@@ -51,7 +52,7 @@ public class WBListener implements Listener
 /*		// tested, found to spam pretty rapidly as client repeatedly requests the same chunks since they're not being sent
 		// definitely too spammy at only 16 blocks outside border
 		// potentially useful at standard 208 block padding as it was triggering only occasionally while trying to get out all along edge of round border, though sometimes up to 3 triggers within a second corresponding to 3 adjacent chunks
-		// would of course need to be further worked on to have it only affect chunks outside a border, along with an option somewhere to disable it or even set specified distance outside border for it to take effect
+		// would of course need to be further worked on to have it only affect chunks outside a border, along with an option somewhere to disable it or even set specified distance outside border for it to take effect; maybe  send client chunk composed entirely of air to shut it up
 
 		// method to prevent new chunks from being generated, core method courtesy of code from NoNewChunk plugin (http://dev.bukkit.org/bukkit-plugins/nonewchunk/)
 		if(event.isNewChunk())
