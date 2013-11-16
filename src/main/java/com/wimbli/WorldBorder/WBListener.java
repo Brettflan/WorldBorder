@@ -22,6 +22,12 @@ public class WBListener implements Listener
 		if (Config.Debug())
 			Config.Log("Teleport cause: "+event.getCause().toString());
 
+		if(event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL && Config.getDenyEnderpearl()) {
+			event.getPlayer().sendMessage(Config.Message());
+			event.setCancelled(true);
+			return;
+		}
+
 		Location newLoc = BorderCheckTask.checkPlayer(event.getPlayer(), event.getTo(), true, true);
 		if (newLoc != null)
 			event.setTo(newLoc);
