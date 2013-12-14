@@ -787,6 +787,14 @@ public class WBCommand implements CommandExecutor
 			sender.sendMessage("Border bypass is now " + enabledColored(bypassing) + ".");
 		}
 
+		// "bypasslist" command from player or console
+		else if (split.length == 1 && split[0].equalsIgnoreCase("bypasslist"))
+		{
+			if (!Config.HasPermission(player, "bypasslist")) return true;
+
+			sender.sendMessage("Players with border bypass enabled: " + Config.getPlayerBypassList());
+		}
+
 		// we couldn't decipher any known commands, so show help
 		else
 		{
@@ -850,6 +858,7 @@ public class WBCommand implements CommandExecutor
 			}
 			if (page == 0 || page == 4)
 			{
+				sender.sendMessage(cmd+" bypasslist " + clrDesc + " - list players with border bypass enabled.");
 				sender.sendMessage(cmd+" portal " + clrReq + "<on|off>" + clrDesc + " - turn portal redirection on or off.");
 				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
 				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");

@@ -355,6 +355,14 @@ public class Config
 		setPlayerBypass(player, !isPlayerBypassing(player));
 	}
 
+	public static String getPlayerBypassList()
+	{
+		if (bypassPlayers.isEmpty())
+			return "<none>";
+		String newString = bypassPlayers.toString();
+		return newString.substring(1, newString.length() - 1);
+	}
+
 
 
 	public static boolean isBorderTimerRunning()
