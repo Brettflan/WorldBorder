@@ -1,6 +1,7 @@
 package com.wimbli.WorldBorder;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -486,7 +487,7 @@ public class Config
 	}
 
 
-	private static final int currentCfgVersion = 8;
+	private static final int currentCfgVersion = 9;
 
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
@@ -510,6 +511,7 @@ public class Config
 		LogConfig("Using " + (ShapeName()) + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
 		killPlayer = cfg.getBoolean("player-killed-bad-spawn", false);
 		denyEnderpearl = cfg.getBoolean("deny-enderpearl", false);
+		bypassPlayers = Collections.synchronizedSet(new LinkedHashSet<String>(cfg.getStringList("bypass-list")));
 
 		StartBorderTimer();
 
@@ -605,6 +607,7 @@ public class Config
 		cfg.set("dynmap-border-message", dynmapMessage);
 		cfg.set("player-killed-bad-spawn", killPlayer);
 		cfg.set("deny-enderpearl", denyEnderpearl);
+		cfg.set("bypass-list", new ArrayList(bypassPlayers));
 
 		cfg.set("worlds", null);
 		Iterator world = borders.entrySet().iterator();
