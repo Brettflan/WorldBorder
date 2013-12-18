@@ -49,6 +49,7 @@ public class WorldFillTask implements Runnable
 
 	// for reporting progress back to user occasionally
 	private transient long lastReport = Config.Now();
+	private transient long lastAutosave = Config.Now();
 	private transient int reportTarget = 0;
 	private transient int reportTotal = 0;
 	private transient int reportNum = 0;
@@ -375,7 +376,6 @@ public class WorldFillTask implements Runnable
 	}
 
 	// let the user know how things are coming along
-	private int reportCounter = 0;
 	private void reportProgress()
 	{
 		lastReport = Config.Now();
@@ -385,11 +385,10 @@ public class WorldFillTask implements Runnable
 		reportTotal += reportNum;
 		reportNum = 0;
 
-		reportCounter++;
-		// go ahead and save world to disk every 30 seconds or so, just in case; can take a couple of seconds or more, so we don't want to run it too often
-		if (reportCounter >= 6)
+		// go ahead and save world to disk every 30 seconds or so by default, just in case; can take a couple of seconds or more, so we don't want to run it too often
+		if (Config.FillAutosaveFrequency() > 0 && lastAutosave + (Config.FillAutosaveFrequency() * 1000) < lastReport)
 		{
-			reportCounter = 0;
+			lastAutosave = lastReport;
 			sendMessage("Saving the world to disk, just to be on the safe side.");
 			world.save();
 		}
