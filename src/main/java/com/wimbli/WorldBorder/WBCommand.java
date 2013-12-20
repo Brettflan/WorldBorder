@@ -1005,8 +1005,16 @@ public class WBCommand implements CommandExecutor
 		catch(NumberFormatException ex)
 		{
 			sender.sendMessage(clrErr + "The frequency and padding values must be integers.");
+			fillDefaults();
 			return false;
 		}
+		if (fillFrequency <= 0)
+		{
+			sender.sendMessage(clrErr + "The frequency value must be greater than zero.");
+			fillDefaults();
+			return false;
+		}
+
 		if (!forceLoad.isEmpty())
 			fillForceLoad = strAsBool(forceLoad);
 
@@ -1111,6 +1119,13 @@ public class WBCommand implements CommandExecutor
 		catch(NumberFormatException ex)
 		{
 			sender.sendMessage(clrErr + "The frequency and padding values must be integers.");
+			trimDefaults();
+			return false;
+		}
+		if (trimFrequency <= 0)
+		{
+			sender.sendMessage(clrErr + "The frequency value must be greater than zero.");
+			trimDefaults();
 			return false;
 		}
 
