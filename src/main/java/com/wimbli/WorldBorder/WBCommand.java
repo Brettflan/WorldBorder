@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.Location;
 import org.bukkit.World;
 
 
@@ -71,56 +72,46 @@ public class WBCommand implements CommandExecutor
 		}
 
 		// "set" command from player or console, world specified
-		if ((split.length == 5 || split.length == 6) && split[1].equalsIgnoreCase("set"))
+		if ((split.length >= 4) && split[1].equalsIgnoreCase("set"))
 		{
 			if (!Config.HasPermission(player, "set")) return true;
+
+			if (split.length == 4 && ! split[split.length - 1].equalsIgnoreCase("spawn"))
+			{	// command can only be this short if "spawn" is specified rather than x + z or player name
+				sender.sendMessage(clrErr + "You have not provided a sufficient number of arguments. Check command list using root /wb command.");
+				return true;
+			}
 
 			World world = sender.getServer().getWorld(split[0]);
 			if (world == null)
 				sender.sendMessage("The world you specified (\"" + split[0] + "\") could not be found on the server, but data for it will be stored anyway.");
 
-			if(cmdSet(sender, split[0], split, 2, (split.length == 5)) && player != null)
+			if(cmdSet(sender, world, player, split, 2))
 				sender.sendMessage("Border has been set. " + Config.BorderDescription(split[0]));
 		}
 
-		// "set" command from player, using current world, X and Z specified
-		else if ((split.length == 4 || split.length == 5) && split[0].equalsIgnoreCase("set") && player != null)
+		// "set" command from player using current world since it isn't specified, or allowed from console only if player name is specified
+		else if ((split.length >= 2) && split[0].equalsIgnoreCase("set"))
 		{
 			if (!Config.HasPermission(player, "set")) return true;
 
-			String world = player.getWorld().getName();
-
-			if (cmdSet(sender, world, split, 1, (split.length == 4)))
-				sender.sendMessage("Border has been set. " + Config.BorderDescription(world));
-		}
-
-		// "set" command from player, using current world, X and Z NOT specified
-		else if ((split.length == 2 || split.length == 3) && split[0].equalsIgnoreCase("set") && player != null)
-		{
-			if (!Config.HasPermission(player, "set")) return true;
-
-			String world = player.getWorld().getName();
-
-			double x = player.getLocation().getX();
-			double z = player.getLocation().getZ();
-			int radiusX;
-			int radiusZ;
-			try
+			if (player == null)
 			{
-				radiusX = Integer.parseInt(split[1]);
-				if (split.length == 3)
-					radiusZ = Integer.parseInt(split[2]);
-				else
-					radiusZ = radiusX;
-			}
-			catch(NumberFormatException ex)
-			{
-				sender.sendMessage(clrErr + "The radius value(s) must be integers.");
-				return true;
+				if (! split[split.length - 2].equalsIgnoreCase("player"))
+				{	// command can only be called by console without world specified if player is specified instead
+					sender.sendMessage(clrErr + "You must specify a world name from console if not specifying a player name. Check command list using root \"wb\" command.");
+					return true;
+				}
+				player = Bukkit.getPlayer(split[split.length - 1]);
+				if (player == null || ! player.isOnline())
+				{
+					sender.sendMessage(clrErr + "The player you specified (\"" + split[split.length - 1] + "\") does not appear to be online.");
+					return true;
+				}
 			}
 
-			Config.setBorder(world, radiusX, radiusZ, x, z);
-			sender.sendMessage("Border has been set. " + Config.BorderDescription(world));
+			if (cmdSet(sender, player.getWorld(), player, split, 1))
+				sender.sendMessage("Border has been set. " + Config.BorderDescription(player.getWorld().getName()));
 		}
 
 		// "setcorners" command from player or console, world specified
@@ -856,10 +847,10 @@ public class WBCommand implements CommandExecutor
 				if (player != null)
 					sender.sendMessage(cmd+" set " + clrReq + "<radiusX> " + clrOpt + "[radiusZ]" + clrDesc + " - set border, centered on you.");
 				sender.sendMessage(cmdW+" set " + clrReq + "<radiusX> " + clrOpt + "[radiusZ] <x> <z>" + clrDesc + " - set border.");
+				sender.sendMessage(cmdW+" set " + clrReq + "<radiusX> " + clrOpt + "[radiusZ] spawn" + clrDesc + " - use spawn point.");
+				sender.sendMessage(cmd+" set " + clrReq + "<radiusX> " + clrOpt + "[radiusZ] player <name>" + clrDesc + " - center on player.");
 				sender.sendMessage(cmdW+" setcorners " + clrReq + "<x1> <z1> <x2> <z2>" + clrDesc + " - set by corners.");
 				sender.sendMessage(cmdW+" radius " + clrReq + "<radiusX> " + clrOpt + "[radiusZ]" + clrDesc + " - change radius.");
-				sender.sendMessage(cmdW+" clear" + clrDesc + " - remove border for this world.");
-				sender.sendMessage(cmd+" clear all" + clrDesc + " - remove border for all worlds.");
 				sender.sendMessage(cmd+" shape " + clrReq + "<elliptic|rectangular>" + clrDesc + " - set the default shape.");
 				sender.sendMessage(cmd+" shape " + clrReq + "<round|square>" + clrDesc + " - same as above.");
 				if (page == 1)
@@ -867,13 +858,13 @@ public class WBCommand implements CommandExecutor
 			}
 			if (page == 0 || page == 2)
 			{
+				sender.sendMessage(cmdW+" clear" + clrDesc + " - remove border for this world.");
+				sender.sendMessage(cmd+" clear all" + clrDesc + " - remove border for all worlds.");
 				sender.sendMessage(cmd+" list" + clrDesc + " - show border information for all worlds.");
-				sender.sendMessage(cmdW+" fill " + clrOpt + "[freq] [pad] [force]" + clrDesc + " - generate world to border.");
+				sender.sendMessage(cmdW+" fill " + clrOpt + "[freq] [pad] [force]" + clrDesc + " - fill world to border.");
 				sender.sendMessage(cmdW+" trim " + clrOpt + "[freq] [pad]" + clrDesc + " - trim world outside of border.");
 				sender.sendMessage(cmd+" bypass " + ((player == null) ? clrReq + "<player>" : clrOpt + "[player]") + clrOpt + " [on/off]" + clrDesc + " - let player go beyond border.");
-				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <elliptic|rectangular|default>" + clrDesc + " - shape override for this world.");
-				// above command takes 2 lines, so only 7 commands total listed for this page
-				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <round|square|default>" + clrDesc + " - same as above.");
+				sender.sendMessage(cmd+" knockback " + clrReq + "<distance>" + clrDesc + " - how far to move the player back.");
 				sender.sendMessage(cmd+" wrap " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <on/off>" + clrDesc + " - can make border crossings wrap.");
 				if (page == 2)
 					sender.sendMessage(cmd+" 3" + clrDesc + " - view third page of commands.");
@@ -883,16 +874,18 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage(cmd+" whoosh " + clrReq + "<on|off>" + clrDesc + " - turn knockback effect on or off.");
 				sender.sendMessage(cmd+" getmsg" + clrDesc + " - display border message.");
 				sender.sendMessage(cmd+" setmsg " + clrReq + "<text>" + clrDesc + " - set border message.");
-				sender.sendMessage(cmd+" knockback " + clrReq + "<distance>" + clrDesc + " - how far to move the player back.");
 				sender.sendMessage(cmd+" delay " + clrReq + "<amount>" + clrDesc + " - time between border checks.");
 				sender.sendMessage(cmd+" remount " + clrReq + "<amount>" + clrDesc + " - player remount delay after knockback.");
-				sender.sendMessage(cmd+" dynmap " + clrReq + "<on|off>" + clrDesc + " - turn DynMap border display on or off.");
-				sender.sendMessage(cmd+" dynmapmsg " + clrReq + "<text>" + clrDesc + " - DynMap border labels will show this.");
+				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <elliptic|rectangular|default>" + clrDesc + " - shape override for this world.");
+				// above command takes 2 lines, so only 7 commands total listed for this page
+				sender.sendMessage(cmd+" wshape " + ((player == null) ? clrReq + "<world>" : clrOpt + "[world]") + clrReq + " <round|square|default>" + clrDesc + " - same as above.");
 				if (page == 3)
 					sender.sendMessage(cmd+" 4" + clrDesc + " - view fourth page of commands.");
 			}
 			if (page == 0 || page == 4)
 			{
+				sender.sendMessage(cmd+" dynmap " + clrReq + "<on|off>" + clrDesc + " - turn DynMap border display on or off.");
+				sender.sendMessage(cmd+" dynmapmsg " + clrReq + "<text>" + clrDesc + " - DynMap border labels will show this.");
 				sender.sendMessage(cmd+" bypasslist " + clrDesc + " - list players with border bypass enabled.");
 				sender.sendMessage(cmd+" fillautosave " + clrReq + "<seconds>" + clrDesc + " - world save interval for Fill.");
 				sender.sendMessage(cmd+" portal " + clrReq + "<on|off>" + clrDesc + " - turn portal redirection on or off.");
@@ -922,23 +915,54 @@ public class WBCommand implements CommandExecutor
 		return enabled ? clrReq+"enabled" : clrErr+"disabled";
 	}
 
-	private boolean cmdSet(CommandSender sender, String world, String[] data, int offset, boolean oneRadius)
+	private boolean cmdSet(CommandSender sender, World world, Player player, String[] data, int offset)
 	{
 		int radiusX, radiusZ;
 		double x, z;
+		int radiusCount = data.length - offset;
+
 		try
 		{
-			radiusX = Integer.parseInt(data[offset]);
-			if (oneRadius)
-			{
-				radiusZ = radiusX;
-				offset -= 1;
+			if (data[data.length - 1].equalsIgnoreCase("spawn"))
+			{	// "spawn" specified for x/z coordinates
+				Location loc = world.getSpawnLocation();
+				x = loc.getX();
+				z = loc.getZ();
+				radiusCount -= 1;
+			}
+			else if (data[data.length - 2].equalsIgnoreCase("player"))
+			{	// player name specified for x/z coordinates
+				Player playerT = Bukkit.getPlayer(data[data.length - 1]);
+				if (playerT == null || ! playerT.isOnline())
+				{
+					sender.sendMessage(clrErr + "The player you specified (\"" + data[data.length - 1] + "\") does not appear to be online.");
+					return false;
+				}
+				world = playerT.getWorld();
+				x = playerT.getLocation().getX();
+				z = playerT.getLocation().getZ();
+				radiusCount -= 2;
 			}
 			else
-				radiusZ = Integer.parseInt(data[offset+1]);
+			{
+				if (player == null || radiusCount > 2)
+				{	// x and z specified
+					x = Double.parseDouble(data[data.length - 2]);
+					z = Double.parseDouble(data[data.length - 1]);
+					radiusCount -= 2;
+				}
+				else
+				{	// using coordinates of command sender (player)
+					x = player.getLocation().getX();
+					z = player.getLocation().getZ();
+				}
+			}
 
-			x = Double.parseDouble(data[offset+2]);
-			z = Double.parseDouble(data[offset+3]);
+			radiusX = Integer.parseInt(data[offset]);
+			if (radiusCount < 2)
+				radiusZ = radiusX;
+			else
+				radiusZ = Integer.parseInt(data[offset+1]);
 		}
 		catch(NumberFormatException ex)
 		{
@@ -946,7 +970,7 @@ public class WBCommand implements CommandExecutor
 			return false;
 		}
 
-		Config.setBorder(world, radiusX, radiusZ, x, z);
+		Config.setBorder(world.getName(), radiusX, radiusZ, x, z);
 		return true;
 	}
 

@@ -1,7 +1,7 @@
 name: WorldBorder
 author: Brettflan
 description: Efficient, feature-rich plugin for limiting the size of your worlds.
-version: 1.7.7
+version: 1.7.7_dev
 main: com.wimbli.WorldBorder.WorldBorder
 softdepend:
   - dynmap
@@ -13,6 +13,8 @@ commands:
            /<command> - list available commands (show help).
            /<command> set <radiusX> [radiusZ] - set world border, centered on you.
            /<command> [world] set <radiusX> [radiusZ] <x> <z> - set world border.
+           /<command> [world] set <radiusX> [radiusZ] spawn - use spawn point.
+           /<command> set <radiusX> [radiusZ] player <name> - center on player.
            /<command> [world] setcorners <x1> <z1> <x2> <z2> - set border from corners.
            /<command> [world] radius <radiusX> [radiusZ] - change border's radius.
            /<command> [world] clear - remove border for this world.
