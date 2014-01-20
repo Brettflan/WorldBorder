@@ -51,6 +51,7 @@ public class Config
 	private static boolean killPlayer = false;
 	private static boolean denyEnderpearl = false;
 	private static int fillAutosaveFrequency = 30;
+	private static int fillMemoryTolerance = 500;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -453,6 +454,11 @@ public class Config
 		return (int)((rt.maxMemory() - rt.totalMemory() + rt.freeMemory()) / 1048576);  // 1024*1024 = 1048576 (bytes in 1 MB)
 	}
 
+	public static boolean AvailableMemoryTooLow()
+	{
+		return AvailableMemory() < fillMemoryTolerance;
+	}
+
 
 	public static boolean HasPermission(Player player, String request)
 	{
@@ -529,6 +535,7 @@ public class Config
 		denyEnderpearl = cfg.getBoolean("deny-enderpearl", false);
 		fillAutosaveFrequency = cfg.getInt("fill-autosave-frequency", 30);
 		bypassPlayers = Collections.synchronizedSet(new LinkedHashSet<String>(cfg.getStringList("bypass-list")));
+		fillMemoryTolerance = cfg.getInt("fill-memory-tolerance", 500);
 
 		StartBorderTimer();
 
@@ -626,6 +633,7 @@ public class Config
 		cfg.set("deny-enderpearl", denyEnderpearl);
 		cfg.set("fill-autosave-frequency", fillAutosaveFrequency);
 		cfg.set("bypass-list", new ArrayList(bypassPlayers));
+		cfg.set("fill-memory-tolerance", fillMemoryTolerance);
 
 		cfg.set("worlds", null);
 		Iterator world = borders.entrySet().iterator();
