@@ -5,12 +5,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.bukkit.World;
@@ -87,7 +87,7 @@ public class BorderCheckTask implements Runnable
 				else
 				{
 					ride.setVelocity(new Vector(0, 0, 0));
-					ride.teleport(rideLoc);
+					ride.teleport(rideLoc, TeleportCause.PLUGIN);
 				}
 
 				if (Config.RemountTicks() > 0)
@@ -102,7 +102,7 @@ public class BorderCheckTask implements Runnable
 		Config.showWhooshEffect(loc);
 
 		if (!returnLocationOnly)
-			player.teleport(newLoc);
+			player.teleport(newLoc, TeleportCause.PLUGIN);
 
 		if (!handlingVehicle)
 			handlingPlayers.remove(player.getName().toLowerCase());
