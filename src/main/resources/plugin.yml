@@ -45,90 +45,48 @@ permissions:
   worldborder.*:
     description: Grants all WorldBorder permissions
     children:
-      worldborder.set: true
-      worldborder.radius: true
-      worldborder.clear: true
-      worldborder.list: true
-      worldborder.shape: true
-      worldborder.getmsg: true
-      worldborder.setmsg: true
-      worldborder.reload: true
-      worldborder.debug: true
-      worldborder.knockback: true
-      worldborder.delay: true
-      worldborder.wshape: true
-      worldborder.fill: true
-      worldborder.trim: true
-      worldborder.help: true
-      worldborder.whoosh: true
-      worldborder.dynmap: true
-      worldborder.dynmapmsg: true
       worldborder.bypass: true
       worldborder.bypasslist: true
-      worldborder.wrap: true
-      worldborder.portal: true
-      worldborder.remount: true
-      worldborder.fillautosave: true
+      worldborder.clear: true
+      worldborder.debug: true
+      worldborder.delay: true
       worldborder.denypearl: true
-  worldborder.set:
-    description: Can set borders for any world
+      worldborder.dynmap: true
+      worldborder.dynmapmsg: true
+      worldborder.fill: true
+      worldborder.fillautosave: true
+      worldborder.getmsg: true
+      worldborder.help: true
+      worldborder.knockback: true
+      worldborder.list: true
+      worldborder.portal: true
+      worldborder.radius: true
+      worldborder.reload: true
+      worldborder.remount: true
+      worldborder.set: true
+      worldborder.setmsg: true
+      worldborder.shape: true
+      worldborder.trim: true
+      worldborder.whoosh: true
+      worldborder.wrap: true
+      worldborder.wshape: true
+  worldborder.bypass:
+    description: Can enable bypass mode to go beyond the border
     default: op
-  worldborder.radius:
-    description: Can set the radius of an existing border
+  worldborder.bypasslist:
+    description: Can get list of players with border bypass enabled
     default: op
   worldborder.clear:
     description: Can remove any border
     default: op
-  worldborder.list:
-    description: Can view a list of all borders
-    default: op
-  worldborder.shape:
-    description: Can set the default shape (round or square) for all borders
-    default: op
-  worldborder.getmsg:
-    description: Can view the border crossing message
-    default: op
-  worldborder.setmsg:
-    description: Can set the border crossing message
-    default: op
-  worldborder.reload:
-    description: Can force the plugin to reload from the config file
-    default: op
   worldborder.debug:
     description: Can enable/disable debug output to console
-    default: op
-  worldborder.knockback:
-    description: Can set the knockback distance for border crossings
     default: op
   worldborder.delay:
     description: Can set the frequency at which the plugin checks for border crossings
     default: op
-  worldborder.wshape:
-    description: Can set an overriding border shape for a single world
-    default: op
-  worldborder.wrap:
-    description: Can set border crossings to wrap around to the other side of the world
-    default: op
-  worldborder.fill:
-    description: Can fill in (generate) any missing map chunks out to the border
-    default: op
-  worldborder.trim:
-    description: Can trim (remove) any excess map chunks outside of the border
-    default: op
-  worldborder.help:
-    description: Can view the command reference help pages
-    default: op
-  worldborder.whoosh:
-    description: Can enable/disable "whoosh" knockback effect
-    default: op
-  worldborder.portal:
-    description: Can enable/disable portal redirection to be inside border
-    default: op
-  worldborder.remount:
-    description: Can set the delay before remounting a player to their vehicle after knockback
-    default: op
-  worldborder.fillautosave:
-    description: Can set the world save interval for the Fill process
+  worldborder.denypearl:
+    description: Can enable/disable direct cancellation of ender pearls thrown past border
     default: op
   worldborder.dynmap:
     description: Can enable/disable DynMap border display integration
@@ -136,12 +94,54 @@ permissions:
   worldborder.dynmapmsg:
     description: Can set the label text for borders shown in DynMap
     default: op
-  worldborder.bypass:
-    description: Can enable bypass mode to go beyond the border
+  worldborder.fill:
+    description: Can fill in (generate) any missing map chunks out to the border
     default: op
-  worldborder.bypasslist:
-    description: Can get list of players with border bypass enabled
+  worldborder.fillautosave:
+    description: Can set the world save interval for the Fill process
     default: op
-  worldborder.denypearl:
-    description: Can enable/disable direct cancellation of ender pearls thrown past border
+  worldborder.getmsg:
+    description: Can view the border crossing message
+    default: op
+  worldborder.help:
+    description: Can view the command reference help pages
+    default: op
+  worldborder.knockback:
+    description: Can set the knockback distance for border crossings
+    default: op
+  worldborder.list:
+    description: Can view a list of all borders
+    default: op
+  worldborder.portal:
+    description: Can enable/disable portal redirection to be inside border
+    default: op
+  worldborder.radius:
+    description: Can set the radius of an existing border
+    default: op
+  worldborder.reload:
+    description: Can force the plugin to reload from the config file
+    default: op
+  worldborder.remount:
+    description: Can set the delay before remounting a player to their vehicle after knockback
+    default: op
+  worldborder.set:
+    description: Can set borders for any world
+    default: op
+  worldborder.setmsg:
+    description: Can set the border crossing message
+    default: op
+  worldborder.shape:
+    description: Can set the default shape (round or square) for all borders
+    default: op
+  worldborder.trim:
+    description: Can trim (remove) any excess map chunks outside of the border
+    default: op
+  worldborder.whoosh:
+    description: Can enable/disable "whoosh" knockback effect
+    default: op
+  worldborder.wrap:
+    description: Can set border crossings to wrap around to the other side of the world
+    default: op
+  worldborder.wshape:
+    description: Can set an overriding border shape for a single world
     default: op
