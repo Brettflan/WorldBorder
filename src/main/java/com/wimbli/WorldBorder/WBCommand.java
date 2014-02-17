@@ -405,6 +405,20 @@ public class WBCommand implements CommandExecutor
 			}
 		}
 
+		// "denypearl" command from player or console
+		else if (split.length == 2 && split[0].equalsIgnoreCase("denypearl"))
+		{
+			if (!Config.HasPermission(player, "denypearl")) return true;
+
+			Config.setDenyEnderpearl(strAsBool(split[1]));
+
+			if (player != null)
+			{
+				Config.Log((Config.whooshEffect() ? "Enabling" : "Disabling") + " direct cancellation of ender pearls thrown past the border at the command of player \"" + player.getName() + "\".");
+				sender.sendMessage("Direct cancellation of ender pearls thrown past the border " + enabledColored(Config.whooshEffect()) + ".");
+			}
+		}
+
 		// "knockback" command from player or console
 		else if (split.length == 2 && split[0].equalsIgnoreCase("knockback"))
 		{
@@ -889,6 +903,7 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage(cmd+" bypasslist " + clrDesc + " - list players with border bypass enabled.");
 				sender.sendMessage(cmd+" fillautosave " + clrReq + "<seconds>" + clrDesc + " - world save interval for Fill.");
 				sender.sendMessage(cmd+" portal " + clrReq + "<on|off>" + clrDesc + " - turn portal redirection on or off.");
+				sender.sendMessage(cmd+" denypearl " + clrReq + "<on|off>" + clrDesc + " - stop ender pearls thrown past the border.");
 				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
 				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
 				if (page == 4)

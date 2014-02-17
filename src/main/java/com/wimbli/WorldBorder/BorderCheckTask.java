@@ -27,7 +27,8 @@ public class BorderCheckTask implements Runnable
 
 		Player[] players = Bukkit.getServer().getOnlinePlayers();
 
-		for (int i = 0; i < players.length; i++){
+		for (int i = 0; i < players.length; i++)
+		{
 			checkPlayer(players[i], null, false, true);
 		}
 	}

@@ -238,13 +238,7 @@ public class Config
 	{
 		return whooshEffect;
 	}
-	public static boolean getIfPlayerKill(){
-		return killPlayer;
-	}
-	public static boolean getDenyEnderpearl()
-	{
-		return denyEnderpearl;
-	}
+
 	public static void showWhooshEffect(Location loc)
 	{
 		if (!whooshEffect())
@@ -257,6 +251,23 @@ public class Config
 		world.playEffect(loc, Effect.SMOKE, 4);
 		world.playEffect(loc, Effect.SMOKE, 4);
 		world.playEffect(loc, Effect.GHAST_SHOOT, 0);
+	}
+
+	public static boolean getIfPlayerKill()
+	{
+		return killPlayer;
+	}
+
+	public static boolean getDenyEnderpearl()
+	{
+		return denyEnderpearl;
+	}
+
+	public static void setDenyEnderpearl(boolean enable)
+	{
+		denyEnderpearl = enable;
+		Log("Direct cancellation of ender pearls thrown past the border " + (enable ? "enabled" : "disabled") + ".");
+		save(true);
 	}
 
 	public static void setPortalRedirection(boolean enable)
@@ -532,7 +543,7 @@ public class Config
 		dynmapMessage = cfg.getString("dynmap-border-message", "The border of the world.");
 		LogConfig("Using " + (ShapeName()) + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
 		killPlayer = cfg.getBoolean("player-killed-bad-spawn", false);
-		denyEnderpearl = cfg.getBoolean("deny-enderpearl", false);
+		denyEnderpearl = cfg.getBoolean("deny-enderpearl", true);
 		fillAutosaveFrequency = cfg.getInt("fill-autosave-frequency", 30);
 		bypassPlayers = Collections.synchronizedSet(new LinkedHashSet<String>(cfg.getStringList("bypass-list")));
 		fillMemoryTolerance = cfg.getInt("fill-memory-tolerance", 500);
