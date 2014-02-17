@@ -283,7 +283,7 @@ public class WorldFillTask implements Runnable
 		// if we've been around one full loop (4 legs)...
 		if (isZLeg && isNeg && current == 0)
 		{	// see if we've been outside the border for the whole loop
-			if (insideBorder == false)
+			if (!insideBorder)
 			{	// and finish if so
 				finish();
 				return false;
@@ -400,7 +400,7 @@ public class WorldFillTask implements Runnable
 		// Due to chunk generation eating up memory and Java being too slow about GC, we need to track memory availability
 		int availMem = Config.AvailableMemory();
 
-		Config.Log("[Fill] " + text + " (free mem: " + availMem + " MB)");
+		Config.log("[Fill] " + text + " (free mem: " + availMem + " MB)");
 		if (notifyPlayer != null)
 			notifyPlayer.sendMessage("[Fill] " + text);
 
@@ -409,7 +409,7 @@ public class WorldFillTask implements Runnable
 			pausedForMemory = true;
 			Config.StoreFillTask();
 			text = "Available memory is very low, task is pausing. A cleanup will be attempted now, and the task will automatically continue if/when sufficient memory is freed up.\n Alternatively, if you restart the server, this task will automatically continue once the server is back up.";
-			Config.Log("[Fill] " + text);
+			Config.log("[Fill] " + text);
 			if (notifyPlayer != null)
 				notifyPlayer.sendMessage("[Fill] " + text);
 			// prod Java with a request to go ahead and do GC to clean unloaded chunks from memory; this seems to work wonders almost immediately

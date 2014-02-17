@@ -1,7 +1,6 @@
 package com.wimbli.WorldBorder;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -56,12 +55,12 @@ public class DynMapFeatures
 		}
 		catch (ClassNotFoundException ex)
 		{
-			Config.LogConfig("DynMap is available, but border display is currently disabled: you need DynMap v0.36 or newer.");
+			Config.logConfig("DynMap is available, but border display is currently disabled: you need DynMap v0.36 or newer.");
 			return;
 		}
 		catch (NullPointerException ex)
 		{
-			Config.LogConfig("DynMap is present, but an NPE (type 1) was encountered while trying to integrate. Border display disabled.");
+			Config.logConfig("DynMap is present, but an NPE (type 1) was encountered while trying to integrate. Border display disabled.");
 			return;
 		}
 
@@ -72,14 +71,14 @@ public class DynMapFeatures
 		}
 		catch (NullPointerException ex)
 		{
-			Config.LogConfig("DynMap is present, but an NPE (type 2) was encountered while trying to integrate. Border display disabled.");
+			Config.logConfig("DynMap is present, but an NPE (type 2) was encountered while trying to integrate. Border display disabled.");
 			return;
 		}
 
 		// go ahead and show borders for all worlds
 		showAllBorders();
 
-		Config.LogConfig("Successfully hooked into DynMap for the ability to display borders.");
+		Config.logConfig("Successfully hooked into DynMap for the ability to display borders.");
 	}
 
 
@@ -153,10 +152,9 @@ public class DynMapFeatures
 			markSet.setMarkerSetLabel("WorldBorder");
 
 		Map<String, BorderData> borders = Config.getBorders();
-		Iterator worlds = borders.entrySet().iterator();
-		while(worlds.hasNext())
+		for(Entry<String, BorderData> stringBorderDataEntry : borders.entrySet())
 		{
-			Entry wdata = (Entry)worlds.next();
+			Entry wdata = stringBorderDataEntry;
 			String worldName = ((String)wdata.getKey());
 			BorderData border = (BorderData)wdata.getValue();
 			showBorder(worldName, border);

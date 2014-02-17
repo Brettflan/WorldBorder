@@ -4,7 +4,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.logging.Level;
@@ -15,6 +14,7 @@ import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
@@ -26,7 +26,7 @@ public class Config
 	// private stuff used within this class
 	private static WorldBorder plugin;
 	private static FileConfiguration cfg = null;
-	private static final Logger mcLog = Logger.getLogger("Minecraft");
+	private static Logger wbLog = null;
 	public static DecimalFormat coord = new DecimalFormat("0.0");
 	private static int borderTask = -1;
 	public static WorldFillTask fillTask;
@@ -65,7 +65,7 @@ public class Config
 	public static void setBorder(String world, BorderData border)
 	{
 		borders.put(world, border);
-		Log("Border set. " + BorderDescription(world));
+		log("Border set. " + BorderDescription(world));
 		save(true);
 		DynMapFeatures.showBorder(world, border);
 	}
@@ -73,14 +73,14 @@ public class Config
 	public static void setBorder(String world, int radiusX, int radiusZ, double x, double z, Boolean shapeRound)
 	{
 		BorderData old = Border(world);
-		boolean oldWrap = (old == null) ? false : old.getWrapping();
+		boolean oldWrap = (old != null) && old.getWrapping();
 		setBorder(world, new BorderData(x, z, radiusX, radiusZ, shapeRound, oldWrap));
 	}
 	public static void setBorder(String world, int radiusX, int radiusZ, double x, double z)
 	{
 		BorderData old = Border(world);
 		Boolean oldShape = (old == null) ? null : old.getShape();
-		boolean oldWrap = (old == null) ? false : old.getWrapping();
+		boolean oldWrap = (old != null) && old.getWrapping();
 		setBorder(world, new BorderData(x, z, radiusX, radiusZ, oldShape, oldWrap));
 	}
 
@@ -113,7 +113,7 @@ public class Config
 	{
 		BorderData old = Border(world);
 		Boolean oldShape = (old == null) ? null : old.getShape();
-		boolean oldWrap = (old == null) ? false : old.getWrapping();
+		boolean oldWrap = (old != null) && old.getWrapping();
 		setBorderCorners(world, x1, z1, x2, z2, oldShape, oldWrap);
 	}
 
@@ -121,7 +121,7 @@ public class Config
 	public static void removeBorder(String world)
 	{
 		borders.remove(world);
-		Log("Removed border for world \"" + world + "\".");
+		log("Removed border for world \"" + world + "\".");
 		save(true);
 		DynMapFeatures.removeBorder(world);
 	}
@@ -129,7 +129,7 @@ public class Config
 	public static void removeAllBorders()
 	{
 		borders.clear();
-		Log("Removed all borders for all worlds.");
+		log("Removed all borders for all worlds.");
 		save(true);
 		DynMapFeatures.removeAllBorders();
 	}
@@ -147,10 +147,9 @@ public class Config
 	{
 		Set<String> output = new HashSet<String>();
 
-		Iterator world = borders.keySet().iterator();
-		while(world.hasNext())
+		for(String worldName : borders.keySet())
 		{
-			output.add( BorderDescription((String)world.next()) );
+			output.add(BorderDescription(worldName));
 		}
 
 		return output;
@@ -169,7 +168,7 @@ public class Config
 	public static void setMessage(String msg)
 	{
 		updateMessage(msg);
-		Log("Border message is now set to: " + MessageRaw());
+		log("Border message is now set to: " + MessageRaw());
 		save(true);
 	}
 
@@ -196,7 +195,7 @@ public class Config
 	public static void setShape(boolean round)
 	{
 		shapeRound = round;
-		Log("Set default border shape to " + (ShapeName()) + ".");
+		log("Set default border shape to " + (ShapeName()) + ".");
 		save(true);
 		DynMapFeatures.showAllBorders();
 	}
@@ -218,7 +217,7 @@ public class Config
 	public static void setDebug(boolean debugMode)
 	{
 		DEBUG = debugMode;
-		Log("Debug mode " + (DEBUG ? "enabled" : "disabled") + ".");
+		log("Debug mode " + (DEBUG ? "enabled" : "disabled") + ".");
 		save(true);
 	}
 
@@ -230,7 +229,7 @@ public class Config
 	public static void setWhooshEffect(boolean enable)
 	{
 		whooshEffect = enable;
-		Log("\"Whoosh\" knockback effect " + (enable ? "enabled" : "disabled") + ".");
+		log("\"Whoosh\" knockback effect " + (enable ? "enabled" : "disabled") + ".");
 		save(true);
 	}
 
@@ -266,14 +265,14 @@ public class Config
 	public static void setDenyEnderpearl(boolean enable)
 	{
 		denyEnderpearl = enable;
-		Log("Direct cancellation of ender pearls thrown past the border " + (enable ? "enabled" : "disabled") + ".");
+		log("Direct cancellation of ender pearls thrown past the border " + (enable ? "enabled" : "disabled") + ".");
 		save(true);
 	}
 
 	public static void setPortalRedirection(boolean enable)
 	{
 		portalRedirection = enable;
-		Log("Portal redirection " + (enable ? "enabled" : "disabled") + ".");
+		log("Portal redirection " + (enable ? "enabled" : "disabled") + ".");
 		save(true);
 	}
 
@@ -285,7 +284,7 @@ public class Config
 	public static void setKnockBack(double numBlocks)
 	{
 		knockBack = numBlocks;
-		Log("Knockback set to " + knockBack + " blocks inside the border.");
+		log("Knockback set to " + knockBack + " blocks inside the border.");
 		save(true);
 	}
 
@@ -297,7 +296,7 @@ public class Config
 	public static void setTimerTicks(int ticks)
 	{
 		timerTicks = ticks;
-		Log("Timer delay set to " + timerTicks + " tick(s). That is roughly " + (timerTicks * 50) + "ms / " + (((double)timerTicks * 50.0) / 1000.0) + " seconds.");
+		log("Timer delay set to " + timerTicks + " tick(s). That is roughly " + (timerTicks * 50) + "ms / " + (((double)timerTicks * 50.0) / 1000.0) + " seconds.");
 		StartBorderTimer();
 		save(true);
 	}
@@ -311,11 +310,11 @@ public class Config
 	{
 		remountDelayTicks = ticks;
 		if (remountDelayTicks == 0)
-			Log("Remount delay set to 0. Players will be left dismounted when knocked back from the border while on a vehicle.");
+			log("Remount delay set to 0. Players will be left dismounted when knocked back from the border while on a vehicle.");
 		else
-			Log("Remount delay set to " + remountDelayTicks + " tick(s). That is roughly " + (remountDelayTicks * 50) + "ms / " + (((double)remountDelayTicks * 50.0) / 1000.0) + " seconds.");
+			log("Remount delay set to " + remountDelayTicks + " tick(s). That is roughly " + (remountDelayTicks * 50) + "ms / " + (((double)remountDelayTicks * 50.0) / 1000.0) + " seconds.");
 		if (ticks < 10)
-			LogWarn("setting the remount delay to less than 10 (and greater than 0) is not recommended. This can lead to nasty client glitches.");
+			logWarn("setting the remount delay to less than 10 (and greater than 0) is not recommended. This can lead to nasty client glitches.");
 		save(true);
 	}
 
@@ -328,9 +327,9 @@ public class Config
 	{
 		fillAutosaveFrequency = seconds;
 		if (fillAutosaveFrequency == 0)
-			Log("World autosave frequency during Fill process set to 0, disabling it. Note that much progress can be lost this way if there is a bug or crash in the world generation process from Bukkit or any world generation plugin you use.");
+			log("World autosave frequency during Fill process set to 0, disabling it. Note that much progress can be lost this way if there is a bug or crash in the world generation process from Bukkit or any world generation plugin you use.");
 		else
-			Log("World autosave frequency during Fill process set to " + fillAutosaveFrequency + " seconds (rounded to a multiple of 5). New chunks generated by the Fill process will be forcibly saved to disk this often to prevent loss of progress due to bugs or crashes in the world generation process.");
+			log("World autosave frequency during Fill process set to " + fillAutosaveFrequency + " seconds (rounded to a multiple of 5). New chunks generated by the Fill process will be forcibly saved to disk this often to prevent loss of progress due to bugs or crashes in the world generation process.");
 		save(true);
 	}
 
@@ -343,7 +342,7 @@ public class Config
 	public static void setDynmapBorderEnabled(boolean enable)
 	{
 		dynmapEnable = enable;
-		Log("DynMap border display is now " + (enable ? "enabled" : "disabled") + ".");
+		log("DynMap border display is now " + (enable ? "enabled" : "disabled") + ".");
 		save(true);
 		DynMapFeatures.showAllBorders();
 	}
@@ -356,7 +355,7 @@ public class Config
 	public static void setDynmapMessage(String msg)
 	{
 		dynmapMessage = msg;
-		Log("DynMap border label is now set to: " + msg);
+		log("DynMap border label is now set to: " + msg);
 		save(true);
 		DynMapFeatures.showAllBorders();
 	}
@@ -407,9 +406,9 @@ public class Config
 		borderTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new BorderCheckTask(), timerTicks, timerTicks);
 
 		if (borderTask == -1)
-			LogWarn("Failed to start timed border-checking task! This will prevent the plugin from working. Try restarting Bukkit.");
+			logWarn("Failed to start timed border-checking task! This will prevent the plugin from working. Try restarting Bukkit.");
 
-		LogConfig("Border-checking timed task started.");
+		logConfig("Border-checking timed task started.");
 	}
 
 	public static void StopBorderTimer()
@@ -418,7 +417,7 @@ public class Config
 
 		plugin.getServer().getScheduler().cancelTask(borderTask);
 		borderTask = -1;
-		LogConfig("Border-checking timed task stopped.");
+		logConfig("Border-checking timed task stopped.");
 	}
 
 	public static void StopFillTask()
@@ -490,33 +489,32 @@ public class Config
 	}
 
 
-	// adapted from code posted by Sleaker
 	public static String replaceAmpColors (String message)
 	{
-		return message.replaceAll("(?i)&([a-fk-or0-9])", "\u00A7$1");
+		return ChatColor.translateAlternateColorCodes('&', message);
 	}
+	// adapted from code posted by Sleaker
 	public static String stripAmpColors (String message)
 	{
 		return message.replaceAll("(?i)&([a-fk-or0-9])", "");
 	}
 
 
-	private static final String logName = "WorldBorder";
-	public static void Log(Level lvl, String text)
+	public static void log(Level lvl, String text)
 	{
-		mcLog.log(lvl, String.format("[%s] %s", logName, text));
+		wbLog.log(lvl, text);
 	}
-	public static void Log(String text)
+	public static void log(String text)
 	{
-		Log(Level.INFO, text);
+		log(Level.INFO, text);
 	}
-	public static void LogWarn(String text)
+	public static void logWarn(String text)
 	{
-		Log(Level.WARNING, text);
+		log(Level.WARNING, text);
 	}
-	public static void LogConfig(String text)
+	public static void logConfig(String text)
 	{
-		Log(Level.INFO, "[CONFIG] " + text);
+		log(Level.INFO, "[CONFIG] " + text);
 	}
 
 
@@ -525,6 +523,7 @@ public class Config
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
 		plugin = master;
+		wbLog = plugin.getLogger();
 
 		plugin.reloadConfig();
 		cfg = plugin.getConfig();
@@ -541,7 +540,7 @@ public class Config
 		remountDelayTicks = cfg.getInt("remount-delay-ticks", 0);
 		dynmapEnable = cfg.getBoolean("dynmap-border-enabled", true);
 		dynmapMessage = cfg.getString("dynmap-border-message", "The border of the world.");
-		LogConfig("Using " + (ShapeName()) + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
+		logConfig("Using " + (ShapeName()) + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
 		killPlayer = cfg.getBoolean("player-killed-bad-spawn", false);
 		denyEnderpearl = cfg.getBoolean("deny-enderpearl", true);
 		fillAutosaveFrequency = cfg.getInt("fill-autosave-frequency", 30);
@@ -555,7 +554,7 @@ public class Config
 		// if empty border message, assume no config
 		if (msg == null || msg.isEmpty())
 		{	// store defaults
-			LogConfig("Configuration not present, creating new file.");
+			logConfig("Configuration not present, creating new file.");
 			msg = "&cYou have reached the edge of this world.";
 			updateMessage(msg);
 			save(false);
@@ -593,7 +592,7 @@ public class Config
 				boolean wrap = (boolean) bord.getBoolean("wrapping", false);
 				BorderData border = new BorderData(bord.getDouble("x", 0), bord.getDouble("z", 0), bord.getInt("radiusX", 0), bord.getInt("radiusZ", 0), overrideShape, wrap);
 				borders.put(worldName, border);
-				LogConfig(BorderDescription(worldName));
+				logConfig(BorderDescription(worldName));
 			}
 		}
 
@@ -615,7 +614,7 @@ public class Config
 		}
 
 		if (logIt)
-			LogConfig("Configuration loaded.");
+			logConfig("Configuration loaded.");
 
 		if (cfgVersion < currentCfgVersion)
 			save(false);
@@ -643,14 +642,13 @@ public class Config
 		cfg.set("player-killed-bad-spawn", killPlayer);
 		cfg.set("deny-enderpearl", denyEnderpearl);
 		cfg.set("fill-autosave-frequency", fillAutosaveFrequency);
-		cfg.set("bypass-list", new ArrayList(bypassPlayers));
+		cfg.set("bypass-list", new ArrayList<String>(bypassPlayers));
 		cfg.set("fill-memory-tolerance", fillMemoryTolerance);
 
 		cfg.set("worlds", null);
-		Iterator world = borders.entrySet().iterator();
-		while(world.hasNext())
+		for(Entry<String, BorderData> stringBorderDataEntry : borders.entrySet())
 		{
-			Entry wdata = (Entry)world.next();
+			Entry wdata = stringBorderDataEntry;
 			String name = ((String)wdata.getKey()).replace(".", "<");
 			BorderData bord = (BorderData)wdata.getValue();
 
@@ -682,6 +680,6 @@ public class Config
 		plugin.saveConfig();
 
 		if (logIt)
-			LogConfig("Configuration saved.");
+			logConfig("Configuration saved.");
 	}
 }

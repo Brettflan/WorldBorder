@@ -20,7 +20,7 @@ public class WBListener implements Listener
 			return;
 
 		if (Config.Debug())
-			Config.Log("Teleport cause: "+event.getCause().toString());
+			Config.log("Teleport cause: " + event.getCause().toString());
 
 		Location newLoc = BorderCheckTask.checkPlayer(event.getPlayer(), event.getTo(), true, true);
 		if (newLoc != null)
@@ -61,13 +61,13 @@ public class WBListener implements Listener
 		{
 			Chunk chunk = event.getChunk();
 			chunk.unload(false, false);
-			Config.LogWarn("New chunk generation has been prevented at X " + chunk.getX() + ", Z " + chunk.getZ());
+			Config.logWarn("New chunk generation has been prevented at X " + chunk.getX() + ", Z " + chunk.getZ());
 		}
 */
 		// make sure our border monitoring task is still running like it should
 		if (Config.isBorderTimerRunning()) return;
 
-		Config.LogWarn("Border-checking task was not running! Something on your server apparently killed it. It will now be restarted.");
+		Config.logWarn("Border-checking task was not running! Something on your server apparently killed it. It will now be restarted.");
 		Config.StartBorderTimer();
 	}
 }

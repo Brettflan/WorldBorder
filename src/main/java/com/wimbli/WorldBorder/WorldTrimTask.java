@@ -274,7 +274,9 @@ public class WorldTrimTask implements Runnable
 		File regionFile = worldData.regionFile(currentRegion);
 		if (!regionFile.canWrite())
 		{
-			regionFile.setWritable(true);
+			if (!regionFile.setWritable(true))
+				throw new RuntimeException();
+
 			if (!regionFile.canWrite())
 			{
 				sendMessage("Error! region file is locked and can't be trimmed: "+regionFile.getName());
@@ -387,7 +389,7 @@ public class WorldTrimTask implements Runnable
 	// send a message to the server console/log and possibly to an in-game player
 	private void sendMessage(String text)
 	{
-		Config.Log("[Trim] " + text);
+		Config.log("[Trim] " + text);
 		if (notifyPlayer != null)
 			notifyPlayer.sendMessage("[Trim] " + text);
 	}

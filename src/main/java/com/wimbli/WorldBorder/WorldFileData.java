@@ -36,9 +36,9 @@ public class WorldFileData
 		{
 			// check for region folder inside a DIM* folder (DIM-1 for nether, DIM1 for end, DIMwhatever for custom world types)
 			File[] possibleDimFolders = newData.world.getWorldFolder().listFiles(new DimFolderFileFilter());
-			for (int i = 0; i < possibleDimFolders.length; i++)
+			for (File possibleDimFolder : possibleDimFolders)
 			{
-				File possible = new File(newData.world.getWorldFolder(), possibleDimFolders[i].getName()+File.separator+"region");
+				File possible = new File(newData.world.getWorldFolder(), possibleDimFolder.getName() + File.separator + "region");
 				if (possible.exists() && possible.isDirectory())
 				{
 					newData.regionFolder = possible;
@@ -219,7 +219,7 @@ public class WorldFileData
 	// send a message to the server console/log and possibly to an in-game player
 	private void sendMessage(String text)
 	{
-		Config.Log("[WorldData] " + text);
+		Config.log("[WorldData] " + text);
 		if (notifyPlayer != null && notifyPlayer.isOnline())
 			notifyPlayer.sendMessage("[WorldData] " + text);
 	}
@@ -279,12 +279,12 @@ public class WorldFileData
 		}
 
 		File f = new File("region_"+region.x+"_"+region.z+"_.png");
-		Config.Log(f.getAbsolutePath());
+		Config.log(f.getAbsolutePath());
 		try {
 			// png is an image format (like gif or jpg)
 			ImageIO.write(bi, "png", f);
 		} catch (IOException ex) {
-			Config.Log("[SEVERE]"+ex.getLocalizedMessage());
+			Config.log("[SEVERE]" + ex.getLocalizedMessage());
 		}
 	}
 }

@@ -30,7 +30,7 @@ public class WorldBorder extends JavaPlugin
 
 		// Well I for one find this info useful, so...
 		Location spawn = getServer().getWorlds().get(0).getSpawnLocation();
-		System.out.println("For reference, the main world's spawn location is at X: " + Config.coord.format(spawn.getX()) + " Y: " + Config.coord.format(spawn.getY()) + " Z: " + Config.coord.format(spawn.getZ()));
+		Config.log("For reference, the main world's spawn location is at X: " + Config.coord.format(spawn.getX()) + " Y: " + Config.coord.format(spawn.getY()) + " Z: " + Config.coord.format(spawn.getZ()));
 	}
 
 	@Override
