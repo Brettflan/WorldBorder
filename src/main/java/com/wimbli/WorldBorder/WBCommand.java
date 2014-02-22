@@ -901,7 +901,7 @@ public class WBCommand implements CommandExecutor
 				sender.sendMessage(cmd+" bypasslist " + clrDesc + " - list players with border bypass enabled.");
 				sender.sendMessage(cmd+" fillautosave " + clrReq + "<seconds>" + clrDesc + " - world save interval for Fill.");
 				sender.sendMessage(cmd+" portal " + clrReq + "<on|off>" + clrDesc + " - turn portal redirection on or off.");
-				sender.sendMessage(cmd+" denypearl " + clrReq + "<on|off>" + clrDesc + " - stop ender pearls thrown past the border.");
+				sender.sendMessage(cmd+" denypearl " + clrReq + "<on|off>" + clrDesc + " - stop ender pearls past the border.");
 				sender.sendMessage(cmd+" reload" + clrDesc + " - re-load data from config.yml.");
 				sender.sendMessage(cmd+" debug " + clrReq + "<on|off>" + clrDesc + " - turn console debug output on or off.");
 				if (page == 4)

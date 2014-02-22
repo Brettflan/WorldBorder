@@ -27,7 +27,6 @@ public class WBListener implements Listener
 		{
 			if(event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL && Config.getDenyEnderpearl())
 			{
-				event.getPlayer().sendMessage(Config.Message());
 				event.setCancelled(true);
 				return;
 			}

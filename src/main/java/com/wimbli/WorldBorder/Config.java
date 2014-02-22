@@ -518,7 +518,7 @@ public class Config
 	}
 
 
-	private static final int currentCfgVersion = 9;
+	private static final int currentCfgVersion = 10;
 
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
@@ -566,6 +566,10 @@ public class Config
 		// otherwise just set border message
 		else
 			updateMessage(msg);
+
+		// this option defaulted to false previously, but what it actually does has changed to something that almost everyone should now want by default
+		if (cfgVersion < 10)
+			denyEnderpearl = true;
 
 		ConfigurationSection worlds = cfg.getConfigurationSection("worlds");
 		if (worlds != null)
