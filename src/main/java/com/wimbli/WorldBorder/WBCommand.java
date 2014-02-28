@@ -412,8 +412,8 @@ public class WBCommand implements CommandExecutor
 
 			if (player != null)
 			{
-				Config.log((Config.whooshEffect() ? "Enabling" : "Disabling") + " direct cancellation of ender pearls thrown past the border at the command of player \"" + player.getName() + "\".");
-				sender.sendMessage("Direct cancellation of ender pearls thrown past the border " + enabledColored(Config.whooshEffect()) + ".");
+				Config.log((Config.getDenyEnderpearl() ? "Enabling" : "Disabling") + " direct cancellation of ender pearls thrown past the border at the command of player \"" + player.getName() + "\".");
+				sender.sendMessage("Direct cancellation of ender pearls thrown past the border " + enabledColored(Config.getDenyEnderpearl()) + ".");
 			}
 		}
 
