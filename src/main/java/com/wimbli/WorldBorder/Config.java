@@ -62,33 +62,38 @@ public class Config
 	}
 
 
-	public static void setBorder(String world, BorderData border)
+	public static void setBorder(String world, BorderData border, boolean logIt)
 	{
 		borders.put(world, border);
-		log("Border set. " + BorderDescription(world));
+		if (logIt)
+			log("Border set. " + BorderDescription(world));
 		save(true);
 		DynMapFeatures.showBorder(world, border);
+	}
+	public static void setBorder(String world, BorderData border)
+	{
+		setBorder(world, border, true);
 	}
 
 	public static void setBorder(String world, int radiusX, int radiusZ, double x, double z, Boolean shapeRound)
 	{
 		BorderData old = Border(world);
 		boolean oldWrap = (old != null) && old.getWrapping();
-		setBorder(world, new BorderData(x, z, radiusX, radiusZ, shapeRound, oldWrap));
+		setBorder(world, new BorderData(x, z, radiusX, radiusZ, shapeRound, oldWrap), true);
 	}
 	public static void setBorder(String world, int radiusX, int radiusZ, double x, double z)
 	{
 		BorderData old = Border(world);
 		Boolean oldShape = (old == null) ? null : old.getShape();
 		boolean oldWrap = (old != null) && old.getWrapping();
-		setBorder(world, new BorderData(x, z, radiusX, radiusZ, oldShape, oldWrap));
+		setBorder(world, new BorderData(x, z, radiusX, radiusZ, oldShape, oldWrap), true);
 	}
 
 
 	// backwards-compatible methods from before elliptical/rectangular shapes were supported
 	public static void setBorder(String world, int radius, double x, double z, Boolean shapeRound)
 	{
-		setBorder(world, new BorderData(x, z, radius, radius, shapeRound));
+		setBorder(world, new BorderData(x, z, radius, radius, shapeRound), true);
 	}
 	public static void setBorder(String world, int radius, double x, double z)
 	{
@@ -103,7 +108,7 @@ public class Config
 		double radiusZ = Math.abs(z1 - z2) / 2;
 		double x = ((x1 < x2) ? x1 : x2) + radiusX;
 		double z = ((z1 < z2) ? z1 : z2) + radiusZ;
-		setBorder(world, new BorderData(x, z, (int)Math.round(radiusX), (int)Math.round(radiusZ), shapeRound, wrap));
+		setBorder(world, new BorderData(x, z, (int)Math.round(radiusX), (int)Math.round(radiusZ), shapeRound, wrap), true);
 	}
 	public static void setBorderCorners(String world, double x1, double z1, double x2, double z2, Boolean shapeRound)
 	{
@@ -168,7 +173,6 @@ public class Config
 	public static void setMessage(String msg)
 	{
 		updateMessage(msg);
-		log("Border message is now set to: " + MessageRaw());
 		save(true);
 	}
 
@@ -209,8 +213,10 @@ public class Config
 	{
 		return ShapeName(shapeRound);
 	}
-	public static String ShapeName(boolean round)
+	public static String ShapeName(Boolean round)
 	{
+		if (round == null)
+			return "default";
 		return round ? "elliptic/round" : "rectangular/square";
 	}
 
@@ -312,9 +318,11 @@ public class Config
 		if (remountDelayTicks == 0)
 			log("Remount delay set to 0. Players will be left dismounted when knocked back from the border while on a vehicle.");
 		else
+		{
 			log("Remount delay set to " + remountDelayTicks + " tick(s). That is roughly " + (remountDelayTicks * 50) + "ms / " + (((double)remountDelayTicks * 50.0) / 1000.0) + " seconds.");
-		if (ticks < 10)
-			logWarn("setting the remount delay to less than 10 (and greater than 0) is not recommended. This can lead to nasty client glitches.");
+			if (ticks < 10)
+				logWarn("setting the remount delay to less than 10 (and greater than 0) is not recommended. This can lead to nasty client glitches.");
+		}
 		save(true);
 	}
 
