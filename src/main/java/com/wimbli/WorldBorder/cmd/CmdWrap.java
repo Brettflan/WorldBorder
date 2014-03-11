@@ -17,6 +17,9 @@ public class CmdWrap extends WBCmd
 		maxParams = 2;
 
 		addCmdExample(nameEmphasized() + "{world} <on|off> - can make border crossings wrap.");
+		helpText = "When border wrapping is enabled for a world, players will be sent around to the opposite edge " +
+			"of the border when they cross it instead of being knocked back. [world] is optional for players and " +
+			"defaults to the world the player is in.";
 	}
 
 	@Override

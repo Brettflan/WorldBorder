@@ -16,6 +16,16 @@ public class CmdSetmsg extends WBCmd
 		minParams = 1;
 
 		addCmdExample(nameEmphasized() + "<text> - set border message.");
+		helpText = "Default value: \"&cYou have reached the edge of this world.\". This command lets you set the message shown to players who are knocked back from the border.";
+	}
+
+	@Override
+	public void cmdStatus(CommandSender sender)
+	{
+		sender.sendMessage(C_HEAD + "Border message is set to:");
+		sender.sendMessage(Config.MessageRaw());
+		sender.sendMessage(C_HEAD + "Formatted border message:");
+		sender.sendMessage(Config.Message());
 	}
 
 	@Override
@@ -33,9 +43,6 @@ public class CmdSetmsg extends WBCmd
 
 		Config.setMessage(message.toString());
 
-		sender.sendMessage("Border message is now set to:");
-		sender.sendMessage(Config.MessageRaw());
-		sender.sendMessage("Formatted border message:");
-		sender.sendMessage(Config.Message());
+		cmdStatus(sender);
 	}
 }

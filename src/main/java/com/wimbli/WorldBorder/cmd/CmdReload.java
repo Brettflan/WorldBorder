@@ -16,6 +16,8 @@ public class CmdReload extends WBCmd
 		minParams = maxParams = 0;
 
 		addCmdExample(nameEmphasized() + "- re-load data from config.yml.");
+		helpText = "If you make manual changes to config.yml while the server is running, you can use this command " +
+			"to make WorldBorder load the changes without needing to restart the server.";
 	}
 
 	@Override

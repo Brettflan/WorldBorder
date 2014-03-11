@@ -16,6 +16,14 @@ public class CmdDebug extends WBCmd
 		minParams = maxParams = 1;
 
 		addCmdExample(nameEmphasized() + "<on|off> - turn console debug output on or off.");
+		helpText = "Default value: off. Debug mode will show some extra debugging data in the server console/log when " +
+			"players are knocked back from the border or are teleported.";
+	}
+
+	@Override
+	public void cmdStatus(CommandSender sender)
+	{
+		sender.sendMessage(C_HEAD + "Debug mode is " + enabledColored(Config.Debug()) + C_HEAD + ".");
 	}
 
 	@Override
@@ -26,7 +34,7 @@ public class CmdDebug extends WBCmd
 		if (player != null)
 		{
 			Config.log((Config.Debug() ? "Enabled" : "Disabled") + " debug output at the command of player \"" + player.getName() + "\".");
-			sender.sendMessage("Debug mode " + enabledColored(Config.Debug()) + ".");
+			cmdStatus(sender);
 		}
 	}
 }

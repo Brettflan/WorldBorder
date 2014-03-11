@@ -20,6 +20,10 @@ public class CmdFill extends WBCmd
 		maxParams = 3;
 
 		addCmdExample(nameEmphasizedW() + "[freq] [pad] [force] - fill world to border.");
+		helpText = "This command will generate missing world chunks inside your border. [freq] is the frequency " +
+			"of chunks per second that will be checked (default 20). [pad] is the number of blocks padding added " +
+			"beyond the border itself (default 208, to cover player visual range). [force] can be specified as true " +
+			"to force all chunks to be loaded even if they seem to be fully generated (default false).";
 	}
 
 	@Override
@@ -35,7 +39,7 @@ public class CmdFill extends WBCmd
 			{
 				if (!makeSureFillIsRunning(sender))
 					return;
-				sender.sendMessage(clrHead + "Cancelling the world map generation task.");
+				sender.sendMessage(C_HEAD + "Cancelling the world map generation task.");
 				fillDefaults();
 				Config.StopFillTask();
 				return;
@@ -45,7 +49,7 @@ public class CmdFill extends WBCmd
 				if (!makeSureFillIsRunning(sender))
 					return;
 				Config.fillTask.pause();
-				sender.sendMessage(clrHead + "The world map generation task is now " + (Config.fillTask.isPaused() ? "" : "un") + "paused.");
+				sender.sendMessage(C_HEAD + "The world map generation task is now " + (Config.fillTask.isPaused() ? "" : "un") + "paused.");
 				return;
 			}
 
@@ -65,13 +69,13 @@ public class CmdFill extends WBCmd
 		}
 
 		// colorized "/wb fill "
-		String cmd = ((player == null) ? cmdC : cmdP) + nameEmphasized() + clrCmd;
+		String cmd = cmd(sender) + nameEmphasized() + C_CMD;
 
 		// make sure Fill isn't already running
 		if (Config.fillTask != null && Config.fillTask.valid())
 		{
-			sender.sendMessage(clrErr + "The world map generation task is already running.");
-			sender.sendMessage(clrDesc + "You can cancel at any time with " + cmd + "cancel" + clrDesc + ", or pause/unpause with " + cmd + "pause" + clrDesc + ".");
+			sender.sendMessage(C_ERR + "The world map generation task is already running.");
+			sender.sendMessage(C_DESC + "You can cancel at any time with " + cmd + "cancel" + C_DESC + ", or pause/unpause with " + cmd + "pause" + C_DESC + ".");
 			return;
 		}
 
@@ -130,7 +134,7 @@ public class CmdFill extends WBCmd
 				sender.sendMessage("WorldBorder map generation task for world \"" + fillWorld + "\" started.");
 			}
 			else
-				sender.sendMessage(clrErr + "The world map generation task failed to start.");
+				sender.sendMessage(C_ERR + "The world map generation task failed to start.");
 
 			fillDefaults();
 		}
@@ -142,10 +146,10 @@ public class CmdFill extends WBCmd
 				return;
 			}
 
-			sender.sendMessage(clrHead + "World generation task is ready for world \"" + fillWorld + "\", attempting to process up to " + fillFrequency + " chunks per second (default 20). The map will be padded out " + fillPadding + " blocks beyond the border (default " + defaultPadding + "). Parts of the world which are already fully generated will be " + (fillForceLoad ? "loaded anyway." : "skipped."));
-			sender.sendMessage(clrHead + "This process can take a very long time depending on the world's border size. Also, depending on the chunk processing rate, players will likely experience severe lag for the duration.");
-			sender.sendMessage(clrDesc + "You should now use " + cmd + "confirm" + clrDesc + " to start the process.");
-			sender.sendMessage(clrDesc + "You can cancel at any time with " + cmd + "cancel" + clrDesc + ", or pause/unpause with " + cmd + "pause" + clrDesc + ".");
+			sender.sendMessage(C_HEAD + "World generation task is ready for world \"" + fillWorld + "\", attempting to process up to " + fillFrequency + " chunks per second (default 20). The map will be padded out " + fillPadding + " blocks beyond the border (default " + defaultPadding + "). Parts of the world which are already fully generated will be " + (fillForceLoad ? "loaded anyway." : "skipped."));
+			sender.sendMessage(C_HEAD + "This process can take a very long time depending on the world's border size. Also, depending on the chunk processing rate, players will likely experience severe lag for the duration.");
+			sender.sendMessage(C_DESC + "You should now use " + cmd + "confirm" + C_DESC + " to start the process.");
+			sender.sendMessage(C_DESC + "You can cancel at any time with " + cmd + "cancel" + C_DESC + ", or pause/unpause with " + cmd + "pause" + C_DESC + ".");
 		}
 	}
 	

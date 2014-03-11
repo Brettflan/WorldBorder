@@ -16,6 +16,7 @@ public class CmdGetmsg extends WBCmd
 		minParams = maxParams = 0;
 
 		addCmdExample(nameEmphasized() + "- display border message.");
+		helpText = "This command simply displays the message shown to players knocked back from the border.";
 	}
 
 	@Override

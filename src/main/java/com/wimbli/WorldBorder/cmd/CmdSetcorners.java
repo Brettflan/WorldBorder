@@ -19,6 +19,9 @@ public class CmdSetcorners extends WBCmd
 		minParams = maxParams = 4;
 
 		addCmdExample(nameEmphasizedW() + "<x1> <z1> <x2> <z2> - corner coords.");
+		helpText = "This is an alternate way to set a border, by specifying the X and Z coordinates of two opposite " +
+			"corners of the border area ((x1, z1) to (x2, z2)). [world] is optional for players and defaults to the " +
+			"world the player is in.";
 	}
 
 	@Override

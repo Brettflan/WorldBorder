@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -18,38 +19,43 @@ import com.wimbli.WorldBorder.cmd.*;
 public class WBCommand implements CommandExecutor
 {
 	// map of all sub-commands with the command name (string) for quick reference
-	private Map<String, WBCmd> subCommands = new LinkedHashMap<String, WBCmd>();
+	public Map<String, WBCmd> subCommands = new LinkedHashMap<String, WBCmd>();
 	// ref. list of the commands which can have a world name in front of the command itself (ex. /wb _world_ radius 100)
 	private Set<String> subCommandsWithWorldNames = new LinkedHashSet<String>();
 
 	// constructor
-	public WBCommand (WorldBorder plugin)
+	public WBCommand ()
 	{
-		addCmd(new CmdSet());
-		addCmd(new CmdSetcorners());
-		addCmd(new CmdRadius());
-		addCmd(new CmdShape());
-		addCmd(new CmdClear());
-		addCmd(new CmdList());
-		addCmd(new CmdFill());
-		addCmd(new CmdTrim());
-		addCmd(new CmdBypass());
-		addCmd(new CmdBypasslist());
-		addCmd(new CmdKnockback());
-		addCmd(new CmdWrap());
-		addCmd(new CmdWhoosh());
-		addCmd(new CmdGetmsg());
-		addCmd(new CmdSetmsg());
-		addCmd(new CmdDelay());
-		addCmd(new CmdWshape());
-		addCmd(new CmdDynmap());
-		addCmd(new CmdDynmapmsg());
-		addCmd(new CmdRemount());
-		addCmd(new CmdFillautosave());
-		addCmd(new CmdPortal());
-		addCmd(new CmdDenypearl());
-		addCmd(new CmdReload());
-		addCmd(new CmdDebug());
+		addCmd(new CmdHelp());			// 1 example
+		addCmd(new CmdSet());			// 4 examples for player, 3 for console
+		addCmd(new CmdSetcorners());	// 1
+		addCmd(new CmdRadius());		// 1
+		addCmd(new CmdList());			// 1
+		//----- 8 per page of examples
+		addCmd(new CmdShape());			// 2
+		addCmd(new CmdClear());			// 2
+		addCmd(new CmdFill());			// 1
+		addCmd(new CmdTrim());			// 1
+		addCmd(new CmdBypass());		// 1
+		addCmd(new CmdBypasslist());	// 1
+		//-----
+		addCmd(new CmdKnockback());		// 1
+		addCmd(new CmdWrap());			// 1
+		addCmd(new CmdWhoosh());		// 1
+		addCmd(new CmdGetmsg());		// 1
+		addCmd(new CmdSetmsg());		// 1
+		addCmd(new CmdWshape());		// 3
+		//-----
+		addCmd(new CmdDelay());			// 1
+		addCmd(new CmdDynmap());		// 1
+		addCmd(new CmdDynmapmsg());		// 1
+		addCmd(new CmdRemount());		// 1
+		addCmd(new CmdFillautosave());	// 1
+		addCmd(new CmdPortal());		// 1
+		addCmd(new CmdDenypearl());		// 1
+		addCmd(new CmdReload());		// 1
+		//-----
+		addCmd(new CmdDebug());			// 1
 
 		// this is the default command, which shows command example pages; should be last just in case
 		addCmd(new CmdCommands());
@@ -98,7 +104,7 @@ public class WBCommand implements CommandExecutor
 			}
 			catch(NumberFormatException ignored)
 			{
-				sender.sendMessage(WBCmd.clrErr + "Command not recognized. Showing command list.");
+				sender.sendMessage(WBCmd.C_ERR + "Command not recognized. Showing command list.");
 			}
 			cmdName = "commands";
 			params.add(0, Integer.toString(page));
@@ -113,7 +119,7 @@ public class WBCommand implements CommandExecutor
 		// if command requires world name when run by console, make sure that's in place
 		if (player == null && subCommand.hasWorldNameInput && subCommand.consoleRequiresWorldName && worldName == null)
 		{
-			sender.sendMessage(WBCmd.clrErr + "This command requires a world to be specified if run by the console.");
+			sender.sendMessage(WBCmd.C_ERR + "This command requires a world to be specified if run by the console.");
 			subCommand.sendCmdHelp(sender);
 			return true;
 		}
@@ -121,7 +127,10 @@ public class WBCommand implements CommandExecutor
 		// make sure valid number of parameters has been provided
 		if (params.size() < subCommand.minParams || params.size() > subCommand.maxParams)
 		{
-			sender.sendMessage(WBCmd.clrErr + "You have not provided a valid number of arguments.");
+			if (subCommand.maxParams == 0)
+				sender.sendMessage(WBCmd.C_ERR + "This command does not accept any parameters.");
+			else
+				sender.sendMessage(WBCmd.C_ERR + "You have not provided a valid number of parameters.");
 			subCommand.sendCmdHelp(sender);
 			return true;
 		}
@@ -135,7 +144,7 @@ public class WBCommand implements CommandExecutor
 
 	private boolean wasWorldQuotation = false;
 
-	// if world name is surrounded by quotation marks, combine it down and tag wasWorldQuotation if it's the first parameter
+	// if world name is surrounded by quotation marks, combine it down and flag wasWorldQuotation if it's first param.
 	// also return List<String> instead of input primitive String[]
 	private List<String> concatenateQuotedWorldName(String[] split)
 	{
@@ -189,6 +198,15 @@ public class WBCommand implements CommandExecutor
 			}
 		}
 		return args;
+	}
+
+	public Set<String> getCommandNames()
+	{
+		// using TreeSet to sort alphabetically
+		Set<String> commands = new TreeSet(subCommands.keySet());
+		// removing default "commands" command as it's not normally shown or run like other commands
+		commands.remove("commands");
+		return commands;
 	}
 
 }

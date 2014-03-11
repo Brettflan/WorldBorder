@@ -6,21 +6,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class WorldBorder extends JavaPlugin
 {
-	public static WorldBorder plugin;
-
-	public WorldBorder()
-	{
-		plugin = this;
-	}
+	public static volatile WorldBorder plugin = null;
+	public static volatile WBCommand wbCommand = null;
 
 	@Override
 	public void onEnable()
 	{
+		if (plugin == null)
+			plugin = this;
+		if (wbCommand == null)
+			wbCommand = new WBCommand();
+
 		// Load (or create new) config file
 		Config.load(this, false);
 
 		// our one real command, though it does also have aliases "wb" and "worldborder"
-		getCommand("wborder").setExecutor(new WBCommand(this));
+		getCommand("wborder").setExecutor(wbCommand);
 
 		// keep an eye on teleports, to redirect them to a spot inside the border if necessary
 		getServer().getPluginManager().registerEvents(new WBListener(), this);
@@ -43,8 +44,17 @@ public class WorldBorder extends JavaPlugin
 	}
 
 	// for other plugins to hook into
-	public BorderData GetWorldBorder(String worldName)
+	public BorderData getWorldBorder(String worldName)
 	{
 		return Config.Border(worldName);
+	}
+
+	/**
+	 * @deprecated  Replaced by {@link #getWorldBorder(String worldName)};
+	 * this method name starts with an uppercase letter, which it shouldn't
+	 */
+	public BorderData GetWorldBorder(String worldName)
+	{
+		return getWorldBorder(worldName);
 	}
 }

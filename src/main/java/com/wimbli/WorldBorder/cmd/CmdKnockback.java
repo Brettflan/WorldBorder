@@ -16,6 +16,17 @@ public class CmdKnockback extends WBCmd
 		minParams = maxParams = 1;
 
 		addCmdExample(nameEmphasized() + "<distance> - how far to move the player back.");
+		helpText = "Default value: 3.0 (blocks). Players who cross the border will be knocked back to this distance inside.";
+	}
+
+	@Override
+	public void cmdStatus(CommandSender sender)
+	{
+		double kb = Config.KnockBack();
+		if (kb < 1)
+			sender.sendMessage(C_HEAD + "Knockback is set to 0, disabling border enforcement.");
+		else
+			sender.sendMessage(C_HEAD + "Knockback is set to " + kb + " blocks inside the border.");
 	}
 
 	@Override
@@ -37,6 +48,6 @@ public class CmdKnockback extends WBCmd
 		Config.setKnockBack(numBlocks);
 
 		if (player != null)
-			sender.sendMessage("Knockback set to " + numBlocks + " blocks inside the border.");
+			cmdStatus(sender);
 	}
 }

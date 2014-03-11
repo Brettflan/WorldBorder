@@ -18,6 +18,8 @@ public class CmdRadius extends WBCmd
 		maxParams = 2;
 
 		addCmdExample(nameEmphasizedW() + "<radiusX> [radiusZ] - change radius.");
+		helpText = "Using this command you can adjust the radius of an existing border. If [radiusZ] is not " +
+			"specified, the radiusX value will be used for both.";
 	}
 
 	@Override

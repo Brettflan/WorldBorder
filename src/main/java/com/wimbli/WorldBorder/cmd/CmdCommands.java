@@ -42,8 +42,8 @@ public class CmdCommands extends WBCmd
 			page = (player == null) ? 0 : 1;
 
 		// send command example header
-		sender.sendMessage( clrHead + WorldBorder.plugin.getDescription().getFullName() + "  -  key: " +
-							commandEmphasized("command") + clrReq + "<required> " + clrOpt + "[optional]" );
+		sender.sendMessage( C_HEAD + WorldBorder.plugin.getDescription().getFullName() + "  -  key: " +
+							commandEmphasized("command") + C_REQ + "<required> " + C_OPT + "[optional]" );
 
 		if (page > 0)
 		{
@@ -56,11 +56,11 @@ public class CmdCommands extends WBCmd
 			}
 
 			// send page footer, if relevant; manual spacing to get right side lined up near edge is crude, but sufficient
-			String footer = clrHead + " (Page " + page + "/" + pageCount + ")              " + ((player == null) ? cmdC : cmdP);
+			String footer = C_HEAD + " (Page " + page + "/" + pageCount + ")              " + cmd(sender);
 			if (page < pageCount)
-				sender.sendMessage(footer + Integer.toString(page + 1) + clrDesc + " - view next page of commands.");
+				sender.sendMessage(footer + Integer.toString(page + 1) + C_DESC + " - view next page of commands.");
 			else if (page > 1)
-				sender.sendMessage(footer + clrDesc + "- view first page of commands.");
+				sender.sendMessage(footer + C_DESC + "- view first page of commands.");
 		}
 		else
 		{

@@ -17,8 +17,11 @@ public class CmdWshape extends WBCmd
 		maxParams = 2;
 
 		addCmdExample(nameEmphasized() + "{world} <elliptic|rectangular|default> - shape");
-		addCmdExample(clrDesc + "     override for a single world.", true, true, false);
+		addCmdExample(C_DESC + "     override for a single world.", true, true, false);
 		addCmdExample(nameEmphasized() + "{world} <round|square|default> - same as above.");
+		helpText = "This will override the default border shape for a single world. The value \"default\" implies " +
+			"a world is just using the default border shape. See the " + commandEmphasized("shape") + C_DESC +
+			"command for more info and to set the default border shape.";
 	}
 
 	@Override

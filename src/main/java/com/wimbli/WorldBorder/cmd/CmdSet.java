@@ -21,10 +21,13 @@ public class CmdSet extends WBCmd
 		minParams = 1;
 		maxParams = 4;
 
-		addCmdExample(nameEmphasized()  + "<radiusX> [radiusZ] - set border, centered on you.", true, false, true);
 		addCmdExample(nameEmphasizedW() + "<radiusX> [radiusZ] <x> <z> - use x/z coords.");
 		addCmdExample(nameEmphasizedW() + "<radiusX> [radiusZ] ^spawn - use spawn point.");
+		addCmdExample(nameEmphasized()  + "<radiusX> [radiusZ] - set border, centered on you.", true, false, true);
 		addCmdExample(nameEmphasized()  + "<radiusX> [radiusZ] ^player <name> - center on player.");
+		helpText = "Set a border for a world, with several options for defining the center location. [world] is " +
+			"optional for players and defaults to the world the player is in. If [radiusZ] is not specified, the " +
+			"radiusX value will be used for both. The <x> and <z> coordinates can be decimal values (ex. 1.234).";
 	}
 
 	@Override
@@ -33,7 +36,7 @@ public class CmdSet extends WBCmd
 		// passsing a single parameter (radiusX) is only acceptable from player
 		if ((params.size() == 1) && player == null)
 		{
-			sendErrorAndHelp(sender, "You have not provided a sufficient number of arguments.");
+			sendErrorAndHelp(sender, "You have not provided a sufficient number of parameters.");
 			return;
 		}
 
@@ -90,7 +93,7 @@ public class CmdSet extends WBCmd
 				z = loc.getZ();
 				radiusCount -= 1;
 			}
-			else if (params.get(params.size() - 2).equalsIgnoreCase("player"))
+			else if (params.size() > 2 && params.get(params.size() - 2).equalsIgnoreCase("player"))
 			{	// player name specified for x/z coordinates
 				Player playerT = Bukkit.getPlayer(params.get(params.size() - 1));
 				if (playerT == null || ! playerT.isOnline())
@@ -123,10 +126,16 @@ public class CmdSet extends WBCmd
 				radiusZ = radiusX;
 			else
 				radiusZ = Integer.parseInt(params.get(1));
+
+			if (radiusX < Config.KnockBack() || radiusZ < Config.KnockBack())
+			{
+				sendErrorAndHelp(sender, "Radius value(s) must be more than the knockback distance.");
+				return;
+			}
 		}
 		catch(NumberFormatException ex)
 		{
-			sendErrorAndHelp(sender, "The radius value(s) must be integers and the x and z values must be numerical.");
+			sendErrorAndHelp(sender, "Radius value(s) must be integers and x and z values must be numerical.");
 			return;
 		}
 

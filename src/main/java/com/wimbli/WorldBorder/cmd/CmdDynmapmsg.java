@@ -16,6 +16,15 @@ public class CmdDynmapmsg extends WBCmd
 		minParams = 1;
 
 		addCmdExample(nameEmphasized() + "<text> - DynMap border labels will show this.");
+		helpText = "Default value: \"The border of the world.\". If you are running the DynMap plugin and the " +
+			commandEmphasized("dynmap") + C_DESC + "command setting is enabled, the borders shown in DynMap will " +
+			"be labelled with this text.";
+	}
+
+	@Override
+	public void cmdStatus(CommandSender sender)
+	{
+		sender.sendMessage(C_HEAD + "DynMap border label is set to: " + C_ERR + Config.DynmapMessage());
 	}
 
 	@Override
@@ -34,6 +43,6 @@ public class CmdDynmapmsg extends WBCmd
 		Config.setDynmapMessage(message.toString());
 
 		if (player != null)
-			sender.sendMessage("DynMap border label is now set to: " + clrErr + Config.DynmapMessage());
+			cmdStatus(sender);
 	}
 }

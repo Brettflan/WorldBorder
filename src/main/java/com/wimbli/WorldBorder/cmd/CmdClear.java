@@ -20,6 +20,8 @@ public class CmdClear extends WBCmd
 
 		addCmdExample(nameEmphasizedW() + "- remove border for this world.");
 		addCmdExample(nameEmphasized()  + "^all - remove border for all worlds.");
+		helpText = "If run by an in-game player and [world] or \"all\" isn't specified, the world you are currently " +
+			"in is used.";
 	}
 
 	@Override

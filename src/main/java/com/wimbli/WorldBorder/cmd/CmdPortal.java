@@ -16,6 +16,15 @@ public class CmdPortal extends WBCmd
 		minParams = maxParams = 1;
 
 		addCmdExample(nameEmphasized() + "<on|off> - turn portal redirection on or off.");
+		helpText = "Default value: on. This feature monitors new portal creation and changes the target new portal " +
+			"location if it is outside of the border. Try disabling this if you have problems with other plugins " +
+			"related to portals.";
+	}
+
+	@Override
+	public void cmdStatus(CommandSender sender)
+	{
+		sender.sendMessage(C_HEAD + "Portal redirection is " + enabledColored(Config.portalRedirection()) + C_HEAD + ".");
 	}
 
 	@Override
@@ -26,7 +35,7 @@ public class CmdPortal extends WBCmd
 		if (player != null)
 		{
 			Config.log((Config.portalRedirection() ? "Enabled" : "Disabled") + " portal redirection at the command of player \"" + player.getName() + "\".");
-			sender.sendMessage("Portal redirection " + enabledColored(Config.portalRedirection()) + ".");
+			cmdStatus(sender);
 		}
 	}
 }

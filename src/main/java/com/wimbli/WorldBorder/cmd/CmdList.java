@@ -17,6 +17,8 @@ public class CmdList extends WBCmd
 		minParams = maxParams = 0;
 
 		addCmdExample(nameEmphasized() + "- show border information for all worlds.");
+		helpText = "This command will list full information for every border you have set including position, " +
+			"radius, and shape. The default border shape will also be indicated.";
 	}
 
 	@Override

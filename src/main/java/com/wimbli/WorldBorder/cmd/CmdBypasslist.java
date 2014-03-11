@@ -16,6 +16,8 @@ public class CmdBypasslist extends WBCmd
 		minParams = maxParams = 0;
 
 		addCmdExample(nameEmphasized() + "- list players with border bypass enabled.");
+		helpText = "The bypass list will persist between server restarts, and applies to all worlds. Use the " +
+			commandEmphasized("bypass") + C_DESC + "command to add or remove players.";
 	}
 
 	@Override

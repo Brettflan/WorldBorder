@@ -20,6 +20,9 @@ public class CmdTrim extends WBCmd
 		maxParams = 2;
 
 		addCmdExample(nameEmphasizedW() + "[freq] [pad] - trim world outside of border.");
+		helpText = "This command will remove chunks which are outside the world's border. [freq] is the frequency " +
+			"of chunks per second that will be checked (default 5000). [pad] is the number of blocks padding kept " +
+			"beyond the border itself (default 208, to cover player visual range).";
 	}
 
 	@Override
@@ -35,7 +38,7 @@ public class CmdTrim extends WBCmd
 			{
 				if (!makeSureTrimIsRunning(sender))
 					return;
-				sender.sendMessage(clrHead + "Cancelling the world map trimming task.");
+				sender.sendMessage(C_HEAD + "Cancelling the world map trimming task.");
 				trimDefaults();
 				Config.StopTrimTask();
 				return;
@@ -45,7 +48,7 @@ public class CmdTrim extends WBCmd
 				if (!makeSureTrimIsRunning(sender))
 					return;
 				Config.trimTask.pause();
-				sender.sendMessage(clrHead + "The world map trimming task is now " + (Config.trimTask.isPaused() ? "" : "un") + "paused.");
+				sender.sendMessage(C_HEAD + "The world map trimming task is now " + (Config.trimTask.isPaused() ? "" : "un") + "paused.");
 				return;
 			}
 
@@ -65,13 +68,13 @@ public class CmdTrim extends WBCmd
 		}
 
 		// colorized "/wb trim "
-		String cmd = ((player == null) ? cmdC : cmdP) + nameEmphasized() + clrCmd;
+		String cmd = cmd(sender) + nameEmphasized() + C_CMD;
 
 		// make sure Trim isn't already running
 		if (Config.trimTask != null && Config.trimTask.valid())
 		{
-			sender.sendMessage(clrErr + "The world map trimming task is already running.");
-			sender.sendMessage(clrDesc + "You can cancel at any time with " + cmd + "cancel" + clrDesc + ", or pause/unpause with " + cmd + "pause" + clrDesc + ".");
+			sender.sendMessage(C_ERR + "The world map trimming task is already running.");
+			sender.sendMessage(C_DESC + "You can cancel at any time with " + cmd + "cancel" + C_DESC + ", or pause/unpause with " + cmd + "pause" + C_DESC + ".");
 			return;
 		}
 
@@ -125,7 +128,7 @@ public class CmdTrim extends WBCmd
 				sender.sendMessage("WorldBorder map trimming task for world \"" + trimWorld + "\" started.");
 			}
 			else
-				sender.sendMessage(clrErr + "The world map trimming task failed to start.");
+				sender.sendMessage(C_ERR + "The world map trimming task failed to start.");
 
 			trimDefaults();
 		}
@@ -137,10 +140,10 @@ public class CmdTrim extends WBCmd
 				return;
 			}
 
-			sender.sendMessage(clrHead + "World trimming task is ready for world \"" + trimWorld + "\", attempting to process up to " + trimFrequency + " chunks per second (default 20). The map will be trimmed past " + trimPadding + " blocks beyond the border (default " + defaultPadding + ").");
-			sender.sendMessage(clrHead + "This process can take a very long time depending on the world's overall size. Also, depending on the chunk processing rate, players may experience lag for the duration.");
-			sender.sendMessage(clrDesc + "You should now use " + cmd + "confirm" + clrDesc + " to start the process.");
-			sender.sendMessage(clrDesc + "You can cancel at any time with " + cmd + "cancel" + clrDesc + ", or pause/unpause with " + cmd + "pause" + clrDesc + ".");
+			sender.sendMessage(C_HEAD + "World trimming task is ready for world \"" + trimWorld + "\", attempting to process up to " + trimFrequency + " chunks per second (default 20). The map will be trimmed past " + trimPadding + " blocks beyond the border (default " + defaultPadding + ").");
+			sender.sendMessage(C_HEAD + "This process can take a very long time depending on the world's overall size. Also, depending on the chunk processing rate, players may experience lag for the duration.");
+			sender.sendMessage(C_DESC + "You should now use " + cmd + "confirm" + C_DESC + " to start the process.");
+			sender.sendMessage(C_DESC + "You can cancel at any time with " + cmd + "cancel" + C_DESC + ", or pause/unpause with " + cmd + "pause" + C_DESC + ".");
 		}
 	}
 	

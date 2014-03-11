@@ -16,6 +16,14 @@ public class CmdWhoosh extends WBCmd
 		minParams = maxParams = 1;
 
 		addCmdExample(nameEmphasized() + "<on|off> - turn knockback effect on or off.");
+		helpText = "Default value: off. This will show a particle effect and play a sound where a player is knocked " +
+			"back from the border.";
+	}
+
+	@Override
+	public void cmdStatus(CommandSender sender)
+	{
+		sender.sendMessage(C_HEAD + "\"Whoosh\" knockback effect is " + enabledColored(Config.whooshEffect()) + C_HEAD + ".");
 	}
 
 	@Override
@@ -26,7 +34,7 @@ public class CmdWhoosh extends WBCmd
 		if (player != null)
 		{
 			Config.log((Config.whooshEffect() ? "Enabled" : "Disabled") + " \"whoosh\" knockback effect at the command of player \"" + player.getName() + "\".");
-			sender.sendMessage("\"Whoosh\" knockback effect " + enabledColored(Config.whooshEffect()) + ".");
+			cmdStatus(sender);
 		}
 	}
 }
