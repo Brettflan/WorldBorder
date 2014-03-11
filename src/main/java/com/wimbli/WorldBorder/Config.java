@@ -27,10 +27,10 @@ public class Config
 	private static WorldBorder plugin;
 	private static FileConfiguration cfg = null;
 	private static Logger wbLog = null;
-	public static DecimalFormat coord = new DecimalFormat("0.0");
+	public static volatile DecimalFormat coord = new DecimalFormat("0.0");
 	private static int borderTask = -1;
-	public static WorldFillTask fillTask;
-	public static WorldTrimTask trimTask;
+	public static volatile WorldFillTask fillTask = null;
+	public static volatile WorldTrimTask trimTask = null;
 	private static Runtime rt = Runtime.getRuntime();
 
 	// actual configuration values which can be changed
@@ -43,7 +43,7 @@ public class Config
 	private static boolean DEBUG = false;
 	private static double knockBack = 3.0;
 	private static int timerTicks = 4;
-	private static boolean whooshEffect = false;
+	private static boolean whooshEffect = true;
 	private static boolean portalRedirection = true;
 	private static boolean dynmapEnable = true;
 	private static String dynmapMessage;
@@ -541,7 +541,7 @@ public class Config
 		String msg = cfg.getString("message");
 		shapeRound = cfg.getBoolean("round-border", true);
 		DEBUG = cfg.getBoolean("debug-mode", false);
-		whooshEffect = cfg.getBoolean("whoosh-effect", false);
+		whooshEffect = cfg.getBoolean("whoosh-effect", true);
 		portalRedirection = cfg.getBoolean("portal-redirection", true);
 		knockBack = cfg.getDouble("knock-back-dist", 3.0);
 		timerTicks = cfg.getInt("timer-delay-ticks", 5);

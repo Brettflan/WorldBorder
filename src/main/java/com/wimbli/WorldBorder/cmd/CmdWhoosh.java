@@ -16,7 +16,7 @@ public class CmdWhoosh extends WBCmd
 		minParams = maxParams = 1;
 
 		addCmdExample(nameEmphasized() + "<on|off> - turn knockback effect on or off.");
-		helpText = "Default value: off. This will show a particle effect and play a sound where a player is knocked " +
+		helpText = "Default value: on. This will show a particle effect and play a sound where a player is knocked " +
 			"back from the border.";
 	}
 

@@ -11,17 +11,18 @@ commands:
     aliases: [worldborder, wb]
     usage: |
            /<command> - list available commands (show help).
-           /<command> set <radiusX> [radiusZ] - set world border, centered on you.
+           /<command> help [command] - get help on command usage.
            /<command> [world] set <radiusX> [radiusZ] <x> <z> - set world border.
            /<command> [world] set <radiusX> [radiusZ] spawn - use spawn point.
+           /<command> set <radiusX> [radiusZ] - set world border, centered on you.
            /<command> set <radiusX> [radiusZ] player <name> - center on player.
            /<command> [world] setcorners <x1> <z1> <x2> <z2> - set border from corners.
            /<command> [world] radius <radiusX> [radiusZ] - change border's radius.
+           /<command> list - show border information for all worlds.
            /<command> shape <elliptic|rectangular> - set the default border shape.
            /<command> shape <round|square> - same as above, backwards compatible.
            /<command> [world] clear - remove border for this world.
            /<command> clear all - remove border for all worlds.
-           /<command> list - show border information for all worlds.
            /<command> [world] fill [freq] [pad] [force] - generate world to border.
            /<command> [world] trim [freq] [pad] - trim world outside of border.
            /<command> bypass [player] [on/off] - let player go beyond border.
@@ -31,9 +32,9 @@ commands:
            /<command> whoosh <on/off> - turn knockback effect on or off.
            /<command> getmsg - display border message.
            /<command> setmsg <text> - set border message.
-           /<command> delay <amount> - time between border checks.
            /<command> wshape [world] <elliptic|rectangular|default> - override shape.
            /<command> wshape [world] <round|square|default> - same as above values.
+           /<command> delay <amount> - time between border checks.
            /<command> dynmap <on/off> - turn DynMap border display on or off.
            /<command> dynmapmsg <text> - DynMap border labels will show this.
            /<command> remount <amount> - delay before remounting after knockback.
