@@ -99,6 +99,19 @@ public class BorderCheckTask implements Runnable
 			}
 		}
 
+		// check if player has something (a pet, maybe?) riding them; only possible through odd plugins.
+		// it can prevent all teleportation of the player completely, so it's very much not good and needs handling
+		if (player.getPassenger() != null)
+		{
+			Entity rider = player.getPassenger();
+			player.eject();
+			rider.teleport(newLoc, TeleportCause.PLUGIN);
+			player.sendMessage("Your passenger has been ejected.");
+			if (Config.Debug())
+				Config.logWarn("Player had a passenger riding on them: " + rider.getType());
+		}
+
+
 		// give some particle and sound effects where the player was beyond the border, if "whoosh effect" is enabled
 		Config.showWhooshEffect(loc);
 
