@@ -312,7 +312,7 @@ public class WorldFillTask implements Runnable
 		this.paused = true;
 		reportProgress();
 		world.save();
-		sendMessage("task successfully completed!");
+		sendMessage("task successfully completed for world \"" + refWorld() + "\"!");
 		this.stop();
 	}
 
