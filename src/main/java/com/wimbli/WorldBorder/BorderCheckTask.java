@@ -53,7 +53,7 @@ public class BorderCheckTask implements Runnable
 			return null;
 
 		// if player is in bypass list (from bypass command), allow them beyond border; also ignore players currently being handled already
-		if (Config.isPlayerBypassing(player.getName()) || handlingPlayers.contains(player.getName().toLowerCase()))
+		if (Config.isPlayerBypassing(player.getUniqueId()) || handlingPlayers.contains(player.getName().toLowerCase()))
 			return null;
 
 		// tag this player as being handled so we can't get stuck in a loop due to Bukkit currently sometimes repeatedly providing incorrect location through teleport event

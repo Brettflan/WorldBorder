@@ -6,11 +6,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -36,7 +38,7 @@ public class Config
 	// actual configuration values which can be changed
 	private static boolean shapeRound = true;
 	private static Map<String, BorderData> borders = Collections.synchronizedMap(new LinkedHashMap<String, BorderData>());
-	private static Set<String> bypassPlayers = Collections.synchronizedSet(new LinkedHashSet<String>());
+	private static Set<UUID> bypassPlayers = Collections.synchronizedSet(new LinkedHashSet<UUID>());
 	private static String message;		// raw message without color code formatting
 	private static String messageFmt;	// message with color code formatting ("&" changed to funky sort-of-double-dollar-sign for legitimate color/formatting codes)
 	private static String messageClean;	// message cleaned of formatting codes
@@ -373,32 +375,42 @@ public class Config
 		return dynmapMessage;
 	}
 
-	public static void setPlayerBypass(String player, boolean bypass)
+	public static void setPlayerBypass(UUID player, boolean bypass)
 	{
 		if (bypass)
-			bypassPlayers.add(player.toLowerCase());
+			bypassPlayers.add(player);
 		else
-			bypassPlayers.remove(player.toLowerCase());
+			bypassPlayers.remove(player);
+		save(true);
 	}
 
-	public static boolean isPlayerBypassing(String player)
+	public static boolean isPlayerBypassing(UUID player)
 	{
-		return bypassPlayers.contains(player.toLowerCase());
+		return bypassPlayers.contains(player);
 	}
 
-	public static void togglePlayerBypass(String player)
+	public static ArrayList<UUID> getPlayerBypassList()
 	{
-		setPlayerBypass(player, !isPlayerBypassing(player));
+		return new ArrayList(bypassPlayers);
 	}
 
-	public static String getPlayerBypassList()
+	// for converting bypass UUID list to/from String list, for storage in config
+	private static void importBypassStringList(List<String> strings)
 	{
-		if (bypassPlayers.isEmpty())
-			return "<none>";
-		String newString = bypassPlayers.toString();
-		return newString.substring(1, newString.length() - 1);
+		for (String string: strings)
+		{
+			bypassPlayers.add(UUID.fromString(string));
+		}
 	}
-
+	private static ArrayList<String> exportBypassStringList()
+	{
+		ArrayList<String> strings = new ArrayList<String>();
+		for (UUID uuid: bypassPlayers)
+		{
+			strings.add(uuid.toString());
+		}
+		return strings;
+	}
 
 
 	public static boolean isBorderTimerRunning()
@@ -526,7 +538,7 @@ public class Config
 	}
 
 
-	private static final int currentCfgVersion = 10;
+	private static final int currentCfgVersion = 11;
 
 	public static void load(WorldBorder master, boolean logIt)
 	{	// load config from file
@@ -552,7 +564,7 @@ public class Config
 		killPlayer = cfg.getBoolean("player-killed-bad-spawn", false);
 		denyEnderpearl = cfg.getBoolean("deny-enderpearl", true);
 		fillAutosaveFrequency = cfg.getInt("fill-autosave-frequency", 30);
-		bypassPlayers = Collections.synchronizedSet(new LinkedHashSet<String>(cfg.getStringList("bypass-list")));
+		importBypassStringList(cfg.getStringList("bypass-list-uuids"));
 		fillMemoryTolerance = cfg.getInt("fill-memory-tolerance", 500);
 
 		StartBorderTimer();
@@ -578,6 +590,10 @@ public class Config
 		// this option defaulted to false previously, but what it actually does has changed to something that almost everyone should now want by default
 		if (cfgVersion < 10)
 			denyEnderpearl = true;
+
+		// the border bypass list used to be stored as list of names rather than UUIDs; wipe that old list so the data won't be automatically saved back to the config file again
+		if (cfgVersion < 11)
+			cfg.set("bypass-list", null);
 
 		ConfigurationSection worlds = cfg.getConfigurationSection("worlds");
 		if (worlds != null)
@@ -654,7 +670,7 @@ public class Config
 		cfg.set("player-killed-bad-spawn", killPlayer);
 		cfg.set("deny-enderpearl", denyEnderpearl);
 		cfg.set("fill-autosave-frequency", fillAutosaveFrequency);
-		cfg.set("bypass-list", new ArrayList<String>(bypassPlayers));
+		cfg.set("bypass-list-uuids", exportBypassStringList());
 		cfg.set("fill-memory-tolerance", fillMemoryTolerance);
 
 		cfg.set("worlds", null);
