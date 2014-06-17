@@ -19,7 +19,8 @@ public class CmdRadius extends WBCmd
 
 		addCmdExample(nameEmphasizedW() + "<radiusX> [radiusZ] - change radius.");
 		helpText = "Using this command you can adjust the radius of an existing border. If [radiusZ] is not " +
-			"specified, the radiusX value will be used for both.";
+			"specified, the radiusX value will be used for both. You can also optionally specify + or - at the start " +
+			"of <radiusX> and [radiusZ] to increase or decrease the existing radius rather than setting a new value.";
 	}
 
 	@Override
@@ -41,29 +42,38 @@ public class CmdRadius extends WBCmd
 		int radiusZ;
 		try
 		{
-			if (params.get(0).startsWith('+')){
+			if (params.get(0).startsWith("+"))
+			{
 				// Add to the current radius
-				radiusX = Config.getBorder(worldName).getRadiusX();
+				radiusX = border.getRadiusX();
 				radiusX += Integer.parseInt(params.get(0).substring(1));
-			}else if(params.get(0).startsWith('-')){
-				// Subtract from the current radius
-				radiusX = Config.getBorder(worldName).getRadiusX();
-				radiusX -= Integer.parseInt(params.get(0).substring(1));
-			}else{
-				radiusX = Integer.parseInt(params.get(0));	
 			}
+			else if(params.get(0).startsWith("-"))
+			{
+				// Subtract from the current radius
+				radiusX = border.getRadiusX();
+				radiusX -= Integer.parseInt(params.get(0).substring(1));
+			}
+			else
+				radiusX = Integer.parseInt(params.get(0));	
+
 			if (params.size() == 2)
-				if (params.get(0).startsWith('+')){
+			{
+				if (params.get(0).startsWith("+"))
+				{
 					// Add to the current radius
-					radiusZ = Config.getBorder(worldName).getRadiusZ();
+					radiusZ = border.getRadiusZ();
 					radiusZ += Integer.parseInt(params.get(1).substring(1));
-				}else if(params.get(0).startsWith('-')){
-					// Subtract from the current radius
-					radiusZ = Config.getBorder(worldName).getRadiusZ();
-					radiusZ -= Integer.parseInt(params.get(1).substring(1));
-				}else{
-					radiusZ = Integer.parseInt(params.get(1));
 				}
+				else if(params.get(0).startsWith("-"))
+				{
+					// Subtract from the current radius
+					radiusZ = border.getRadiusZ();
+					radiusZ -= Integer.parseInt(params.get(1).substring(1));
+				}
+				else
+					radiusZ = Integer.parseInt(params.get(1));
+			}
 			else
 				radiusZ = radiusX;
 		}
