@@ -41,9 +41,29 @@ public class CmdRadius extends WBCmd
 		int radiusZ;
 		try
 		{
-			radiusX = Integer.parseInt(params.get(0));
+			if (params.get(0).startsWith('+')){
+				// Add to the current radius
+				radiusX = Config.getBorder(worldName).getRadiusX();
+				radiusX += Integer.parseInt(params.get(0).substring(1));
+			}else if(params.get(0).startsWith('-')){
+				// Subtract from the current radius
+				radiusX = Config.getBorder(worldName).getRadiusX();
+				radiusX -= Integer.parseInt(params.get(0).substring(1));
+			}else{
+				radiusX = Integer.parseInt(params.get(0));	
+			}
 			if (params.size() == 2)
-				radiusZ = Integer.parseInt(params.get(1));
+				if (params.get(0).startsWith('+')){
+					// Add to the current radius
+					radiusZ = Config.getBorder(worldName).getRadiusZ();
+					radiusZ += Integer.parseInt(params.get(1).substring(1));
+				}else if(params.get(0).startsWith('-')){
+					// Subtract from the current radius
+					radiusZ = Config.getBorder(worldName).getRadiusZ();
+					radiusZ -= Integer.parseInt(params.get(1).substring(1));
+				}else{
+					radiusZ = Integer.parseInt(params.get(1));
+				}
 			else
 				radiusZ = radiusX;
 		}
