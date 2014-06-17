@@ -59,13 +59,13 @@ public class CmdRadius extends WBCmd
 
 			if (params.size() == 2)
 			{
-				if (params.get(0).startsWith("+"))
+				if (params.get(1).startsWith("+"))
 				{
 					// Add to the current radius
 					radiusZ = border.getRadiusZ();
 					radiusZ += Integer.parseInt(params.get(1).substring(1));
 				}
-				else if(params.get(0).startsWith("-"))
+				else if(params.get(1).startsWith("-"))
 				{
 					// Subtract from the current radius
 					radiusZ = border.getRadiusZ();
