@@ -8,6 +8,7 @@ public class WorldBorder extends JavaPlugin
 {
 	public static volatile WorldBorder plugin = null;
 	public static volatile WBCommand wbCommand = null;
+	private BlockPlaceListener blockPlaceListener = null;
 
 	@Override
 	public void onEnable()
@@ -25,6 +26,10 @@ public class WorldBorder extends JavaPlugin
 
 		// keep an eye on teleports, to redirect them to a spot inside the border if necessary
 		getServer().getPluginManager().registerEvents(new WBListener(), this);
+		
+		if (Config.preventBlockPlace()) {
+			enableBlockPlaceListener(true);
+		}
 
 		// integrate with DynMap if it's available
 		DynMapFeatures.setup();
@@ -56,5 +61,14 @@ public class WorldBorder extends JavaPlugin
 	public BorderData GetWorldBorder(String worldName)
 	{
 		return getWorldBorder(worldName);
+	}
+
+	public void enableBlockPlaceListener(boolean enable) {
+		if (enable) {
+			getServer().getPluginManager().registerEvents(this.blockPlaceListener = new BlockPlaceListener(), this);
+		} else {
+			blockPlaceListener.unregister();
+		}
+		
 	}
 }

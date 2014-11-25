@@ -42,6 +42,7 @@ public class WBCommand implements CommandExecutor
 		addCmd(new CmdKnockback());		// 1
 		addCmd(new CmdWrap());			// 1
 		addCmd(new CmdWhoosh());		// 1
+		addCmd(new CmdPreventPlace());	// 1
 		addCmd(new CmdGetmsg());		// 1
 		addCmd(new CmdSetmsg());		// 1
 		addCmd(new CmdWshape());		// 3
