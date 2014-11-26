@@ -54,6 +54,7 @@ public class Config
 	private static boolean denyEnderpearl = false;
 	private static int fillAutosaveFrequency = 30;
 	private static int fillMemoryTolerance = 500;
+	private static boolean preventBlockPlace = false;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -258,6 +259,18 @@ public class Config
 		world.playEffect(loc, Effect.SMOKE, 4);
 		world.playEffect(loc, Effect.SMOKE, 4);
 		world.playEffect(loc, Effect.GHAST_SHOOT, 0);
+	}
+	
+	public static void setPreventBlockPlace(boolean enable)
+	{
+		preventBlockPlace = enable;
+		log("prevent block place " + (enable ? "enabled" : "disabled") + ".");
+		save(true);
+	}
+	
+	public static boolean preventBlockPlace()
+	{
+		return preventBlockPlace;
 	}
 
 	public static boolean getIfPlayerKill()
@@ -566,6 +579,7 @@ public class Config
 		fillAutosaveFrequency = cfg.getInt("fill-autosave-frequency", 30);
 		importBypassStringList(cfg.getStringList("bypass-list-uuids"));
 		fillMemoryTolerance = cfg.getInt("fill-memory-tolerance", 500);
+		preventBlockPlace = cfg.getBoolean("prevent-block-place");
 
 		StartBorderTimer();
 
@@ -672,6 +686,7 @@ public class Config
 		cfg.set("fill-autosave-frequency", fillAutosaveFrequency);
 		cfg.set("bypass-list-uuids", exportBypassStringList());
 		cfg.set("fill-memory-tolerance", fillMemoryTolerance);
+		cfg.set("prevent-block-place", preventBlockPlace);
 
 		cfg.set("worlds", null);
 		for(Entry<String, BorderData> stringBorderDataEntry : borders.entrySet())
