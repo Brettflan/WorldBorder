@@ -1,8 +1,11 @@
 package com.wimbli.WorldBorder;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import com.google.common.collect.ImmutableList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Boat;
@@ -25,11 +28,11 @@ public class BorderCheckTask implements Runnable
 		if (Config.KnockBack() == 0.0)
 			return;
 
-		Player[] players = Bukkit.getServer().getOnlinePlayers();
+		Collection players = ImmutableList.copyOf(Bukkit.getServer().getOnlinePlayers());
 
-		for (int i = 0; i < players.length; i++)
+		for (Object player : players)
 		{
-			checkPlayer(players[i], null, false, true);
+			checkPlayer((Player)player, null, false, true);
 		}
 	}
 

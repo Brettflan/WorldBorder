@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wimbli.WorldBorder</groupId>
 	<artifactId>WorldBorder</artifactId>
-	<version>1.8.1</version>
+	<version>1.8.2_dev</version>
 	<name>WorldBorder</name>
 	<url>https://github.com/Brettflan/WorldBorder</url>
 	<issueManagement>
@@ -17,8 +17,8 @@
 
 	<repositories>
 		<repository>
-			<id>bukkit-repo</id>
-			<url>http://repo.bukkit.org/content/groups/public/</url>
+			<id>spigot-repo</id>
+			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
 		</repository>
 		<repository>
 			<id>dynmap-repo</id>
@@ -27,11 +27,19 @@
 	</repositories>
 
 	<dependencies>
+		<!--Spigot-API-->
+		<dependency>
+			<groupId>org.spigotmc</groupId>
+			<artifactId>spigot-api</artifactId>
+			<version>1.8-R0.1-SNAPSHOT</version>
+		</dependency>
+		<!--Bukkit API-->
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.7.9-R0.3-SNAPSHOT</version>
+			<version>1.8-R0.1-SNAPSHOT</version>
 		</dependency>
+		<!--Dynmap API-->
 		<dependency>
 			<groupId>org.dynmap</groupId>
 			<artifactId>dynmap-api</artifactId>
