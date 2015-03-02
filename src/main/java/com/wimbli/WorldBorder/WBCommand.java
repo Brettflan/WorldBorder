@@ -209,5 +209,4 @@ public class WBCommand implements CommandExecutor
 		commands.remove("commands");
 		return commands;
 	}
-
 }
