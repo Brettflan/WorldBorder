@@ -1,14 +1,14 @@
 name: WorldBorder
 author: Brettflan
 description: Efficient, feature-rich plugin for limiting the size of your worlds.
-version: 1.8.2
+version: 1.8.3
 main: com.wimbli.WorldBorder.WorldBorder
 softdepend:
   - dynmap
 commands:
   wborder:
     description: Primary command for WorldBorder.
-    aliases: [worldborder, wb]
+    aliases: [wb]
     usage: |
            /<command> - list available commands (show help).
            /<command> help [command] - get help on command usage.
