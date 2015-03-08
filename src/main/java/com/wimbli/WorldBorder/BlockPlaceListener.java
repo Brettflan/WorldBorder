@@ -8,7 +8,9 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-public class BlockPlaceListener implements Listener {
+
+public class BlockPlaceListener implements Listener 
+{
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event)
 	{
@@ -20,12 +22,14 @@ public class BlockPlaceListener implements Listener {
 		BorderData border = Config.Border(world.getName());
 		if (border == null) return;
 		
-		if (!border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound())) {
+		if (!border.insideBorder(loc.getX(), loc.getZ(), Config.ShapeRound())) 
+		{
 			event.setCancelled(true);
 		}
 	}
 
-	public void unregister() {
+	public void unregister() 
+	{
 		HandlerList.unregisterAll(this);
 	}
 }

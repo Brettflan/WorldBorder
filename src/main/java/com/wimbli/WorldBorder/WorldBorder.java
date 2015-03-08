@@ -27,7 +27,8 @@ public class WorldBorder extends JavaPlugin
 		// keep an eye on teleports, to redirect them to a spot inside the border if necessary
 		getServer().getPluginManager().registerEvents(new WBListener(), this);
 		
-		if (Config.preventBlockPlace()) {
+		if (Config.preventBlockPlace()) 
+		{
 			enableBlockPlaceListener(true);
 		}
 
@@ -64,11 +65,13 @@ public class WorldBorder extends JavaPlugin
 	}
 
 	public void enableBlockPlaceListener(boolean enable) {
-		if (enable) {
+		if (enable) 
+		{
 			getServer().getPluginManager().registerEvents(this.blockPlaceListener = new BlockPlaceListener(), this);
-		} else {
+		} 
+		else 
+		{
 			blockPlaceListener.unregister();
 		}
-		
 	}
 }
