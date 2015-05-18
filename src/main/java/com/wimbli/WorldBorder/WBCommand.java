@@ -47,14 +47,15 @@ public class WBCommand implements CommandExecutor
 		addCmd(new CmdWshape());		// 3
 		//-----
 		addCmd(new CmdPreventPlace());	// 1
+		addCmd(new CmdPreventSpawn());	// 1
 		addCmd(new CmdDelay());			// 1
 		addCmd(new CmdDynmap());		// 1
 		addCmd(new CmdDynmapmsg());		// 1
 		addCmd(new CmdRemount());		// 1
 		addCmd(new CmdFillautosave());	// 1
 		addCmd(new CmdPortal());		// 1
-		addCmd(new CmdDenypearl());		// 1
 		//-----
+		addCmd(new CmdDenypearl());		// 1
 		addCmd(new CmdReload());		// 1
 		addCmd(new CmdDebug());			// 1
 
