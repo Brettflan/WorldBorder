@@ -264,6 +264,9 @@ public class Config
 	
 	public static void setPreventBlockPlace(boolean enable)
 	{
+		if (preventBlockPlace != enable)
+			WorldBorder.plugin.enableBlockPlaceListener(enable);
+
 		preventBlockPlace = enable;
 		log("prevent block place " + (enable ? "enabled" : "disabled") + ".");
 		save(true);
@@ -271,6 +274,9 @@ public class Config
 	
 	public static void setPreventMobSpawn(boolean enable)
 	{
+		if (preventMobSpawn != enable)
+			WorldBorder.plugin.enableMobSpawnListener(enable);
+
 		preventMobSpawn = enable;
 		log("prevent mob spawn " + (enable ? "enabled" : "disabled") + ".");
 		save(true);

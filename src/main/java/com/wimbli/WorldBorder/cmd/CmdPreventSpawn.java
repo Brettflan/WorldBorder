@@ -1,7 +1,6 @@
 package com.wimbli.WorldBorder.cmd;
 
 import com.wimbli.WorldBorder.Config;
-import com.wimbli.WorldBorder.WorldBorder;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -11,8 +10,7 @@ public class CmdPreventSpawn extends WBCmd {
 
 	public CmdPreventSpawn() {
 		name = permission = "preventmobspawn";
-		minParams = 0;
-		maxParams = 1;
+		minParams = maxParams = 1;
 
 		addCmdExample(nameEmphasized() + "<on|off> - stop mob spawning past border.");
 		helpText = "Default value: off. When enabled, this setting will prevent mobs from naturally spawning outside the world's border.";
@@ -27,13 +25,7 @@ public class CmdPreventSpawn extends WBCmd {
 	@Override
 	public void execute(CommandSender sender, Player player, List<String> params, String worldName)
 	{
-		if (params.size() == 1) {
-			boolean previousSetting = Config.preventMobSpawn();
-			Config.setPreventMobSpawn(strAsBool(params.get(0)));
-			if (previousSetting != Config.preventMobSpawn()) {
-				WorldBorder.plugin.enableMobSpawnListener(Config.preventMobSpawn());
-			}
-		}
+		Config.setPreventMobSpawn(strAsBool(params.get(0)));
 
 		if (player != null)
 		{

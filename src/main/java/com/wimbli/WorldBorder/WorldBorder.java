@@ -29,14 +29,10 @@ public class WorldBorder extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new WBListener(), this);
 		
 		if (Config.preventBlockPlace()) 
-		{
 			enableBlockPlaceListener(true);
-		}
 
 		if (Config.preventMobSpawn())
-		{
 			enableMobSpawnListener(true);
-		}
 
 		// integrate with DynMap if it's available
 		DynMapFeatures.setup();
@@ -70,25 +66,19 @@ public class WorldBorder extends JavaPlugin
 		return getWorldBorder(worldName);
 	}
 
-	public void enableBlockPlaceListener(boolean enable) {
+	public void enableBlockPlaceListener(boolean enable)
+	{
 		if (enable) 
-		{
 			getServer().getPluginManager().registerEvents(this.blockPlaceListener = new BlockPlaceListener(), this);
-		} 
 		else if (blockPlaceListener != null)
-		{
 			blockPlaceListener.unregister();
-		}
 	}
 
-	public void enableMobSpawnListener(boolean enable) {
+	public void enableMobSpawnListener(boolean enable)
+	{
 		if (enable)
-		{
 			getServer().getPluginManager().registerEvents(this.mobSpawnListener = new MobSpawnListener(), this);
-		}
 		else if (mobSpawnListener != null)
-		{
 			mobSpawnListener.unregister();
-		}
 	}
 }
