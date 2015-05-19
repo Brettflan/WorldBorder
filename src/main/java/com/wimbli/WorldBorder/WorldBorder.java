@@ -9,6 +9,7 @@ public class WorldBorder extends JavaPlugin
 	public static volatile WorldBorder plugin = null;
 	public static volatile WBCommand wbCommand = null;
 	private BlockPlaceListener blockPlaceListener = null;
+	private MobSpawnListener mobSpawnListener = null;
 
 	@Override
 	public void onEnable()
@@ -30,6 +31,11 @@ public class WorldBorder extends JavaPlugin
 		if (Config.preventBlockPlace()) 
 		{
 			enableBlockPlaceListener(true);
+		}
+
+		if (Config.preventMobSpawn())
+		{
+			enableMobSpawnListener(true);
 		}
 
 		// integrate with DynMap if it's available
@@ -69,9 +75,20 @@ public class WorldBorder extends JavaPlugin
 		{
 			getServer().getPluginManager().registerEvents(this.blockPlaceListener = new BlockPlaceListener(), this);
 		} 
-		else 
+		else if (blockPlaceListener != null)
 		{
 			blockPlaceListener.unregister();
+		}
+	}
+
+	public void enableMobSpawnListener(boolean enable) {
+		if (enable)
+		{
+			getServer().getPluginManager().registerEvents(this.mobSpawnListener = new MobSpawnListener(), this);
+		}
+		else if (mobSpawnListener != null)
+		{
+			mobSpawnListener.unregister();
 		}
 	}
 }

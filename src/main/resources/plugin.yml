@@ -42,6 +42,7 @@ commands:
            /<command> portal <on/off> - turn portal redirection on or off.
            /<command> denypearl <on/off> - stop ender pearls thrown past the border.
            /<command> preventblockplace <on|off> - stop block placement past border.
+           /<command> preventmobspawn <on|off> - stop mob spawning past border.
            /<command> reload - re-load data from config.yml.
            /<command> debug <on/off> - turn debug mode on or off.
 permissions:
@@ -64,6 +65,7 @@ permissions:
       worldborder.list: true
       worldborder.portal: true
       worldborder.preventblockplace: true
+      worldborder.preventmobspawn: true
       worldborder.radius: true
       worldborder.reload: true
       worldborder.remount: true
@@ -121,6 +123,9 @@ permissions:
     default: op
   worldborder.preventblockplace:
     description: Can prevent placement of blocks outside the border
+    default: op
+  worldborder.preventmobspawn:
+    description: Can prevent spawning of mobs outside the border
     default: op
   worldborder.radius:
     description: Can set the radius of an existing border

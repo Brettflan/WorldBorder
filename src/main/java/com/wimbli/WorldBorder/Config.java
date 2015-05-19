@@ -55,6 +55,7 @@ public class Config
 	private static int fillAutosaveFrequency = 30;
 	private static int fillMemoryTolerance = 500;
 	private static boolean preventBlockPlace = false;
+	private static boolean preventMobSpawn = false;
 
 	// for monitoring plugin efficiency
 //	public static long timeUsed = 0;
@@ -268,9 +269,21 @@ public class Config
 		save(true);
 	}
 	
+	public static void setPreventMobSpawn(boolean enable)
+	{
+		preventMobSpawn = enable;
+		log("prevent mob spawn " + (enable ? "enabled" : "disabled") + ".");
+		save(true);
+	}
+
 	public static boolean preventBlockPlace()
 	{
 		return preventBlockPlace;
+	}
+
+	public static boolean preventMobSpawn()
+	{
+		return preventMobSpawn;
 	}
 
 	public static boolean getIfPlayerKill()
@@ -580,6 +593,7 @@ public class Config
 		importBypassStringList(cfg.getStringList("bypass-list-uuids"));
 		fillMemoryTolerance = cfg.getInt("fill-memory-tolerance", 500);
 		preventBlockPlace = cfg.getBoolean("prevent-block-place");
+		preventMobSpawn = cfg.getBoolean("prevent-mob-spawn");
 
 		StartBorderTimer();
 
@@ -687,6 +701,7 @@ public class Config
 		cfg.set("bypass-list-uuids", exportBypassStringList());
 		cfg.set("fill-memory-tolerance", fillMemoryTolerance);
 		cfg.set("prevent-block-place", preventBlockPlace);
+		cfg.set("prevent-mob-spawn", preventMobSpawn);
 
 		cfg.set("worlds", null);
 		for(Entry<String, BorderData> stringBorderDataEntry : borders.entrySet())
