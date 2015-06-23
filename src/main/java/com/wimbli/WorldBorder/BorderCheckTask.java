@@ -28,11 +28,11 @@ public class BorderCheckTask implements Runnable
 		if (Config.KnockBack() == 0.0)
 			return;
 
-		Collection players = ImmutableList.copyOf(Bukkit.getServer().getOnlinePlayers());
+		Collection<Player> players = ImmutableList.copyOf(Bukkit.getServer().getOnlinePlayers());
 
-		for (Object player : players)
+		for (Player player : players)
 		{
-			checkPlayer((Player)player, null, false, true);
+			checkPlayer(player, null, false, true);
 		}
 	}
 
