@@ -1,14 +1,16 @@
 package com.wimbli.WorldBorder;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Set;
-
+import com.wimbli.WorldBorder.Events.WorldBorderFillFinishedEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
+
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 
 public class WorldFillTask implements Runnable
@@ -312,6 +314,7 @@ public class WorldFillTask implements Runnable
 		this.paused = true;
 		reportProgress();
 		world.save();
+		Bukkit.getServer().getPluginManager().callEvent(new WorldBorderFillFinishedEvent(world, reportTotal));
 		sendMessage("task successfully completed for world \"" + refWorld() + "\"!");
 		this.stop();
 	}
