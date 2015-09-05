@@ -1,17 +1,18 @@
 package com.wimbli.WorldBorder;
 
-import com.wimbli.WorldBorder.Events.WorldBorderTrimFinishedEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.Server;
+import org.bukkit.World;
+
+import com.wimbli.WorldBorder.Events.WorldBorderTrimFinishedEvent;
 
 
 public class WorldTrimTask implements Runnable

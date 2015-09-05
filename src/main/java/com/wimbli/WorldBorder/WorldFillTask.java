@@ -1,16 +1,17 @@
 package com.wimbli.WorldBorder;
 
-import com.wimbli.WorldBorder.Events.WorldBorderFillFinishedEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Server;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
+import org.bukkit.entity.Player;
+import org.bukkit.Server;
+import org.bukkit.World;
+
+import com.wimbli.WorldBorder.Events.WorldBorderFillFinishedEvent;
 
 
 public class WorldFillTask implements Runnable
