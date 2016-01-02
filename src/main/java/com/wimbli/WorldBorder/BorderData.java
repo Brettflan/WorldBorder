@@ -315,7 +315,7 @@ public class BorderData
 			);
 	}
 
-	private static final int limBot = 1;
+	private static final int limBot = 0;
 
 	// find closest safe Y position from the starting position
 	private double getSafeY(World world, int X, int Y, int Z, boolean flying)
