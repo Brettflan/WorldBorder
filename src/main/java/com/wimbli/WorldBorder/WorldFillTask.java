@@ -12,6 +12,7 @@ import org.bukkit.Server;
 import org.bukkit.World;
 
 import com.wimbli.WorldBorder.Events.WorldBorderFillFinishedEvent;
+import com.wimbli.WorldBorder.Events.WorldBorderFillStartEvent;
 
 
 public class WorldFillTask implements Runnable
@@ -117,6 +118,7 @@ public class WorldFillTask implements Runnable
 		}
 
 		this.readyToGo = true;
+		Bukkit.getServer().getPluginManager().callEvent(new WorldBorderFillStartEvent(this));
 	}
 	// for backwards compatibility
 	public WorldFillTask(Server theServer, Player player, String worldName, int fillDistance, int chunksPerRun, int tickFrequency)

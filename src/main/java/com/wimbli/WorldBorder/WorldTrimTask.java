@@ -13,6 +13,7 @@ import org.bukkit.Server;
 import org.bukkit.World;
 
 import com.wimbli.WorldBorder.Events.WorldBorderTrimFinishedEvent;
+import com.wimbli.WorldBorder.Events.WorldBorderTrimStartEvent;
 
 
 public class WorldTrimTask implements Runnable
@@ -88,6 +89,7 @@ public class WorldTrimTask implements Runnable
 			return;
 
 		this.readyToGo = true;
+		Bukkit.getServer().getPluginManager().callEvent(new WorldBorderTrimStartEvent(this));
 	}
 
 	public void setTaskID(int ID)
