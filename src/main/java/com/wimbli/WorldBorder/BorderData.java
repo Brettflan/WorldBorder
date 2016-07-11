@@ -321,7 +321,33 @@ public class BorderData
 	private double getSafeY(World world, int X, int Y, int Z, boolean flying)
 	{
 		// artificial height limit of 127 added for Nether worlds since CraftBukkit still incorrectly returns 255 for their max height, leading to players sent to the "roof" of the Nether
-		final int limTop = (world.getEnvironment() == World.Environment.NETHER) ? 125 : world.getMaxHeight() - 2;
+		final boolean isNether = world.getEnvironment() == World.Environment.NETHER;
+		int limTop = isNether ? 125 : world.getMaxHeight() - 2;
+		final int highestBlockBoundary = Math.min(world.getHighestBlockYAt(X, Z) + 1, limTop);
+
+		// if Y is larger than the world can be and user can fly, return Y - Unless we are in the Nether, we might not want players on the roof
+		if (flying && Y > limTop && !isNether)
+			return (double) Y;
+
+		// make sure Y values are within the boundaries of the world.
+		if (Y > limTop)
+		{
+			if (isNether) 
+				Y = limTop; // because of the roof, the nether can not rely on highestBlockBoundary, so limTop has to be used
+			else
+			{
+				if (flying)
+					Y = limTop;
+				else
+					Y = highestBlockBoundary; // there will never be a save block to stand on for Y values > highestBlockBoundary
+			}
+		}
+		if (Y < limBot)
+			Y = limBot;
+
+		// for non Nether worlds we don't need to check upwards to the world-limit, it is enough to check up to the highestBlockBoundary, unless player is flying
+		if (!isNether && !flying)
+			limTop = highestBlockBoundary;
 		// Expanding Y search method adapted from Acru's code in the Nether plugin
 
 		for(int y1 = Y, y2 = Y; (y1 > limBot) || (y2 < limTop); y1--, y2++){

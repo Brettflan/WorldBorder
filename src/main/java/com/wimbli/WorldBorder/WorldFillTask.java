@@ -12,6 +12,7 @@ import org.bukkit.Server;
 import org.bukkit.World;
 
 import com.wimbli.WorldBorder.Events.WorldBorderFillFinishedEvent;
+import com.wimbli.WorldBorder.Events.WorldBorderFillStartEvent;
 
 
 public class WorldFillTask implements Runnable
@@ -117,6 +118,7 @@ public class WorldFillTask implements Runnable
 		}
 
 		this.readyToGo = true;
+		Bukkit.getServer().getPluginManager().callEvent(new WorldBorderFillStartEvent(this));
 	}
 	// for backwards compatibility
 	public WorldFillTask(Server theServer, Player player, String worldName, int fillDistance, int chunksPerRun, int tickFrequency)
@@ -383,7 +385,7 @@ public class WorldFillTask implements Runnable
 	private void reportProgress()
 	{
 		lastReport = Config.Now();
-		double perc = ((double)(reportTotal + reportNum) / (double)reportTarget) * 100;
+		double perc = getPercentageCompleted();
 		if (perc > 100) perc = 100;
 		sendMessage(reportNum + " more chunks processed (" + (reportTotal + reportNum) + " total, ~" + Config.coord.format(perc) + "%" + ")");
 		reportTotal += reportNum;
@@ -466,5 +468,32 @@ public class WorldFillTask implements Runnable
 	public boolean refForceLoad()
 	{
 		return forceLoad;
+	}
+	
+	/**
+	 * Get the percentage completed for the fill task.
+	 * 
+	 * @return Percentage
+	 */
+	public double getPercentageCompleted() {
+		return ((double) (reportTotal + reportNum) / (double) reportTarget) * 100;
+	}
+
+	/**
+	 * Amount of chunks completed for the fill task.
+	 * 
+	 * @return Number of chunks processed.
+	 */
+	public int getChunksCompleted() {
+		return reportTotal;
+	}
+
+	/**
+	 * Total amount of chunks that need to be generated for the fill task.
+	 * 
+	 * @return Number of chunks that need to be processed.
+	 */
+	public int getChunksTotal() {
+		return reportTarget;
 	}
 }

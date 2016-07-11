@@ -13,6 +13,7 @@ import org.bukkit.Server;
 import org.bukkit.World;
 
 import com.wimbli.WorldBorder.Events.WorldBorderTrimFinishedEvent;
+import com.wimbli.WorldBorder.Events.WorldBorderTrimStartEvent;
 
 
 public class WorldTrimTask implements Runnable
@@ -88,6 +89,7 @@ public class WorldTrimTask implements Runnable
 			return;
 
 		this.readyToGo = true;
+		Bukkit.getServer().getPluginManager().callEvent(new WorldBorderTrimStartEvent(this));
 	}
 
 	public void setTaskID(int ID)
@@ -389,7 +391,7 @@ public class WorldTrimTask implements Runnable
 	private void reportProgress()
 	{
 		lastReport = Config.Now();
-		double perc = ((double)(reportTotal) / (double)reportTarget) * 100;
+		double perc = getPercentageCompleted();
 		sendMessage(reportTrimmedRegions + " entire region(s) and " + reportTrimmedChunks + " individual chunk(s) trimmed so far (" + Config.coord.format(perc) + "% done" + ")");
 	}
 
@@ -399,5 +401,32 @@ public class WorldTrimTask implements Runnable
 		Config.log("[Trim] " + text);
 		if (notifyPlayer != null)
 			notifyPlayer.sendMessage("[Trim] " + text);
+	}
+	
+	/**
+	 * Get the percentage completed for the trim task.
+	 * 
+	 * @return Percentage
+	 */
+	public double getPercentageCompleted() {
+		return ((double) (reportTotal) / (double) reportTarget) * 100;
+	}
+
+	/**
+	 * Amount of chunks completed for the trim task.
+	 * 
+	 * @return Number of chunks processed.
+	 */
+	public int getChunksCompleted() {
+		return reportTotal;
+	}
+
+	/**
+	 * Total amount of chunks that need to be trimmed for the trim task.
+	 * 
+	 * @return Number of chunks that need to be processed.
+	 */
+	public int getChunksTotal() {
+		return reportTarget;
 	}
 }
