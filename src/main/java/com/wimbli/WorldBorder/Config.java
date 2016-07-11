@@ -453,7 +453,7 @@ public class Config
 
 	public static void StartBorderTimer()
 	{
-		StopBorderTimer();
+		StopBorderTimer(false);
 
 		borderTask = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new BorderCheckTask(), timerTicks, timerTicks);
 
@@ -465,11 +465,16 @@ public class Config
 
 	public static void StopBorderTimer()
 	{
+		StopBorderTimer(true);
+	}
+	public static void StopBorderTimer(boolean logIt)
+	{
 		if (borderTask == -1) return;
 
 		plugin.getServer().getScheduler().cancelTask(borderTask);
 		borderTask = -1;
-		logConfig("Border-checking timed task stopped.");
+		if (logIt)
+			logConfig("Border-checking timed task stopped.");
 	}
 
 	public static void StopFillTask()
