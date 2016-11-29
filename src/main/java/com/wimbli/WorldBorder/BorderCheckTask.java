@@ -83,16 +83,9 @@ public class BorderCheckTask implements Runnable
 				rideLoc.setY(newLoc.getY() + vertOffset);
 				if (Config.Debug())
 					Config.logWarn("Player was riding a \"" + ride.toString() + "\".");
-				if (ride instanceof Boat)
-				{	// boats currently glitch on client when teleported, so crappy workaround is to remove it and spawn a new one
-					ride.remove();
-					ride = world.spawnEntity(rideLoc, EntityType.BOAT);
-				}
-				else
-				{
-					ride.setVelocity(new Vector(0, 0, 0));
-					ride.teleport(rideLoc, TeleportCause.PLUGIN);
-				}
+
+				ride.setVelocity(new Vector(0, 0, 0));
+				ride.teleport(rideLoc, TeleportCause.PLUGIN);
 
 				if (Config.RemountTicks() > 0)
 				{
