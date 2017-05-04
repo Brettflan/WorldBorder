@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wimbli.WorldBorder</groupId>
 	<artifactId>WorldBorder</artifactId>
-	<version>1.8.6</version>
+	<version>1.8.7</version>
 	<name>WorldBorder</name>
 	<url>https://github.com/Brettflan/WorldBorder</url>
 	<issueManagement>
