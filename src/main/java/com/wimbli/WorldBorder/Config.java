@@ -49,6 +49,8 @@ public class Config
 	private static boolean portalRedirection = true;
 	private static boolean dynmapEnable = true;
 	private static String dynmapMessage;
+	private static int dynmapPriority;
+	private static boolean dynmapHideByDefault;
 	private static int remountDelayTicks = 0;
 	private static boolean killPlayer = false;
 	private static boolean denyEnderpearl = false;
@@ -407,6 +409,14 @@ public class Config
 		return dynmapMessage;
 	}
 
+	public static boolean DynmapHideByDefault() {
+		return dynmapHideByDefault;
+	}
+
+	public static int DynmapPriority() {
+		return dynmapPriority;
+	}
+
 	public static void setPlayerBypass(UUID player, boolean bypass)
 	{
 		if (bypass)
@@ -597,6 +607,8 @@ public class Config
 		remountDelayTicks = cfg.getInt("remount-delay-ticks", 0);
 		dynmapEnable = cfg.getBoolean("dynmap-border-enabled", true);
 		dynmapMessage = cfg.getString("dynmap-border-message", "The border of the world.");
+		dynmapHideByDefault = cfg.getBoolean("dynmap-broder-hideByDefault", false);
+		dynmapPriority = cfg.getInt("dynmap-border-priority",0);
 		logConfig("Using " + (ShapeName()) + " border, knockback of " + knockBack + " blocks, and timer delay of " + timerTicks + ".");
 		killPlayer = cfg.getBoolean("player-killed-bad-spawn", false);
 		denyEnderpearl = cfg.getBoolean("deny-enderpearl", true);
@@ -706,6 +718,8 @@ public class Config
 		cfg.set("remount-delay-ticks", remountDelayTicks);
 		cfg.set("dynmap-border-enabled", dynmapEnable);
 		cfg.set("dynmap-border-message", dynmapMessage);
+		cfg.set("dynmap-broder-hideByDefault", dynmapHideByDefault);
+		cfg.set("dynmap-border-priority", dynmapPriority);
 		cfg.set("player-killed-bad-spawn", killPlayer);
 		cfg.set("deny-enderpearl", denyEnderpearl);
 		cfg.set("fill-autosave-frequency", fillAutosaveFrequency);
