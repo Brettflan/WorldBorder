@@ -150,7 +150,8 @@ public class DynMapFeatures
 			markSet = markApi.createMarkerSet("worldborder.markerset", "WorldBorder", null, false);
 		else
 			markSet.setMarkerSetLabel("WorldBorder");
-
+		markSet.setLayerPriority(Config.DynmapPriority());
+		markSet.setHideByDefault(Config.DynmapHideByDefault());
 		Map<String, BorderData> borders = Config.getBorders();
 		for(Entry<String, BorderData> stringBorderDataEntry : borders.entrySet())
 		{
