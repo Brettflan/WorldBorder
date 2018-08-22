@@ -363,6 +363,19 @@ public class BorderData
 		safeOpenBlocks.add(Material.TRIPWIRE_HOOK);
 		safeOpenBlocks.add(Material.CARROTS);
 		safeOpenBlocks.add(Material.POTATOES);
+		safeOpenBlocks.add(Material.OAK_BUTTON);
+		safeOpenBlocks.add(Material.SPRUCE_BUTTON);
+		safeOpenBlocks.add(Material.BIRCH_BUTTON);
+		safeOpenBlocks.add(Material.JUNGLE_BUTTON);
+		safeOpenBlocks.add(Material.ACACIA_BUTTON);
+		safeOpenBlocks.add(Material.DARK_OAK_BUTTON);
+		safeOpenBlocks.add(Material.SUNFLOWER);
+		safeOpenBlocks.add(Material.LILAC);
+		safeOpenBlocks.add(Material.ROSE_BUSH);
+		safeOpenBlocks.add(Material.PEONY);
+		safeOpenBlocks.add(Material.TALL_GRASS);
+		safeOpenBlocks.add(Material.LARGE_FERN);
+		safeOpenBlocks.add(Material.BEETROOTS);
 	}
 
 	//these material IDs are ones we don't want to drop the player onto, like cactus or lava or fire or activated Ender portal
