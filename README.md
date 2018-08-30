@@ -1,4 +1,4 @@
 WorldBorder
 ===========
 
-<a href="http://dev.bukkit.org/server-mods/worldborder/">Read more on the BukkitDev site.</a>
+<a href="https://dev.bukkit.org/projects/worldborder">Read more on the BukkitDev site.</a>

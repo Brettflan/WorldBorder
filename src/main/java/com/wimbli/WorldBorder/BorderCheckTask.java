@@ -106,14 +106,7 @@ public class BorderCheckTask implements Runnable
 				if (Config.Debug())
 					Config.logWarn("Player had a passenger riding on them: " + rider.getType());
 			}
-			if (passengers.size() == 1)
-			{
-				player.sendMessage("Your passenger has been ejected.");
-			}
-			else
-			{
-				player.sendMessage("Your passengers have been ejected.");
-			}
+			player.sendMessage("Your passenger" + ((passengers.size() > 1) ? "s have" : " has") + " been ejected.");
 		}
 
 		// give some particle and sound effects where the player was beyond the border, if "whoosh effect" is enabled
