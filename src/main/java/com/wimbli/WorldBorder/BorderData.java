@@ -1,10 +1,10 @@
 package com.wimbli.WorldBorder;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.EnumSet;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 
 
@@ -291,26 +291,115 @@ public class BorderData
 	}
 
 	//these material IDs are acceptable for places to teleport player; breathable blocks and water
-	public static final LinkedHashSet<Integer> safeOpenBlocks = new LinkedHashSet<Integer>(Arrays.asList(
-		 new Integer[] {0, 6, 8, 9, 27, 28, 30, 31, 32, 37, 38, 39, 40, 50, 55, 59, 63, 64, 65, 66, 68, 69, 70, 71, 72, 75, 76, 77, 78, 83, 90, 93, 94, 96, 104, 105, 106, 115, 131, 132, 141, 142, 149, 150, 157, 171}
-	));
+	public static final EnumSet<Material> safeOpenBlocks = EnumSet.noneOf(Material.class);
+	static
+	{
+		safeOpenBlocks.add(Material.AIR);
+		safeOpenBlocks.add(Material.CAVE_AIR);
+		safeOpenBlocks.add(Material.OAK_SAPLING);
+		safeOpenBlocks.add(Material.SPRUCE_SAPLING);
+		safeOpenBlocks.add(Material.BIRCH_SAPLING);
+		safeOpenBlocks.add(Material.JUNGLE_SAPLING);
+		safeOpenBlocks.add(Material.ACACIA_SAPLING);
+		safeOpenBlocks.add(Material.DARK_OAK_SAPLING);
+		safeOpenBlocks.add(Material.WATER);
+		safeOpenBlocks.add(Material.RAIL);
+		safeOpenBlocks.add(Material.POWERED_RAIL);
+		safeOpenBlocks.add(Material.DETECTOR_RAIL);
+		safeOpenBlocks.add(Material.ACTIVATOR_RAIL);
+		safeOpenBlocks.add(Material.COBWEB);
+		safeOpenBlocks.add(Material.GRASS);
+		safeOpenBlocks.add(Material.FERN);
+		safeOpenBlocks.add(Material.DEAD_BUSH);
+		safeOpenBlocks.add(Material.DANDELION);
+		safeOpenBlocks.add(Material.POPPY);
+		safeOpenBlocks.add(Material.BLUE_ORCHID);
+		safeOpenBlocks.add(Material.ALLIUM);
+		safeOpenBlocks.add(Material.AZURE_BLUET);
+		safeOpenBlocks.add(Material.RED_TULIP);
+		safeOpenBlocks.add(Material.ORANGE_TULIP);
+		safeOpenBlocks.add(Material.WHITE_TULIP);
+		safeOpenBlocks.add(Material.PINK_TULIP);
+		safeOpenBlocks.add(Material.OXEYE_DAISY);
+		safeOpenBlocks.add(Material.BROWN_MUSHROOM);
+		safeOpenBlocks.add(Material.RED_MUSHROOM);
+		safeOpenBlocks.add(Material.TORCH);
+		safeOpenBlocks.add(Material.WALL_TORCH);
+		safeOpenBlocks.add(Material.REDSTONE_WIRE);
+		safeOpenBlocks.add(Material.WHEAT);
+		safeOpenBlocks.add(Material.SIGN);
+		safeOpenBlocks.add(Material.WALL_SIGN);
+		safeOpenBlocks.add(Material.LADDER);
+		safeOpenBlocks.add(Material.LEVER);
+		safeOpenBlocks.add(Material.LIGHT_WEIGHTED_PRESSURE_PLATE);
+		safeOpenBlocks.add(Material.HEAVY_WEIGHTED_PRESSURE_PLATE);
+		safeOpenBlocks.add(Material.STONE_PRESSURE_PLATE);
+		safeOpenBlocks.add(Material.OAK_PRESSURE_PLATE);
+		safeOpenBlocks.add(Material.SPRUCE_PRESSURE_PLATE);
+		safeOpenBlocks.add(Material.BIRCH_PRESSURE_PLATE);
+		safeOpenBlocks.add(Material.JUNGLE_PRESSURE_PLATE);
+		safeOpenBlocks.add(Material.ACACIA_PRESSURE_PLATE);
+		safeOpenBlocks.add(Material.DARK_OAK_PRESSURE_PLATE);
+		safeOpenBlocks.add(Material.REDSTONE_TORCH);
+		safeOpenBlocks.add(Material.REDSTONE_WALL_TORCH);
+		safeOpenBlocks.add(Material.STONE_BUTTON);
+		safeOpenBlocks.add(Material.SNOW);
+		safeOpenBlocks.add(Material.SUGAR_CANE);
+		safeOpenBlocks.add(Material.REPEATER);
+		safeOpenBlocks.add(Material.COMPARATOR);
+		safeOpenBlocks.add(Material.OAK_TRAPDOOR);
+		safeOpenBlocks.add(Material.SPRUCE_TRAPDOOR);
+		safeOpenBlocks.add(Material.BIRCH_TRAPDOOR);
+		safeOpenBlocks.add(Material.JUNGLE_TRAPDOOR);
+		safeOpenBlocks.add(Material.ACACIA_TRAPDOOR);
+		safeOpenBlocks.add(Material.DARK_OAK_TRAPDOOR);
+		safeOpenBlocks.add(Material.MELON_STEM);
+		safeOpenBlocks.add(Material.ATTACHED_MELON_STEM);
+		safeOpenBlocks.add(Material.PUMPKIN_STEM);
+		safeOpenBlocks.add(Material.ATTACHED_PUMPKIN_STEM);
+		safeOpenBlocks.add(Material.VINE);
+		safeOpenBlocks.add(Material.NETHER_WART);
+		safeOpenBlocks.add(Material.TRIPWIRE);
+		safeOpenBlocks.add(Material.TRIPWIRE_HOOK);
+		safeOpenBlocks.add(Material.CARROTS);
+		safeOpenBlocks.add(Material.POTATOES);
+		safeOpenBlocks.add(Material.OAK_BUTTON);
+		safeOpenBlocks.add(Material.SPRUCE_BUTTON);
+		safeOpenBlocks.add(Material.BIRCH_BUTTON);
+		safeOpenBlocks.add(Material.JUNGLE_BUTTON);
+		safeOpenBlocks.add(Material.ACACIA_BUTTON);
+		safeOpenBlocks.add(Material.DARK_OAK_BUTTON);
+		safeOpenBlocks.add(Material.SUNFLOWER);
+		safeOpenBlocks.add(Material.LILAC);
+		safeOpenBlocks.add(Material.ROSE_BUSH);
+		safeOpenBlocks.add(Material.PEONY);
+		safeOpenBlocks.add(Material.TALL_GRASS);
+		safeOpenBlocks.add(Material.LARGE_FERN);
+		safeOpenBlocks.add(Material.BEETROOTS);
+	}
 
 	//these material IDs are ones we don't want to drop the player onto, like cactus or lava or fire or activated Ender portal
-	public static final LinkedHashSet<Integer> painfulBlocks = new LinkedHashSet<Integer>(Arrays.asList(
-		 new Integer[] {10, 11, 51, 81, 119}
-	));
+	public static final EnumSet<Material> painfulBlocks = EnumSet.noneOf(Material.class);
+	static
+	{
+		painfulBlocks.add(Material.LAVA);
+		painfulBlocks.add(Material.FIRE);
+		painfulBlocks.add(Material.CACTUS);
+		painfulBlocks.add(Material.END_PORTAL);
+		painfulBlocks.add(Material.MAGMA_BLOCK);
+	}
 
 	// check if a particular spot consists of 2 breathable blocks over something relatively solid
 	private boolean isSafeSpot(World world, int X, int Y, int Z, boolean flying)
 	{
-		boolean safe = safeOpenBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y, Z))		// target block open and safe
-					&& safeOpenBlocks.contains((Integer)world.getBlockTypeIdAt(X, Y + 1, Z));	// above target block open and safe
+		boolean safe = safeOpenBlocks.contains(world.getBlockAt(X, Y, Z).getType())		// target block open and safe
+					&& safeOpenBlocks.contains(world.getBlockAt(X, Y + 1, Z).getType());	// above target block open and safe
 		if (!safe || flying)
 			return safe;
 
-		Integer below = (Integer)world.getBlockTypeIdAt(X, Y - 1, Z);
+		Material below = world.getBlockAt(X, Y - 1, Z).getType();
 		return (safe
-			 && (!safeOpenBlocks.contains(below) || below == 8 || below == 9)	// below target block not open/breathable (so presumably solid), or is water
+			 && (!safeOpenBlocks.contains(below) || below == Material.WATER)	// below target block not open/breathable (so presumably solid), or is water
 			 && !painfulBlocks.contains(below)									// below target block not painful
 			);
 	}

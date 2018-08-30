@@ -155,9 +155,8 @@ public class DynMapFeatures
 		Map<String, BorderData> borders = Config.getBorders();
 		for(Entry<String, BorderData> stringBorderDataEntry : borders.entrySet())
 		{
-			Entry wdata = stringBorderDataEntry;
-			String worldName = ((String)wdata.getKey());
-			BorderData border = (BorderData)wdata.getValue();
+			String worldName = stringBorderDataEntry.getKey();
+			BorderData border = stringBorderDataEntry.getValue();
 			showBorder(worldName, border);
 		}
 	}

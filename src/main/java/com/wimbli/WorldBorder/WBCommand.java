@@ -205,7 +205,7 @@ public class WBCommand implements CommandExecutor
 	public Set<String> getCommandNames()
 	{
 		// using TreeSet to sort alphabetically
-		Set<String> commands = new TreeSet(subCommands.keySet());
+		Set<String> commands = new TreeSet<>(subCommands.keySet());
 		// removing default "commands" command as it's not normally shown or run like other commands
 		commands.remove("commands");
 		return commands;

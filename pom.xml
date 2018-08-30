@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.wimbli.WorldBorder</groupId>
 	<artifactId>WorldBorder</artifactId>
-	<version>1.8.7</version>
+	<version>1.9.0</version>
 	<name>WorldBorder</name>
 	<url>https://github.com/Brettflan/WorldBorder</url>
 	<issueManagement>
@@ -22,7 +22,7 @@
 		</repository>
 		<repository>
 			<id>dynmap-repo</id>
-			<url>http://repo.mikeprimm.com/</url>
+			<url>https://repo.mikeprimm.com/</url>
 		</repository>
 	</repositories>
 
@@ -31,19 +31,19 @@
 		<dependency>
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
-			<version>1.10.2-R0.1-SNAPSHOT</version>
+			<version>1.13.1-R0.1-SNAPSHOT</version>
 		</dependency>
 		<!--Bukkit API-->
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>1.10.2-R0.1-SNAPSHOT</version>
+			<version>1.13.1-R0.1-SNAPSHOT</version>
 		</dependency>
 		<!--Dynmap API-->
 		<dependency>
-			<groupId>org.dynmap</groupId>
+			<groupId>us.dynmap</groupId>
 			<artifactId>dynmap-api</artifactId>
-			<version>2.0</version>
+			<version>2.5</version>
 		</dependency>
 	</dependencies>
 
@@ -54,10 +54,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
+				<version>3.8.0</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 		</plugins>
