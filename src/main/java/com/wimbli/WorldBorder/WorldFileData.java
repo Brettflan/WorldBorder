@@ -134,14 +134,15 @@ public class WorldFileData
 	// Minecraft only fully generates a chunk when adjacent chunks are also loaded.
 	public boolean isChunkFullyGenerated(int x, int z)
 	{	// if all adjacent chunks exist, it should be a safe enough bet that this one is fully generated
-		return
-			! (
-			! doesChunkExist(x, z)
-		 || ! doesChunkExist(x+1, z)
-		 || ! doesChunkExist(x-1, z)
-		 || ! doesChunkExist(x, z+1)
-		 || ! doesChunkExist(x, z-1)
-			);
+	    // For 1.13+, due to world gen changes, this is now effectively a 3 chunk radius requirement vs a 1 chunk radius
+	    for (int xx = x-3; xx <= x+3; xx++) {
+	        for (int zz = z-3; zz <= z+3; zz++) {
+	            if (!doesChunkExist(xx, zz)) {
+	                return false;
+	            }
+	        }
+	    }
+	    return true;
 	}
 
 	// Method to let us know a chunk has been generated, to update our region map.
@@ -200,6 +201,15 @@ public class WorldFileData
 						data.set(j, true);
 					counter++;
 				}
+				// Read timestamps
+                for (int j = 0; j < 1024; j++)
+                {
+                    // if timestamp is zero, it is protochunk (ignore it)
+                    if ((regionData.readInt() == 0) && data.get(j)) {
+                        data.set(j, false);
+                    }
+                    counter++;
+                }
 				regionData.close();
 			}
 			catch (FileNotFoundException ex)
