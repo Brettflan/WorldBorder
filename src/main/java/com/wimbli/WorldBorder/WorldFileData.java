@@ -2,8 +2,10 @@ package com.wimbli.WorldBorder;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
+import java.nio.IntBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -190,25 +192,34 @@ public class WorldFileData
 			if ( ! coord.equals(region))
 				continue;
 
-			int counter = 0;
 			try
 			{
 				RandomAccessFile regionData = new RandomAccessFile(this.regionFile(i), "r");
+
+				// Use of ByteBuffer+IntBuffer for reading file headers to improve performance, as suggested by aikar, reference:
+				// https://github.com/PaperMC/Paper/blob/b62dfa0bf95ac27ba0fbb3fae18c064e4bb61d50/Spigot-Server-Patches/0086-Reduce-IO-ops-opening-a-new-region-file.patch
+				ByteBuffer header = ByteBuffer.allocate(8192);
+				while (header.hasRemaining()) 
+				{
+					if (regionData.getChannel().read(header) == -1)
+						throw new EOFException();
+				}
+				header.clear();
+				IntBuffer headerAsInts = header.asIntBuffer();
+
 				// first 4096 bytes of region file consists of 4-byte int pointers to chunk data in the file (32*32 chunks = 1024; 1024 chunks * 4 bytes each = 4096)
 				for (int j = 0; j < 1024; j++)
 				{
 					// if chunk pointer data is 0, chunk doesn't exist yet; otherwise, it does
-					if (regionData.readInt() != 0)
+					if (headerAsInts.get() != 0)
 						data.set(j, true);
-					counter++;
 				}
 				// Read timestamps
 				for (int j = 0; j < 1024; j++)
 				{
 					// if timestamp is zero, it is protochunk (ignore it)
-					if ((regionData.readInt() == 0) && data.get(j))
+					if ((headerAsInts.get() == 0) && data.get(j))
 						data.set(j, false);
-					counter++;
 				}
 				regionData.close();
 			}
