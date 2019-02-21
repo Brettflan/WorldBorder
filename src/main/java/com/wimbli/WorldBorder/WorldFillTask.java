@@ -13,6 +13,8 @@ import org.bukkit.World;
 
 import com.wimbli.WorldBorder.Events.WorldBorderFillFinishedEvent;
 import com.wimbli.WorldBorder.Events.WorldBorderFillStartEvent;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 
 public class WorldFillTask implements Runnable
@@ -57,7 +59,9 @@ public class WorldFillTask implements Runnable
 	private transient int reportTarget = 0;
 	private transient int reportTotal = 0;
 	private transient int reportNum = 0;
-
+    
+    private transient boolean canUsePaperAPI = false;
+    private Set<CompletableFuture<Chunk>> pendingChunks;
 
 	public WorldFillTask(Server theServer, Player player, String worldName, int fillDistance, int chunksPerRun, int tickFrequency, boolean forceLoad)
 	{
@@ -94,6 +98,11 @@ public class WorldFillTask implements Runnable
 			this.stop();
 			return;
 		}
+        
+        canUsePaperAPI = checkForPaperAPI();
+        if (canUsePaperAPI) {
+            pendingChunks = new HashSet<>();
+        }
 
 		this.border.setRadiusX(border.getRadiusX() + fillDistance);
 		this.border.setRadiusZ(border.getRadiusZ() + fillDistance);
@@ -131,6 +140,15 @@ public class WorldFillTask implements Runnable
 		if (ID == -1) this.stop();
 		this.taskID = ID;
 	}
+    
+    private boolean checkForPaperAPI() {
+        try {
+            Class.forName("com.destroystokyo.paper.PaperConfig");
+            return true;
+        } catch (ClassNotFoundException e) {        
+            return false;
+        }
+    }
 
 
 	@Override
@@ -159,8 +177,34 @@ public class WorldFillTask implements Runnable
 		// this is set so it only does one iteration at a time, no matter how frequently the timer fires
 		readyToGo = false;
 		// and this is tracked to keep one iteration from dragging on too long and possibly choking the system if the user specified a really high frequency
-		long loopStartTime = Config.Now();
+        
+        if (canUsePaperAPI) {
+            Set<CompletableFuture<Chunk>> newPendingChunks = new HashSet<>();
+            for (CompletableFuture<Chunk> cf: pendingChunks) {
+                if (cf.isDone()) {
+                    try {
+                        Chunk chunk=cf.get();
+                        // System.out.println(chunk);
+                        if (chunk==null)
+                            continue;
+                        CoordXZ xz = new CoordXZ(chunk.getX(), chunk.getZ());
+                        worldData.chunkExistsNow(xz.x, xz.z);
+                        storedChunks.add(xz);
+                    } catch (InterruptedException | ExecutionException ex) {
+                        Config.log(ex.getMessage());
+                    }
+                } else {
+                    newPendingChunks.add(cf);
+                }
+            }
+            pendingChunks=newPendingChunks;
+            if (pendingChunks.size() > chunksPerRun*2) {
+                readyToGo = true;
+                return;
+            }
+        }
 
+		long loopStartTime = Config.Now();
 		for (int loop = 0; loop < chunksPerRun; loop++)
 		{
 			// in case the task has been paused while we're repeating...
@@ -200,25 +244,36 @@ public class WorldFillTask implements Runnable
 			}
 
 			// load the target chunk and generate it if necessary
-			world.loadChunk(x, z, true);
-			worldData.chunkExistsNow(x, z);
+            if (canUsePaperAPI) {
+                pendingChunks.add(world.getChunkAtAsync(x, z, true));
+            } else {
+                world.loadChunk(x, z, true);
+                worldData.chunkExistsNow(x, z);
+    			storedChunks.add(new CoordXZ(x, z));
+            }
 
 			// There need to be enough nearby chunks loaded to make the server populate a chunk with trees, snow, etc.
 			// So, we keep the last few chunks loaded, and need to also temporarily load an extra inside chunk (neighbor closest to center of map)
 			int popX = !isZLeg ? x : (x + (isNeg ? -1 : 1));
 			int popZ = isZLeg ? z : (z + (!isNeg ? -1 : 1));
-			world.loadChunk(popX, popZ, false);
+            
+            if (canUsePaperAPI) {
+                pendingChunks.add(world.getChunkAtAsync(popX, popZ, false));
+            } else {
+                world.loadChunk(popX, popZ, false);
+    			storedChunks.add(new CoordXZ(popX, popZ));
+            }
 
 			// make sure the previous chunk in our spiral is loaded as well (might have already existed and been skipped over)
 			if (!storedChunks.contains(lastChunk) && !originalChunks.contains(lastChunk))
 			{
-				world.loadChunk(lastChunk.x, lastChunk.z, false);
-				storedChunks.add(new CoordXZ(lastChunk.x, lastChunk.z));
+                if (canUsePaperAPI) {
+                    pendingChunks.add(world.getChunkAtAsync(lastChunk.x, lastChunk.z, false));
+                } else {
+                    world.loadChunk(lastChunk.x, lastChunk.z, false);
+                    storedChunks.add(new CoordXZ(lastChunk.x, lastChunk.z));
+                }
 			}
-
-			// Store the coordinates of these latest 2 chunks we just loaded, so we can unload them after a bit...
-			storedChunks.add(new CoordXZ(popX, popZ));
-			storedChunks.add(new CoordXZ(x, z));
 
 			// If enough stored chunks are buffered in, go ahead and unload the oldest to free up memory
 			while (storedChunks.size() > 8)
