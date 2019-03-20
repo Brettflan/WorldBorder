@@ -19,16 +19,16 @@
 		<repository>
 			<id>spigot-repo</id>
 			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
-        </repository>
+		</repository>
 		<repository>
 			<id>dynmap-repo</id>
 			<url>https://repo.mikeprimm.com/</url>
 		</repository>
 		<repository>
-            <id>papermc</id>
-            <url>https://papermc.io/repo/repository/maven-public/</url>
+			<id>papermc</id>
+			<url>https://papermc.io/repo/repository/maven-public/</url>
 		</repository>
-    </repositories>
+	</repositories>
 
 	<dependencies>
 		<!--Spigot-API-->
@@ -36,7 +36,7 @@
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
 			<version>1.13.1-R0.1-SNAPSHOT</version>
-        </dependency>
+		</dependency>
 		<!--Bukkit API-->
 		<dependency>
 			<groupId>org.bukkit</groupId>
@@ -92,7 +92,7 @@
 						<configuration>
 							<artifactSet>
 							  <excludes>
-                                <exclude>org.spigotmc:spigot-api</exclude>
+								<exclude>org.spigotmc:spigot-api</exclude>
 								<exclude>commons-lang:commons-lang</exclude>
 								<exclude>com.googlecode.json-simple:json-simple</exclude>
 								<exclude>junit:junit</exclude>
@@ -100,7 +100,7 @@
 								<exclude>com.google.guava:guava</exclude>
 								<exclude>com.google.code.gson:gson</exclude>
 								<exclude>org.yaml:snakeyaml</exclude>
-                                <exclude>net.md-5:bungeecord-chat</exclude>
+								<exclude>net.md-5:bungeecord-chat</exclude>
 								<exclude>org.bukkit:bukkit</exclude>
 								<exclude>us.dynmap:dynmap-api</exclude>
 							  </excludes>
