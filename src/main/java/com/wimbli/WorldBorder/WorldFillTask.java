@@ -49,8 +49,8 @@ public class WorldFillTask implements Runnable
 	private transient int length = -1;
 	private transient int current = 0;
 	private transient boolean insideBorder = true;
-	private List<CoordXZ> storedChunks = new LinkedList<CoordXZ>();
-	private Set<CoordXZ> originalChunks = new HashSet<CoordXZ>();
+	private List<CoordXZ> storedChunks = new LinkedList<>();
+	private Set<CoordXZ> originalChunks = new HashSet<>();
 	private transient CoordXZ lastChunk = new CoordXZ(0, 0);
 
 	// for reporting progress back to user occasionally
@@ -235,11 +235,18 @@ public class WorldFillTask implements Runnable
 			if (!forceLoad)
 			{
 				// skip past any chunks which are confirmed as fully generated using our super-special isChunkFullyGenerated routine
+				int rLoop = 0;
 				while (worldData.isChunkFullyGenerated(x, z))
 				{
+					rLoop++;
 					insideBorder = true;
 					if (!moveToNext())
 						return;
+					if (rLoop > 255)
+					{	// only skim through max 256 chunks (~8 region files) at a time here, to allow process to take a break if needed
+						readyToGo = true;
+						return;
+					}
 				}
 			}
 
