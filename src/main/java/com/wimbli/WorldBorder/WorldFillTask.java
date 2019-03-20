@@ -57,52 +57,52 @@ public class WorldFillTask implements Runnable
 	private transient int reportTarget = 0;
 	private transient int reportTotal = 0;
 	private transient int reportNum = 0;
-    
-    // A map that holds to-be-loaded chunks, and their coordinates
-    private transient Map<CompletableFuture<Chunk>, CoordXZ> pendingChunks;
-    
-    // and a set of "Chunk a needed for Chunk b" dependencies, which
-    // unfortunately can't be a Map as a chunk might be needed for
-    // several others.
-    private transient Set<UnloadDependency> preventUnload;
-    
-    private class UnloadDependency
-    {
-        int neededX, neededZ;
-        int forX, forZ;
-        
-        UnloadDependency(int neededX, int neededZ, int forX, int forZ)
-        {
-            this.neededX=neededX;
-            this.neededZ=neededZ;
-            this.forX=forX;
-            this.forZ=forZ;
-        }
-        
-        @Override
-        public boolean equals(Object other)
-        {
-            if (other == null || !(other instanceof UnloadDependency))
-            {
-                return false;
-            }
-            return this.neededX == ((UnloadDependency) other).neededX
-               &&  this.neededZ == ((UnloadDependency) other).neededZ
-               &&  this.forX    == ((UnloadDependency) other).forX
-               &&  this.forZ    == ((UnloadDependency) other).forZ;
-        }
+	
+	// A map that holds to-be-loaded chunks, and their coordinates
+	private transient Map<CompletableFuture<Chunk>, CoordXZ> pendingChunks;
+	
+	// and a set of "Chunk a needed for Chunk b" dependencies, which
+	// unfortunately can't be a Map as a chunk might be needed for
+	// several others.
+	private transient Set<UnloadDependency> preventUnload;
+	
+	private class UnloadDependency
+	{
+		int neededX, neededZ;
+		int forX, forZ;
+		
+		UnloadDependency(int neededX, int neededZ, int forX, int forZ)
+		{
+			this.neededX=neededX;
+			this.neededZ=neededZ;
+			this.forX=forX;
+			this.forZ=forZ;
+		}
+		
+		@Override
+		public boolean equals(Object other)
+		{
+			if (other == null || !(other instanceof UnloadDependency))
+			{
+				return false;
+			}
+			return this.neededX == ((UnloadDependency) other).neededX
+			   &&  this.neededZ == ((UnloadDependency) other).neededZ
+			   &&  this.forX    == ((UnloadDependency) other).forX
+			   &&  this.forZ    == ((UnloadDependency) other).forZ;
+		}
 
-        @Override
-        public int hashCode()
-        {
-            int hash = 7;
-            hash = 79 * hash + this.neededX;
-            hash = 79 * hash + this.neededZ;
-            hash = 79 * hash + this.forX;
-            hash = 79 * hash + this.forZ;
-            return hash;
-        }
-    }
+		@Override
+		public int hashCode()
+		{
+			int hash = 7;
+			hash = 79 * hash + this.neededX;
+			hash = 79 * hash + this.neededZ;
+			hash = 79 * hash + this.forX;
+			hash = 79 * hash + this.forZ;
+			return hash;
+		}
+	}
 
 	public WorldFillTask(Server theServer, Player player, String worldName, int fillDistance, int chunksPerRun, int tickFrequency, boolean forceLoad)
 	{
@@ -139,9 +139,9 @@ public class WorldFillTask implements Runnable
 			this.stop();
 			return;
 		}
-        
-        pendingChunks = new HashMap<>();
-        preventUnload = new HashSet<>();
+		
+		pendingChunks = new HashMap<>();
+		preventUnload = new HashSet<>();
 
 		this.border.setRadiusX(border.getRadiusX() + fillDistance);
 		this.border.setRadiusZ(border.getRadiusZ() + fillDistance);
@@ -160,7 +160,7 @@ public class WorldFillTask implements Runnable
 		this.readyToGo = true;
 		Bukkit.getServer().getPluginManager().callEvent(new WorldBorderFillStartEvent(this));
 	}
-    
+	
 	// for backwards compatibility
 	public WorldFillTask(Server theServer, Player player, String worldName, int fillDistance, int chunksPerRun, int tickFrequency)
 	{
@@ -201,86 +201,86 @@ public class WorldFillTask implements Runnable
 		// and this is tracked to keep one iteration from dragging on too long and possibly choking the system if the user specified a really high frequency
 		long loopStartTime = Config.Now();
 
-        // Process async results from last time. We don't make a difference
-        // whether they were really async, or sync.
-        
-        // First, Check which chunk generations have been finished.
-        // Mark those chunks as existing and unloadable, and remove
-        // them from the pending set.
-        int chunksProcessedLastTick = 0;
-        Map<CompletableFuture<Chunk>, CoordXZ> newPendingChunks = new HashMap<>();
-        Set<CoordXZ> chunksToUnload = new HashSet<>();
-        for (CompletableFuture<Chunk> cf: pendingChunks.keySet())
-        {
-            if (cf.isDone())
-            {
-                ++chunksProcessedLastTick;
-                // If cf.get() returned the chunk reliably, pendingChunks could
-                // be a set and we wouldn't have to map CFs to coords ...
-                CoordXZ xz=pendingChunks.get(cf);
-                worldData.chunkExistsNow(xz.x, xz.z);
-                chunksToUnload.add(xz);
-            }
-            else
-            {
-                newPendingChunks.put(cf, pendingChunks.get(cf));
-            }
-        }
-        pendingChunks = newPendingChunks;
+		// Process async results from last time. We don't make a difference
+		// whether they were really async, or sync.
+		
+		// First, Check which chunk generations have been finished.
+		// Mark those chunks as existing and unloadable, and remove
+		// them from the pending set.
+		int chunksProcessedLastTick = 0;
+		Map<CompletableFuture<Chunk>, CoordXZ> newPendingChunks = new HashMap<>();
+		Set<CoordXZ> chunksToUnload = new HashSet<>();
+		for (CompletableFuture<Chunk> cf: pendingChunks.keySet())
+		{
+			if (cf.isDone())
+			{
+				++chunksProcessedLastTick;
+				// If cf.get() returned the chunk reliably, pendingChunks could
+				// be a set and we wouldn't have to map CFs to coords ...
+				CoordXZ xz=pendingChunks.get(cf);
+				worldData.chunkExistsNow(xz.x, xz.z);
+				chunksToUnload.add(xz);
+			}
+			else
+			{
+				newPendingChunks.put(cf, pendingChunks.get(cf));
+			}
+		}
+		pendingChunks = newPendingChunks;
 
-        // Next, check which chunks had been loaded because a to-be-generated
-        // chunk needed them, and don't have to remain in memory any more.
-        Set<UnloadDependency> newPreventUnload = new HashSet<>();
-        for (UnloadDependency dependency: preventUnload) 
-        {
-            if (worldData.doesChunkExist(dependency.forX, dependency.forZ)) 
-            {
-                chunksToUnload.add(new CoordXZ(dependency.neededX, dependency.neededZ));
-            }
-            else
-            {
-                newPreventUnload.add(dependency);
-            }
-        }
-        preventUnload = newPreventUnload;
+		// Next, check which chunks had been loaded because a to-be-generated
+		// chunk needed them, and don't have to remain in memory any more.
+		Set<UnloadDependency> newPreventUnload = new HashSet<>();
+		for (UnloadDependency dependency: preventUnload) 
+		{
+			if (worldData.doesChunkExist(dependency.forX, dependency.forZ)) 
+			{
+				chunksToUnload.add(new CoordXZ(dependency.neededX, dependency.neededZ));
+			}
+			else
+			{
+				newPreventUnload.add(dependency);
+			}
+		}
+		preventUnload = newPreventUnload;
 
-        // Unload all chunks that aren't needed anymore. NB a chunk could have
-        // been needed for two different others, or been generated and needed
-        // for one other chunk, so it might be in the unload set wrongly.
-        // The ChunkUnloadListener checks this anyway, but it doesn't hurt to
-        // save a few µs by not even requesting the unload.
+		// Unload all chunks that aren't needed anymore. NB a chunk could have
+		// been needed for two different others, or been generated and needed
+		// for one other chunk, so it might be in the unload set wrongly.
+		// The ChunkUnloadListener checks this anyway, but it doesn't hurt to
+		// save a few µs by not even requesting the unload.
 
-        for (CoordXZ unload: chunksToUnload)
-        {
-            if (!chunkOnUnloadPreventionList(unload.x, unload.z))
-            {
-                world.unloadChunkRequest(unload.x, unload.z);
-            }
-        }
+		for (CoordXZ unload: chunksToUnload)
+		{
+			if (!chunkOnUnloadPreventionList(unload.x, unload.z))
+			{
+				world.unloadChunkRequest(unload.x, unload.z);
+			}
+		}
 
-        // Put some damper on chunksPerRun. We don't want the queue to be too
-        // full; only fill it to a bit more than what we can
-        // process per tick. This ensures the background task can run at
-        // full speed and we recover from a temporary drop in generation rate,
-        // but doesn't push user-induced chunk generations behind a very
-        // long queue of fill-generations.
+		// Put some damper on chunksPerRun. We don't want the queue to be too
+		// full; only fill it to a bit more than what we can
+		// process per tick. This ensures the background task can run at
+		// full speed and we recover from a temporary drop in generation rate,
+		// but doesn't push user-induced chunk generations behind a very
+		// long queue of fill-generations.
 
-        int chunksToProcess = chunksPerRun;
-        if (chunksProcessedLastTick > 0 || pendingChunks.size() > 0)
-        {
-            // Note we generally queue 3 chunks, so real numbers are 1/3 of chunksProcessedLastTick and pendingchunks.size
-            int chunksExpectedToGetProcessed = (chunksProcessedLastTick - pendingChunks.size()) / 3 + 3;
-            if (chunksExpectedToGetProcessed < chunksToProcess)
-                chunksToProcess = chunksExpectedToGetProcessed;
-        }
+		int chunksToProcess = chunksPerRun;
+		if (chunksProcessedLastTick > 0 || pendingChunks.size() > 0)
+		{
+			// Note we generally queue 3 chunks, so real numbers are 1/3 of chunksProcessedLastTick and pendingchunks.size
+			int chunksExpectedToGetProcessed = (chunksProcessedLastTick - pendingChunks.size()) / 3 + 3;
+			if (chunksExpectedToGetProcessed < chunksToProcess)
+				chunksToProcess = chunksExpectedToGetProcessed;
+		}
 
 		for (int loop = 0; loop < chunksToProcess; loop++)
 		{
 			// in case the task has been paused while we're repeating...
 			if (paused || pausedForMemory)
-            {
+			{
 				return;
-            }
+			}
 
 			long now = Config.Now();
 
@@ -299,9 +299,9 @@ public class WorldFillTask implements Runnable
 			while (!border.insideBorder(CoordXZ.chunkToBlock(x) + 8, CoordXZ.chunkToBlock(z) + 8))
 			{
 				if (!moveToNext())
-                {
+				{
 					return;
-                }
+				}
 			}
 			insideBorder = true;
 
@@ -314,9 +314,9 @@ public class WorldFillTask implements Runnable
 					rLoop++;
 					insideBorder = true;
 					if (!moveToNext())
-                    {
+					{
 						return;
-                    }
+					}
 					if (rLoop > 255)
 					{	// only skim through max 256 chunks (~8 region files) at a time here, to allow process to take a break if needed
 						readyToGo = true;
@@ -325,25 +325,25 @@ public class WorldFillTask implements Runnable
 				}
 			}
 
-            pendingChunks.put(PaperLib.getChunkAtAsync(world, x, z, true), new CoordXZ(x, z));
+			pendingChunks.put(PaperLib.getChunkAtAsync(world, x, z, true), new CoordXZ(x, z));
 
 			// There need to be enough nearby chunks loaded to make the server populate a chunk with trees, snow, etc.
 			// So, we keep the last few chunks loaded, and need to also temporarily load an extra inside chunk (neighbor closest to center of map)
 			int popX = !isZLeg ? x : (x + (isNeg ? -1 : 1));
 			int popZ = isZLeg ? z : (z + (!isNeg ? -1 : 1));
 
-            pendingChunks.put(PaperLib.getChunkAtAsync(world, popX, popZ, false), new CoordXZ(popX, popZ));
-            preventUnload.add(new UnloadDependency(popX, popZ, x, z));
-            
+			pendingChunks.put(PaperLib.getChunkAtAsync(world, popX, popZ, false), new CoordXZ(popX, popZ));
+			preventUnload.add(new UnloadDependency(popX, popZ, x, z));
+			
 			// make sure the previous chunk in our spiral is loaded as well (might have already existed and been skipped over)
-            pendingChunks.put(PaperLib.getChunkAtAsync(world, lastChunk.x, lastChunk.z, false), new CoordXZ(lastChunk.x, lastChunk.z)); // <-- new CoordXZ as lastChunk isn't immutable
-            preventUnload.add(new UnloadDependency(lastChunk.x, lastChunk.z, x, z));
+			pendingChunks.put(PaperLib.getChunkAtAsync(world, lastChunk.x, lastChunk.z, false), new CoordXZ(lastChunk.x, lastChunk.z)); // <-- new CoordXZ as lastChunk isn't immutable
+			preventUnload.add(new UnloadDependency(lastChunk.x, lastChunk.z, x, z));
 
 			// move on to next chunk
 			if (!moveToNext())
-            {
+			{
 				return;
-            }
+			}
 		}
 		// ready for the next iteration to run
 		readyToGo = true;
@@ -451,15 +451,15 @@ public class WorldFillTask implements Runnable
 			server.getScheduler().cancelTask(taskID);
 		server = null;
 
-        // go ahead and unload any chunks we still have loaded
-        // Set preventUnload to emptry first so the ChunkUnloadEvent Listener
-        // doesn't get in our way
-        Set<UnloadDependency> tempPreventUnload = preventUnload;
-        preventUnload = null;
-        for (UnloadDependency entry: tempPreventUnload)
-        {
-            world.unloadChunkRequest(entry.neededX, entry.neededZ);
-        }
+		// go ahead and unload any chunks we still have loaded
+		// Set preventUnload to emptry first so the ChunkUnloadEvent Listener
+		// doesn't get in our way
+		Set<UnloadDependency> tempPreventUnload = preventUnload;
+		preventUnload = null;
+		for (UnloadDependency entry: tempPreventUnload)
+		{
+			world.unloadChunkRequest(entry.neededX, entry.neededZ);
+		}
 	}
 
 	// is this task still valid/workable?
@@ -494,26 +494,26 @@ public class WorldFillTask implements Runnable
 	{
 		return this.paused || this.pausedForMemory;
 	}
-    
-    public boolean chunkOnUnloadPreventionList(int x, int z)
-    {
-        if (preventUnload != null)
-        {
-            for (UnloadDependency entry: preventUnload)
-            {
-                if (entry.neededX == x && entry.neededZ == z)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-    
-    public World getWorld()
-    {
-        return world;
-    }
+	
+	public boolean chunkOnUnloadPreventionList(int x, int z)
+	{
+		if (preventUnload != null)
+		{
+			for (UnloadDependency entry: preventUnload)
+			{
+				if (entry.neededX == x && entry.neededZ == z)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public World getWorld()
+	{
+		return world;
+	}
 
 	// let the user know how things are coming along
 	private void reportProgress()
