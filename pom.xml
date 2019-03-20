@@ -17,23 +17,26 @@
 
 	<repositories>
 		<repository>
-            <id>papermc</id>
-            <url>https://papermc.io/repo/repository/maven-public/</url>
-		</repository>
+			<id>spigot-repo</id>
+			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
 		<repository>
 			<id>dynmap-repo</id>
 			<url>https://repo.mikeprimm.com/</url>
 		</repository>
-	</repositories>
+		<repository>
+            <id>papermc</id>
+            <url>https://papermc.io/repo/repository/maven-public/</url>
+		</repository>
+    </repositories>
 
 	<dependencies>
 		<!--Spigot-API-->
 		<dependency>
-            <groupId>com.destroystokyo.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>1.13.2-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-		</dependency>
+			<groupId>org.spigotmc</groupId>
+			<artifactId>spigot-api</artifactId>
+			<version>1.13.1-R0.1-SNAPSHOT</version>
+        </dependency>
 		<!--Bukkit API-->
 		<dependency>
 			<groupId>org.bukkit</groupId>
@@ -46,12 +49,12 @@
 			<artifactId>dynmap-api</artifactId>
 			<version>2.5</version>
 		</dependency>
-        <dependency>
-            <groupId>io.papermc</groupId>
-            <artifactId>paperlib</artifactId>
-            <version>1.0.2</version>
-            <scope>compile</scope>
-         </dependency>        
+		<dependency>
+			<groupId>io.papermc</groupId>
+			<artifactId>paperlib</artifactId>
+			<version>1.0.2</version>
+			<scope>compile</scope>
+		 </dependency>        
 	</dependencies>
 
 	<build>
@@ -67,43 +70,45 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.1</version>
-                <configuration>
-                    <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
-                    <relocations>
-                        <relocation>
-                            <pattern>io.papermc.lib</pattern>
-                            <shadedPattern>com.wimbli.WorldBorder.paperlib</shadedPattern> <!-- Replace this -->
-                        </relocation>
-                    </relocations>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <artifactSet>
-                              <excludes>
-                                <exclude>commons-lang:commons-lang</exclude>
-                                <exclude>com.googlecode.json-simple:json-simple</exclude>
-                                <exclude>junit:junit</exclude>
-                                <exclude>org.hamcrest:hamcrest-core</exclude>
-                                <exclude>com.google.guava:guava</exclude>
-                                <exclude>com.google.code.gson:gson</exclude>
-                                <exclude>org.yaml:snakeyaml</exclude>
-                                <exclude>org.bukkit:bukkit</exclude>
-                                <exclude>us.dynmap:dynmap-api</exclude>
-                              </excludes>
-                            </artifactSet>                    
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.1.1</version>
+				<configuration>
+					<dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+					<relocations>
+						<relocation>
+							<pattern>io.papermc.lib</pattern>
+							<shadedPattern>com.wimbli.WorldBorder.paperlib</shadedPattern> <!-- Replace this -->
+						</relocation>
+					</relocations>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<artifactSet>
+							  <excludes>
+                                <exclude>org.spigotmc:spigot-api</exclude>
+								<exclude>commons-lang:commons-lang</exclude>
+								<exclude>com.googlecode.json-simple:json-simple</exclude>
+								<exclude>junit:junit</exclude>
+								<exclude>org.hamcrest:hamcrest-core</exclude>
+								<exclude>com.google.guava:guava</exclude>
+								<exclude>com.google.code.gson:gson</exclude>
+								<exclude>org.yaml:snakeyaml</exclude>
+                                <exclude>net.md-5:bungeecord-chat</exclude>
+								<exclude>org.bukkit:bukkit</exclude>
+								<exclude>us.dynmap:dynmap-api</exclude>
+							  </excludes>
+							</artifactSet>                    
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	</build>
 </project>
