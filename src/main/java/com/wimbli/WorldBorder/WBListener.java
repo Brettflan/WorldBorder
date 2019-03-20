@@ -1,5 +1,6 @@
 package com.wimbli.WorldBorder;
 
+import org.bukkit.Chunk;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -7,6 +8,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.Location;
+import org.bukkit.event.world.ChunkUnloadEvent;
 
 
 public class WBListener implements Listener
@@ -68,4 +70,24 @@ public class WBListener implements Listener
 		Config.logWarn("Border-checking task was not running! Something on your server apparently killed it. It will now be restarted.");
 		Config.StartBorderTimer();
 	}
+
+    /*
+     * Check if there is a fill task running, and if yes, if it's for the
+     * world that the unload event refers to and if the chunk should be
+     * kept in memory because generation still needs it.
+     */
+    @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent e)
+    {
+        if (Config.fillTask!=null)
+        {
+            Chunk chunk=e.getChunk();
+            if (e.getWorld() == Config.fillTask.getWorld() 
+            &&  Config.fillTask.chunkOnUnloadPreventionList(chunk.getX(), chunk.getZ()))
+            {
+                e.setCancelled(true);
+            }
+        }
+    }
+
 }
