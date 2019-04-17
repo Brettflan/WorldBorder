@@ -75,6 +75,11 @@
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>3.1.1</version>
 				<configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>io.papermc:paperlib:jar:*</include>
+                        </includes>
+                    </artifactSet>
 					<dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
 					<relocations>
 						<relocation>
@@ -89,23 +94,6 @@
 						<goals>
 							<goal>shade</goal>
 						</goals>
-						<configuration>
-							<artifactSet>
-							  <excludes>
-								<exclude>org.spigotmc:spigot-api</exclude>
-								<exclude>commons-lang:commons-lang</exclude>
-								<exclude>com.googlecode.json-simple:json-simple</exclude>
-								<exclude>junit:junit</exclude>
-								<exclude>org.hamcrest:hamcrest-core</exclude>
-								<exclude>com.google.guava:guava</exclude>
-								<exclude>com.google.code.gson:gson</exclude>
-								<exclude>org.yaml:snakeyaml</exclude>
-								<exclude>net.md-5:bungeecord-chat</exclude>
-								<exclude>org.bukkit:bukkit</exclude>
-								<exclude>us.dynmap:dynmap-api</exclude>
-							  </excludes>
-							</artifactSet>                    
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
