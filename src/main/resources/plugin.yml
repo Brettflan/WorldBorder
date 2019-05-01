@@ -1,7 +1,7 @@
 name: WorldBorder
 author: Brettflan
 description: Efficient, feature-rich plugin for limiting the size of your worlds.
-version: 1.9.0
+version: 1.9.9 (beta)
 api-version: 1.13
 main: com.wimbli.WorldBorder.WorldBorder
 softdepend:

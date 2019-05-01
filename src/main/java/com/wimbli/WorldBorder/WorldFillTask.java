@@ -1,6 +1,9 @@
 package com.wimbli.WorldBorder;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
@@ -9,12 +12,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.World;
 
+import io.papermc.lib.PaperLib;
+
 import com.wimbli.WorldBorder.Events.WorldBorderFillFinishedEvent;
 import com.wimbli.WorldBorder.Events.WorldBorderFillStartEvent;
-import io.papermc.lib.PaperLib;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 
 public class WorldFillTask implements Runnable
@@ -83,9 +84,8 @@ public class WorldFillTask implements Runnable
 		public boolean equals(Object other)
 		{
 			if (other == null || !(other instanceof UnloadDependency))
-			{
 				return false;
-			}
+
 			return this.neededX == ((UnloadDependency) other).neededX
 			   &&  this.neededZ == ((UnloadDependency) other).neededZ
 			   &&  this.forX    == ((UnloadDependency) other).forX
@@ -222,9 +222,7 @@ public class WorldFillTask implements Runnable
 				chunksToUnload.add(xz);
 			}
 			else
-			{
 				newPendingChunks.put(cf, pendingChunks.get(cf));
-			}
 		}
 		pendingChunks = newPendingChunks;
 
@@ -234,13 +232,9 @@ public class WorldFillTask implements Runnable
 		for (UnloadDependency dependency: preventUnload) 
 		{
 			if (worldData.doesChunkExist(dependency.forX, dependency.forZ)) 
-			{
 				chunksToUnload.add(new CoordXZ(dependency.neededX, dependency.neededZ));
-			}
 			else
-			{
 				newPreventUnload.add(dependency);
-			}
 		}
 		preventUnload = newPreventUnload;
 
@@ -253,9 +247,7 @@ public class WorldFillTask implements Runnable
 		for (CoordXZ unload: chunksToUnload)
 		{
 			if (!chunkOnUnloadPreventionList(unload.x, unload.z))
-			{
 				world.unloadChunkRequest(unload.x, unload.z);
-			}
 		}
 
 		// Put some damper on chunksPerRun. We don't want the queue to be too
@@ -278,9 +270,7 @@ public class WorldFillTask implements Runnable
 		{
 			// in case the task has been paused while we're repeating...
 			if (paused || pausedForMemory)
-			{
 				return;
-			}
 
 			long now = Config.Now();
 
@@ -299,9 +289,7 @@ public class WorldFillTask implements Runnable
 			while (!border.insideBorder(CoordXZ.chunkToBlock(x) + 8, CoordXZ.chunkToBlock(z) + 8))
 			{
 				if (!moveToNext())
-				{
 					return;
-				}
 			}
 			insideBorder = true;
 
@@ -314,9 +302,8 @@ public class WorldFillTask implements Runnable
 					rLoop++;
 					insideBorder = true;
 					if (!moveToNext())
-					{
 						return;
-					}
+
 					if (rLoop > 255)
 					{	// only skim through max 256 chunks (~8 region files) at a time here, to allow process to take a break if needed
 						readyToGo = true;
@@ -341,9 +328,7 @@ public class WorldFillTask implements Runnable
 
 			// move on to next chunk
 			if (!moveToNext())
-			{
 				return;
-			}
 		}
 		// ready for the next iteration to run
 		readyToGo = true;
@@ -502,9 +487,7 @@ public class WorldFillTask implements Runnable
 			for (UnloadDependency entry: preventUnload)
 			{
 				if (entry.neededX == x && entry.neededZ == z)
-				{
 					return true;
-				}
 			}
 		}
 		return false;
