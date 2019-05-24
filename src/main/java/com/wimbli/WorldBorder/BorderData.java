@@ -327,8 +327,6 @@ public class BorderData
 		safeOpenBlocks.add(Material.WALL_TORCH);
 		safeOpenBlocks.add(Material.REDSTONE_WIRE);
 		safeOpenBlocks.add(Material.WHEAT);
-		safeOpenBlocks.add(Material.SIGN);
-		safeOpenBlocks.add(Material.WALL_SIGN);
 		safeOpenBlocks.add(Material.LADDER);
 		safeOpenBlocks.add(Material.LEVER);
 		safeOpenBlocks.add(Material.LIGHT_WEIGHTED_PRESSURE_PLATE);
@@ -376,6 +374,22 @@ public class BorderData
 		safeOpenBlocks.add(Material.TALL_GRASS);
 		safeOpenBlocks.add(Material.LARGE_FERN);
 		safeOpenBlocks.add(Material.BEETROOTS);
+		try
+		{	// signs in 1.14 can be different wood types
+			safeOpenBlocks.add(Material.ACACIA_SIGN);
+			safeOpenBlocks.add(Material.ACACIA_WALL_SIGN);
+			safeOpenBlocks.add(Material.BIRCH_SIGN);
+			safeOpenBlocks.add(Material.BIRCH_WALL_SIGN);
+			safeOpenBlocks.add(Material.DARK_OAK_SIGN);
+			safeOpenBlocks.add(Material.DARK_OAK_WALL_SIGN);
+			safeOpenBlocks.add(Material.JUNGLE_SIGN);
+			safeOpenBlocks.add(Material.JUNGLE_WALL_SIGN);
+			safeOpenBlocks.add(Material.OAK_SIGN);
+			safeOpenBlocks.add(Material.OAK_WALL_SIGN);
+			safeOpenBlocks.add(Material.SPRUCE_SIGN);
+			safeOpenBlocks.add(Material.SPRUCE_WALL_SIGN);
+		}
+		catch (NoSuchFieldError ex) {}
 	}
 
 	//these material IDs are ones we don't want to drop the player onto, like cactus or lava or fire or activated Ender portal

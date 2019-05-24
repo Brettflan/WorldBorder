@@ -7,8 +7,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.Location;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.Location;
 
 
 public class WBListener implements Listener
@@ -73,21 +73,21 @@ public class WBListener implements Listener
 
 	/*
 	 * Check if there is a fill task running, and if yes, if it's for the
-	 * world that the unload event refers to and if the chunk should be
-	 * kept in memory because generation still needs it.
+	 * world that the unload event refers to, set "force loaded" flag off
+	 * and track if chunk was somehow on unload prevention list
 	 */
 	@EventHandler
 	public void onChunkUnload(ChunkUnloadEvent e)
 	{
-		if (Config.fillTask!=null)
-		{
-			Chunk chunk=e.getChunk();
-			if (e.getWorld() == Config.fillTask.getWorld() 
-			&&  Config.fillTask.chunkOnUnloadPreventionList(chunk.getX(), chunk.getZ()))
-			{
-				e.setCancelled(true);
-			}
-		}
+		if (Config.fillTask == null)
+			return;
+
+		Chunk chunk = e.getChunk();
+		if (e.getWorld() != Config.fillTask.getWorld())
+			return;
+
+		// just to be on the safe side, in case it's still set at this point somehow
+		chunk.setForceLoaded(false);
 	}
 
 }

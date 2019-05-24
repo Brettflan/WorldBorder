@@ -1,116 +1,149 @@
-package com.wimbli.WorldBorder.UUID;
-
-import com.google.common.collect.ImmutableList;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.concurrent.Callable;
-
-
 /*
- * code by evilmidget38
- * from http://forums.bukkit.org/threads/player-name-uuid-fetcher.250926/
- * slightly modified to fix name case mismatches for single name lookup
+ *  This code mostly taken from https://gist.github.com/Jofkos/d0c469528b032d820f42
  */
 
-public class UUIDFetcher implements Callable<Map<String, UUID>> 
-{
-    private static final double PROFILES_PER_REQUEST = 100;
-    private static final String PROFILE_URL = "https://api.mojang.com/profiles/minecraft";
-    private final JSONParser jsonParser = new JSONParser();
-    private final List<String> names;
-    private final boolean rateLimiting;
+package com.wimbli.WorldBorder.UUID;
 
-    public UUIDFetcher(List<String> names, boolean rateLimiting) 
-    {
-        this.names = ImmutableList.copyOf(names);
-        this.rateLimiting = rateLimiting;
-    }
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
-    public UUIDFetcher(List<String> names) 
-    {
-        this(names, true);
-    }
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-    public Map<String, UUID> call() throws Exception 
-    {
-        Map<String, UUID> uuidMap = new HashMap<String, UUID>();
-        int requests = (int) Math.ceil(names.size() / PROFILES_PER_REQUEST);
-        for (int i = 0; i < requests; i++) 
-        {
-            HttpURLConnection connection = createConnection();
-            String body = JSONArray.toJSONString(names.subList(i * 100, Math.min((i + 1) * 100, names.size())));
-            writeBody(connection, body);
-            JSONArray array = (JSONArray) jsonParser.parse(new InputStreamReader(connection.getInputStream()));
-            for (Object profile : array) 
-            {
-                JSONObject jsonProfile = (JSONObject) profile;
-                String id = (String) jsonProfile.get("id");
-                String name = (String) jsonProfile.get("name");
-                UUID uuid = UUIDFetcher.getUUID(id);
-                uuidMap.put(name.toLowerCase(), uuid);
-            }
-            if (rateLimiting && i != requests - 1) 
-            {
-                Thread.sleep(100L);
-            }
-        }
-        return uuidMap;
-    }
 
-    private static void writeBody(HttpURLConnection connection, String body) throws Exception 
-    {
-        OutputStream stream = connection.getOutputStream();
-        stream.write(body.getBytes());
-        stream.flush();
-        stream.close();
-    }
+public class UUIDFetcher {
+	
+	/**
+	 * Date when name changes were introduced
+	 * @see UUIDFetcher#getUUIDAt(String, long)
+	 */
+	public static final long FEBRUARY_2015 = 1422748800000L;
+	
+	
+	private static Gson gson = new GsonBuilder().registerTypeAdapter(UUID.class, new UUIDTypeAdapter()).create();
+	
+	private static final String UUID_URL = "https://api.mojang.com/users/profiles/minecraft/%s?at=%d";
+	private static final String NAME_URL = "https://api.mojang.com/user/profiles/%s/names";
 
-    private static HttpURLConnection createConnection() throws Exception 
-    {
-        URL url = new URL(PROFILE_URL);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setUseCaches(false);
-        connection.setDoInput(true);
-        connection.setDoOutput(true);
-        return connection;
-    }
+	private static Map<String, UUID> uuidCache = new HashMap<String, UUID>();
+	private static Map<UUID, String> nameCache = new HashMap<UUID, String>();
 
-    private static UUID getUUID(String id) 
-    {
-        return UUID.fromString(id.substring(0, 8) + "-" + id.substring(8, 12) + "-" + id.substring(12, 16) + "-" + id.substring(16, 20) + "-" +id.substring(20, 32));
-    }
+	private static ExecutorService pool = Executors.newCachedThreadPool();
+	
+	private String name;
+	private UUID id;
+		
+	/**
+	 * Fetches the uuid asynchronously and passes it to the consumer
+	 * 
+	 * @param name The name
+	 * @param action Do what you want to do with the uuid her
+	 */
+	public static void getUUID(String name, Consumer<UUID> action) {
+		pool.execute(() -> action.accept(getUUID(name)));
+	}
+	
+	/**
+	 * Fetches the uuid synchronously and returns it
+	 * 
+	 * @param name The name
+	 * @return The uuid
+	 */
+	public static UUID getUUID(String name) {
+		return getUUIDAt(name, System.currentTimeMillis());
+	}
+	
+	/**
+	 * Fetches the uuid synchronously for a specified name and time and passes the result to the consumer
+	 * 
+	 * @param name The name
+	 * @param timestamp Time when the player had this name in milliseconds
+	 * @param action Do what you want to do with the uuid her
+	 */
+	public static void getUUIDAt(String name, long timestamp, Consumer<UUID> action) {
+		pool.execute(() -> action.accept(getUUIDAt(name, timestamp)));
+	}
+	
+	/**
+	 * Fetches the uuid synchronously for a specified name and time
+	 * 
+	 * @param name The name
+	 * @param timestamp Time when the player had this name in milliseconds
+	 * @see UUIDFetcher#FEBRUARY_2015
+	 */
+	public static UUID getUUIDAt(String name, long timestamp) {
+		name = name.toLowerCase();
+		if (uuidCache.containsKey(name)) {
+			return uuidCache.get(name);
+		}
+		try {
+			HttpURLConnection connection = (HttpURLConnection) new URL(String.format(UUID_URL, name, timestamp/1000)).openConnection();
+			connection.setReadTimeout(5000);
+			UUIDFetcher data = gson.fromJson(new BufferedReader(new InputStreamReader(connection.getInputStream())), UUIDFetcher.class);
+			
+			uuidCache.put(name, data.id);
+			nameCache.put(data.id, data.name);
 
-    public static byte[] toBytes(UUID uuid) 
-    {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(new byte[16]);
-        byteBuffer.putLong(uuid.getMostSignificantBits());
-        byteBuffer.putLong(uuid.getLeastSignificantBits());
-        return byteBuffer.array();
-    }
+			return data.id;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Fetches the name asynchronously and passes it to the consumer
+	 * 
+	 * @param uuid The uuid
+	 * @param action Do what you want to do with the name her
+	 */
+	public static void getName(UUID uuid, Consumer<String> action) {
+		pool.execute(() -> action.accept(getName(uuid)));
+	}
 
-    public static UUID fromBytes(byte[] array) 
-    {
-        if (array.length != 16) {
-            throw new IllegalArgumentException("Illegal byte array length: " + array.length);
-        }
-        ByteBuffer byteBuffer = ByteBuffer.wrap(array);
-        long mostSignificant = byteBuffer.getLong();
-        long leastSignificant = byteBuffer.getLong();
-        return new UUID(mostSignificant, leastSignificant);
-    }
+	/**
+	 * Fetches the name synchronously and returns it
+	 * 
+	 * @param uuid The uuid
+	 * @return The name
+	 */
+	public static String getName(UUID uuid) {
+		if (nameCache.containsKey(uuid)) {
+			return nameCache.get(uuid);
+		}
+		try {
+			HttpURLConnection connection = (HttpURLConnection) new URL(String.format(NAME_URL, UUIDTypeAdapter.fromUUID(uuid))).openConnection();
+			connection.setReadTimeout(5000);
+			UUIDFetcher[] nameHistory = gson.fromJson(new BufferedReader(new InputStreamReader(connection.getInputStream())), UUIDFetcher[].class);
+			UUIDFetcher currentNameData = nameHistory[nameHistory.length - 1];
 
-    public static UUID getUUIDOf(String name) throws Exception 
-    {
-        return new UUIDFetcher(Arrays.asList(name)).call().get(name.toLowerCase());
-    }
+			uuidCache.put(currentNameData.name.toLowerCase(), uuid);
+			nameCache.put(uuid, currentNameData.name);
+
+			return currentNameData.name;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static Map<UUID, String> getNameList(ArrayList<UUID> uuids) {
+		Map<UUID, String> uuidStringMap = new HashMap<>();
+		for (UUID uuid: uuids) 
+		{
+			uuidStringMap.put(uuid, getName(uuid));
+		}
+		return uuidStringMap;
+	}
 }

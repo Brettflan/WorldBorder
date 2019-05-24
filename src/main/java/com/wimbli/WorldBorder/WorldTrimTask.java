@@ -363,6 +363,10 @@ public class WorldTrimTask implements Runnable
 		if (taskID != -1)
 			server.getScheduler().cancelTask(taskID);
 		server = null;
+
+		sendMessage("NOTICE: it is recommended that you restart your server after a Trim, to be on the safe side.");
+		if (DynMapFeatures.renderEnabled())
+			sendMessage("This especially true with DynMap. You should also run a fullrender in DynMap for the trimmed world after restarting, so trimmed chunks are updated on the map.");
 	}
 
 	// is this task still valid/workable?

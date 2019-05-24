@@ -247,7 +247,10 @@ public class WorldFillTask implements Runnable
 		for (CoordXZ unload: chunksToUnload)
 		{
 			if (!chunkOnUnloadPreventionList(unload.x, unload.z))
+			{
+				world.setChunkForceLoaded(unload.x, unload.z, false);
 				world.unloadChunkRequest(unload.x, unload.z);
+			}
 		}
 
 		// Put some damper on chunksPerRun. We don't want the queue to be too
@@ -312,6 +315,7 @@ public class WorldFillTask implements Runnable
 				}
 			}
 
+			world.setChunkForceLoaded(x, z, true);  // toggle "force loaded" flag on for chunk to prevent it from being unloaded while we need it
 			pendingChunks.put(PaperLib.getChunkAtAsync(world, x, z, true), new CoordXZ(x, z));
 
 			// There need to be enough nearby chunks loaded to make the server populate a chunk with trees, snow, etc.
@@ -319,10 +323,12 @@ public class WorldFillTask implements Runnable
 			int popX = !isZLeg ? x : (x + (isNeg ? -1 : 1));
 			int popZ = isZLeg ? z : (z + (!isNeg ? -1 : 1));
 
+			world.setChunkForceLoaded(popX, popZ, true);
 			pendingChunks.put(PaperLib.getChunkAtAsync(world, popX, popZ, false), new CoordXZ(popX, popZ));
 			preventUnload.add(new UnloadDependency(popX, popZ, x, z));
 			
 			// make sure the previous chunk in our spiral is loaded as well (might have already existed and been skipped over)
+			world.setChunkForceLoaded(lastChunk.x, lastChunk.z, true);
 			pendingChunks.put(PaperLib.getChunkAtAsync(world, lastChunk.x, lastChunk.z, false), new CoordXZ(lastChunk.x, lastChunk.z)); // <-- new CoordXZ as lastChunk isn't immutable
 			preventUnload.add(new UnloadDependency(lastChunk.x, lastChunk.z, x, z));
 
@@ -437,13 +443,17 @@ public class WorldFillTask implements Runnable
 		server = null;
 
 		// go ahead and unload any chunks we still have loaded
-		// Set preventUnload to emptry first so the ChunkUnloadEvent Listener
+		// Set preventUnload to empty first so the ChunkUnloadEvent Listener
 		// doesn't get in our way
-		Set<UnloadDependency> tempPreventUnload = preventUnload;
-		preventUnload = null;
-		for (UnloadDependency entry: tempPreventUnload)
+		if (preventUnload != null)
 		{
-			world.unloadChunkRequest(entry.neededX, entry.neededZ);
+			Set<UnloadDependency> tempPreventUnload = preventUnload;
+			preventUnload = null;
+			for (UnloadDependency entry: tempPreventUnload)
+			{
+				world.setChunkForceLoaded(entry.neededX, entry.neededZ, false);
+				world.unloadChunkRequest(entry.neededX, entry.neededZ);
+			}
 		}
 	}
 

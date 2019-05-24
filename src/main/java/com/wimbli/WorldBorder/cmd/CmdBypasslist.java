@@ -10,7 +10,7 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
 import com.wimbli.WorldBorder.*;
-import com.wimbli.WorldBorder.UUID.NameFetcher;
+import com.wimbli.WorldBorder.UUID.UUIDFetcher;
 
 
 public class CmdBypasslist extends WBCmd
@@ -42,8 +42,7 @@ public class CmdBypasslist extends WBCmd
 			{
 				try
 				{
-					NameFetcher fetcher = new NameFetcher(uuids);
-					Map<UUID, String> names = fetcher.call();
+					Map<UUID, String> names = UUIDFetcher.getNameList(uuids);
 					String nameString = names.values().toString();
 
 					sender.sendMessage("Players with border bypass enabled: " + nameString.substring(1, nameString.length() - 1));
