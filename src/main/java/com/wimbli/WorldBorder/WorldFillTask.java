@@ -60,7 +60,7 @@ public class WorldFillTask implements Runnable
 	private transient int reportNum = 0;
 	
 	// A map that holds to-be-loaded chunks, and their coordinates
-	private transient Map<CompletableFuture<Chunk>, CoordXZ> pendingChunks;
+	private transient Map<CompletableFuture<Void>, CoordXZ> pendingChunks;
 	
 	// and a set of "Chunk a needed for Chunk b" dependencies, which
 	// unfortunately can't be a Map as a chunk might be needed for
@@ -208,16 +208,16 @@ public class WorldFillTask implements Runnable
 		// Mark those chunks as existing and unloadable, and remove
 		// them from the pending set.
 		int chunksProcessedLastTick = 0;
-		Map<CompletableFuture<Chunk>, CoordXZ> newPendingChunks = new HashMap<>();
+		Map<CompletableFuture<Void>, CoordXZ> newPendingChunks = new HashMap<>();
 		Set<CoordXZ> chunksToUnload = new HashSet<>();
-		for (CompletableFuture<Chunk> cf: pendingChunks.keySet())
+		for (CompletableFuture<Void> cf : pendingChunks.keySet())
 		{
 			if (cf.isDone())
 			{
 				++chunksProcessedLastTick;
 				// If cf.get() returned the chunk reliably, pendingChunks could
 				// be a set and we wouldn't have to map CFs to coords ...
-				CoordXZ xz=pendingChunks.get(cf);
+				CoordXZ xz = pendingChunks.get(cf);
 				worldData.chunkExistsNow(xz.x, xz.z);
 				chunksToUnload.add(xz);
 			}
@@ -229,7 +229,7 @@ public class WorldFillTask implements Runnable
 		// Next, check which chunks had been loaded because a to-be-generated
 		// chunk needed them, and don't have to remain in memory any more.
 		Set<UnloadDependency> newPreventUnload = new HashSet<>();
-		for (UnloadDependency dependency: preventUnload) 
+		for (UnloadDependency dependency : preventUnload) 
 		{
 			if (worldData.doesChunkExist(dependency.forX, dependency.forZ)) 
 				chunksToUnload.add(new CoordXZ(dependency.neededX, dependency.neededZ));
@@ -244,7 +244,7 @@ public class WorldFillTask implements Runnable
 		// The ChunkUnloadListener checks this anyway, but it doesn't hurt to
 		// save a few µs by not even requesting the unload.
 
-		for (CoordXZ unload: chunksToUnload)
+		for (CoordXZ unload : chunksToUnload)
 		{
 			if (!chunkOnUnloadPreventionList(unload.x, unload.z))
 			{
@@ -315,21 +315,18 @@ public class WorldFillTask implements Runnable
 				}
 			}
 
-			world.setChunkForceLoaded(x, z, true);  // toggle "force loaded" flag on for chunk to prevent it from being unloaded while we need it
-			pendingChunks.put(PaperLib.getChunkAtAsync(world, x, z, true), new CoordXZ(x, z));
+			pendingChunks.put(getPaperLibChunk(world, x, z, true), new CoordXZ(x, z));
 
 			// There need to be enough nearby chunks loaded to make the server populate a chunk with trees, snow, etc.
 			// So, we keep the last few chunks loaded, and need to also temporarily load an extra inside chunk (neighbor closest to center of map)
 			int popX = !isZLeg ? x : (x + (isNeg ? -1 : 1));
 			int popZ = isZLeg ? z : (z + (!isNeg ? -1 : 1));
 
-			world.setChunkForceLoaded(popX, popZ, true);
-			pendingChunks.put(PaperLib.getChunkAtAsync(world, popX, popZ, false), new CoordXZ(popX, popZ));
+			pendingChunks.put(getPaperLibChunk(world, popX, popZ, false), new CoordXZ(popX, popZ));
 			preventUnload.add(new UnloadDependency(popX, popZ, x, z));
 			
 			// make sure the previous chunk in our spiral is loaded as well (might have already existed and been skipped over)
-			world.setChunkForceLoaded(lastChunk.x, lastChunk.z, true);
-			pendingChunks.put(PaperLib.getChunkAtAsync(world, lastChunk.x, lastChunk.z, false), new CoordXZ(lastChunk.x, lastChunk.z)); // <-- new CoordXZ as lastChunk isn't immutable
+			pendingChunks.put(getPaperLibChunk(world, lastChunk.x, lastChunk.z, false), new CoordXZ(lastChunk.x, lastChunk.z)); // <-- new CoordXZ as lastChunk isn't immutable
 			preventUnload.add(new UnloadDependency(lastChunk.x, lastChunk.z, x, z));
 
 			// move on to next chunk
@@ -602,7 +599,8 @@ public class WorldFillTask implements Runnable
 	 * 
 	 * @return Percentage
 	 */
-	public double getPercentageCompleted() {
+	public double getPercentageCompleted()
+	{
 		return ((double) (reportTotal + reportNum) / (double) reportTarget) * 100;
 	}
 
@@ -611,7 +609,8 @@ public class WorldFillTask implements Runnable
 	 * 
 	 * @return Number of chunks processed.
 	 */
-	public int getChunksCompleted() {
+	public int getChunksCompleted()
+	{
 		return reportTotal;
 	}
 
@@ -620,7 +619,23 @@ public class WorldFillTask implements Runnable
 	 * 
 	 * @return Number of chunks that need to be processed.
 	 */
-	public int getChunksTotal() {
+	public int getChunksTotal()
+	{
 		return reportTarget;
+	}
+
+	private CompletableFuture<Void> getPaperLibChunk(World world, int x, int z, boolean gen)
+	{
+		return PaperLib.getChunkAtAsync(world, x, z, gen).thenAccept( (Chunk chunk) ->
+			{
+				if (chunk != null)
+				{
+					// toggle "force loaded" flag on for chunk to prevent it from being unloaded while we need it
+					world.setChunkForceLoaded(x, z, true);
+
+					// alternatively for 1.14.4+
+					//world.addPluginChunkTicket(x, z, pluginInstance);
+				}
+			});
 	}
 }
